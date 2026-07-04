@@ -1,0 +1,79 @@
+// Registro central de ícones Hugeicons usados no projeto.
+// Mapear por string permite guardar `icon_name` no banco (categorias) e
+// resolver o componente correspondente na UI.
+import {
+  Analytics01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Hotel01Icon,
+  Calendar03Icon,
+  Cancel01Icon,
+  ChurchIcon,
+  Dumbbell01Icon,
+  Facebook01Icon,
+  FavouriteIcon,
+  File01Icon,
+  Home01Icon,
+  Image01Icon,
+  InstagramIcon,
+  Location01Icon,
+  Login03Icon,
+  Mail01Icon,
+  MapsLocation01Icon,
+  Megaphone01Icon,
+  Menu01Icon,
+  MountainIcon,
+  News01Icon,
+  Restaurant02Icon,
+  Search01Icon,
+  Settings01Icon,
+  StarIcon,
+  Tag01Icon,
+  UserGroupIcon,
+  UserIcon,
+} from '@hugeicons/core-free-icons';
+
+// Tipo do "SVG object" exportado pelo pacote de ícones.
+export type IconData = typeof Home01Icon;
+
+export const icons = {
+  Home01Icon,
+  News01Icon,
+  Calendar03Icon,
+  MountainIcon,
+  ChurchIcon,
+  Restaurant02Icon,
+  Dumbbell01Icon,
+  Hotel01Icon,
+  MapsLocation01Icon,
+  UserGroupIcon,
+  Megaphone01Icon,
+  Search01Icon,
+  Menu01Icon,
+  Cancel01Icon,
+  StarIcon,
+  FavouriteIcon,
+  UserIcon,
+  Login03Icon,
+  Settings01Icon,
+  Analytics01Icon,
+  File01Icon,
+  Tag01Icon,
+  Image01Icon,
+  Location01Icon,
+  Mail01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Facebook01Icon,
+  InstagramIcon,
+} as const;
+
+export type IconName = keyof typeof icons;
+
+// Resolve um nome (possivelmente vindo do banco) para o ícone, com fallback.
+export function resolveIcon(name: string | null | undefined, fallback: IconName = 'Tag01Icon'): IconData {
+  if (name && name in icons) {
+    return icons[name as IconName];
+  }
+  return icons[fallback];
+}
