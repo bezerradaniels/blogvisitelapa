@@ -1,8 +1,18 @@
+import Button from '@/components/Button';
 import DashboardMetricCard from '@/components/DashboardMetricCard';
+import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { formatDate } from '@/lib/utils/format';
 
 // Visão geral do admin com métricas consolidadas (função guardada por RLS/admin).
 export const dynamic = 'force-dynamic';
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
 
 interface Metrics {
   total_posts: number;
@@ -23,11 +33,27 @@ interface Metrics {
 
 export default async function AdminHomePage() {
   const supabase = await createClient();
-  const { data } = await supabase.rpc('admin_metrics_guarded');
+  const [{ data }, user] = await Promise.all([
+    supabase.rpc('admin_metrics_guarded'),
+    getCurrentUser(),
+  ]);
   const m = (data ?? {}) as Partial<Metrics>;
+  const firstName = (user?.profile?.full_name ?? 'Admin').split(' ')[0];
 
   return (
     <div className="space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-headline text-2xl font-extrabold text-title md:text-[26px]">
+            {greeting()}, {firstName}
+          </h1>
+          <p className="text-sm font-semibold text-muted">
+            {formatDate(new Date(), "EEEE, d 'de' MMMM 'de' yyyy")} · visão geral
+          </p>
+        </div>
+        <Button href="/admin/posts/novo">+ Novo post</Button>
+      </header>
+
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Conteúdo</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

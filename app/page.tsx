@@ -12,7 +12,6 @@ import {
 } from '@/features/posts/queries';
 import { siteConfig } from '@/lib/config/site';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDate } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({
   description:
@@ -20,8 +19,20 @@ export const metadata = buildMetadata({
     `de ${siteConfig.geo.city}, ${siteConfig.geo.stateCode}.`,
 });
 
-// Revalida a home periodicamente (conteúdo dinâmico, cache leve).
 export const revalidate = 120;
+
+// Caixinha de data (dia/mês) para os eventos.
+function EventDateBox({ date }: { date: string }) {
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+  return (
+    <span className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-[14px] bg-brand-soft text-brand-dark">
+      <span className="font-headline text-lg font-extrabold leading-none">{day}</span>
+      <span className="text-[10px] font-bold uppercase">{month}</span>
+    </span>
+  );
+}
 
 export default async function HomePage() {
   const [featuredList, latest, events, mostRead, guides] = await Promise.all([
@@ -36,71 +47,108 @@ export default async function HomePage() {
   const secondary = (featuredList.length > 1 ? featuredList.slice(1) : latest.slice(1, 3)).slice(0, 2);
 
   return (
-    <div className="container-page space-y-8 py-5">
-      {/* 1. Hero editorial */}
-      <section aria-label="Destaques">
-        {hero ? (
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <PostCard post={hero} variant="featured" />
+    <div className="pb-4">
+      {/* 1. Hero editorial — faixa menta */}
+      <section aria-label="Destaques" className="bg-brand-soft">
+        <div className="container-page py-8">
+          {hero ? (
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <PostCard post={hero} variant="featured" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                {secondary.map((p) => (
+                  <PostCard key={p.id} post={p} variant="compact" />
+                ))}
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {secondary.map((p) => (
-                <PostCard key={p.id} post={p} variant="compact" />
+          ) : (
+            <EmptyState
+              title="Bem-vindo ao Visite Lapa"
+              description="Ainda não há conteúdo publicado. Volte em breve para as novidades de Bom Jesus da Lapa."
+            />
+          )}
+        </div>
+      </section>
+      <div className="bush-edge-down" aria-hidden />
+
+      <div className="container-page space-y-10 pt-6">
+        {/* 2. Chips de categoria */}
+        <CategoryCarousel />
+
+        {/* Banner (contrato manual) — topo da home */}
+        <AdBanner placement="home_top" />
+
+        {/* 3. Últimas notícias */}
+        <section>
+          <SectionTitle title="Últimas notícias" href="/noticias" linkLabel="ver todas" />
+          {latest.length > 0 ? (
+            <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
+              {latest.slice(0, 8).map((p) => (
+                <PostCard key={p.id} post={p} />
               ))}
             </div>
-          </div>
-        ) : (
-          <EmptyState
-            title="Bem-vindo ao Visite Lapa"
-            description="Ainda não há conteúdo publicado. Volte em breve para as novidades de Bom Jesus da Lapa."
-          />
-        )}
-      </section>
+          ) : (
+            <EmptyState title="Sem notícias por enquanto" />
+          )}
+        </section>
 
-      {/* 2. Carrossel fixo de seções */}
-      <CategoryCarousel />
+        {/* Banner do meio */}
+        <AdBanner placement="home_middle" />
 
-      {/* Banner (contrato manual) — topo da home */}
-      <AdBanner placement="home_top" />
+        {/* 4. Próximos eventos + Mais lidas */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          <section className="lg:col-span-2">
+            <SectionTitle title="Próximos eventos" href="/eventos" linkLabel="ver agenda" />
+            {events.length > 0 ? (
+              <div className="rounded-lg border border-line bg-[#edf9f2] p-4">
+                <ul className="divide-y divide-line">
+                  {events.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/post/${p.slug}`} className="flex items-center gap-3 py-3">
+                        {p.event_start_date && <EventDateBox date={p.event_start_date} />}
+                        <span className="min-w-0">
+                          <span className="block truncate font-bold text-title">{p.title}</span>
+                          {p.event_location && (
+                            <span className="block truncate text-sm text-muted">{p.event_location}</span>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <EmptyState title="Nenhum evento agendado" description="Fique de olho na nossa agenda." />
+            )}
+          </section>
 
-      {/* 3. Últimas notícias */}
-      <section>
-        <SectionTitle title="Últimas notícias" href="/noticias" />
-        {latest.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {latest.slice(0, 8).map((p) => (
-              <PostCard key={p.id} post={p} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState title="Sem notícias por enquanto" />
-        )}
-      </section>
+          <aside>
+            <SectionTitle title="Mais lidas" />
+            <ol className="card-base divide-y divide-line">
+              {mostRead.length > 0 ? (
+                mostRead.map((p, i) => (
+                  <li key={p.id}>
+                    <Link href={`/post/${p.slug}`} className="flex items-center gap-3 p-3 hover:bg-surface">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft font-headline text-sm font-extrabold text-brand-dark">
+                        {i + 1}
+                      </span>
+                      <span className="line-clamp-2 text-sm font-bold text-title">{p.title}</span>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="p-3 text-sm text-muted">Sem dados ainda.</li>
+              )}
+            </ol>
+          </aside>
+        </div>
 
-      {/* Banner do meio */}
-      <AdBanner placement="home_middle" />
-
-      {/* 4. Eventos */}
-      <section>
-        <SectionTitle title="Próximos eventos" href="/eventos" />
-        {events.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {events.map((p) => (
-              <PostCard key={p.id} post={p} variant="compact" />
-            ))}
-          </div>
-        ) : (
-          <EmptyState title="Nenhum evento agendado" description="Fique de olho na nossa agenda." />
-        )}
-      </section>
-
-      {/* 5. Guia da cidade + 7. Mais lidas */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <section className="lg:col-span-2">
-          <SectionTitle title="Guia local" href="/categorias/guia-local" />
+        {/* 5. Guia local */}
+        <section>
+          <SectionTitle title="Guia local" href="/categorias/guia-local" linkLabel="ver guia" />
           {guides.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-[18px] sm:grid-cols-3">
               {guides.map((p) => (
                 <PostCard key={p.id} post={p} variant="compact" />
               ))}
@@ -109,43 +157,23 @@ export default async function HomePage() {
             <EmptyState title="Guia em construção" />
           )}
         </section>
-
-        <aside>
-          <SectionTitle title="Mais lidas" />
-          <ol className="card-base divide-y divide-line">
-            {mostRead.length > 0 ? (
-              mostRead.map((p, i) => (
-                <li key={p.id}>
-                  <Link href={`/post/${p.slug}`} className="flex gap-3 p-3 hover:bg-surface">
-                    <span className="font-headline text-lg font-bold text-brand">{i + 1}</span>
-                    <span>
-                      <span className="line-clamp-2 text-sm font-medium text-title">{p.title}</span>
-                      <time className="text-xs text-muted" dateTime={p.published_at ?? p.created_at}>
-                        {formatDate(p.published_at ?? p.created_at)}
-                      </time>
-                    </span>
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <li className="p-3 text-sm text-muted">Sem dados ainda.</li>
-            )}
-          </ol>
-        </aside>
       </div>
 
-      {/* 9. CTA anunciante */}
-      <section className="card-base flex flex-col items-center gap-3 bg-brand-soft px-6 py-8 text-center">
-        <h2 className="text-lg font-bold text-title md:text-xl">
-          Anuncie no maior portal de Bom Jesus da Lapa
-        </h2>
-        <p className="max-w-xl text-sm text-muted">
-          Banners, posts patrocinados, eventos patrocinados e pacotes personalizados para o seu
-          negócio alcançar moradores, romeiros e visitantes.
-        </p>
-        <Button href="/anuncie" size="lg">
-          Quero anunciar
-        </Button>
+      {/* 6. CTA anunciante — faixa menta com arbustos no topo */}
+      <div className="bush-edge-up mt-10" aria-hidden />
+      <section className="bg-brand-soft">
+        <div className="container-page flex flex-col items-center gap-3 py-10 text-center">
+          <h2 className="font-headline text-2xl font-extrabold text-title md:text-[26px]">
+            Anuncie no maior portal de Bom Jesus da Lapa
+          </h2>
+          <p className="max-w-xl text-sm text-body">
+            Banners, posts patrocinados, eventos patrocinados e pacotes personalizados para o seu
+            negócio alcançar moradores, romeiros e visitantes.
+          </p>
+          <Button href="/anuncie" size="lg" variant="accent">
+            Quero anunciar
+          </Button>
+        </div>
       </section>
     </div>
   );

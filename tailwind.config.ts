@@ -28,6 +28,15 @@ const config: Config = {
           dark: 'var(--color-brand-dark)',
           soft: 'var(--color-brand-soft)',
         },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          ink: 'var(--color-accent-ink)',
+        },
+        highlight: {
+          DEFAULT: 'var(--color-highlight)',
+          ink: 'var(--color-highlight-ink)',
+        },
+        mint2: 'var(--color-mint-2)',
         line: 'var(--color-border)',
         success: 'var(--color-success)',
         warning: 'var(--color-warning)',

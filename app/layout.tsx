@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import ChromeGate from '@/components/ChromeGate';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import JsonLd from '@/components/JsonLd';
@@ -21,9 +22,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={cn(fontHeadline.variable, fontBody.variable)}>
       <body className="min-h-screen bg-base font-body text-body antialiased">
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <Header />
+        <ChromeGate>
+          <Header />
+        </ChromeGate>
         <main className="min-h-[60vh]">{children}</main>
-        <Footer />
+        <ChromeGate>
+          <Footer />
+        </ChromeGate>
       </body>
     </html>
   );

@@ -1,16 +1,27 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils/cn';
 
-type Tone = 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info' | 'sponsored';
+type Tone =
+  | 'neutral'
+  | 'brand'
+  | 'accent'
+  | 'highlight'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'sponsored';
 
 const tones: Record<Tone, string> = {
-  neutral: 'bg-slate-100 text-slate-700',
-  brand: 'bg-brand-soft text-brand-dark',
-  success: 'bg-green-50 text-green-700',
-  warning: 'bg-amber-50 text-amber-700',
-  danger: 'bg-red-50 text-red-700',
+  neutral: 'bg-surface text-body',
+  brand: 'bg-brand text-white',
+  accent: 'bg-accent text-accent-ink',
+  highlight: 'bg-highlight text-highlight-ink',
+  success: 'bg-brand-soft text-brand-dark',
+  warning: 'bg-[#fdeed2] text-warning',
+  danger: 'bg-[#fbe0e3] text-danger',
   info: 'bg-blue-50 text-blue-700',
-  sponsored: 'bg-amber-100 text-amber-800',
+  sponsored: 'bg-highlight text-highlight-ink',
 };
 
 interface BadgeProps {
@@ -24,7 +35,7 @@ export default function Badge({ children, tone = 'neutral', className }: BadgePr
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold',
         tones[tone],
         className,
       )}

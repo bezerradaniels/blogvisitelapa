@@ -1,6 +1,7 @@
 // Cabeçalho responsivo do site.
 import Link from 'next/link';
 import Button from '@/components/Button';
+import HeaderNav from '@/components/HeaderNav';
 import Icon from '@/components/Icon';
 import MobileMenu from '@/components/MobileMenu';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -14,39 +15,29 @@ export default async function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur">
-      <div className="container-page flex h-14 items-center justify-between gap-3">
+      <div className="container-page flex h-[68px] items-center justify-between gap-3">
         {/* Logo / nome */}
         <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
-          <span className="font-headline text-lg font-extrabold tracking-tight text-title">
+          <span className="font-headline text-xl font-extrabold tracking-tight text-title">
             Visite<span className="text-brand">Lapa</span>
           </span>
         </Link>
 
         {/* Navegação desktop */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Navegação principal">
-          {desktopNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded px-2.5 py-2 text-sm font-medium text-body hover:bg-surface hover:text-brand"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <HeaderNav items={desktopNav} />
 
         {/* Ações */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <Link
             href="/busca"
             aria-label="Buscar"
-            className="flex h-10 w-10 items-center justify-center rounded text-title hover:bg-surface"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-title hover:bg-brand-soft"
           >
             <Icon icon="Search01Icon" size={20} />
           </Link>
 
           <div className="hidden md:block">
-            <Button href="/anuncie" size="sm" variant="primary">
+            <Button href="/anuncie" size="sm" variant="accent">
               Anuncie
             </Button>
           </div>
@@ -55,14 +46,14 @@ export default async function Header() {
             <Link
               href={user.isAdmin ? '/admin' : user.isPublisher ? '/publisher' : '/perfil'}
               aria-label="Minha conta"
-              className="flex h-10 w-10 items-center justify-center rounded text-title hover:bg-surface"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-title hover:bg-brand-soft"
             >
               <Icon icon="UserIcon" size={20} />
             </Link>
           ) : (
             <Link
               href="/login"
-              className="hidden rounded px-2.5 py-2 text-sm font-medium text-body hover:text-brand md:inline-block"
+              className="hidden rounded-full px-3 py-2 text-sm font-bold text-body hover:text-brand md:inline-block"
             >
               Entrar
             </Link>

@@ -81,12 +81,17 @@ export default function Comments({ postId, profileId, initialComments }: Comment
           <li className="text-sm text-muted">Ainda não há comentários aprovados.</li>
         ) : (
           initialComments.map((c) => (
-            <li key={c.id} className="card-base p-3">
-              <div className="mb-1 flex items-center gap-2 text-xs text-muted">
-                <span className="font-medium text-title">{c.author?.full_name ?? 'Leitor'}</span>
-                <time dateTime={c.created_at}>{formatDate(c.created_at)}</time>
+            <li key={c.id} className="card-base flex gap-3 p-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft font-headline text-sm font-extrabold text-brand-dark">
+                {(c.author?.full_name ?? 'L').charAt(0).toUpperCase()}
+              </span>
+              <div className="min-w-0">
+                <div className="mb-0.5 flex items-center gap-2 text-xs text-muted">
+                  <span className="font-bold text-title">{c.author?.full_name ?? 'Leitor'}</span>
+                  <time dateTime={c.created_at}>{formatDate(c.created_at)}</time>
+                </div>
+                <p className="text-sm text-body">{c.content}</p>
               </div>
-              <p className="text-sm text-body">{c.content}</p>
             </li>
           ))
         )}

@@ -42,8 +42,8 @@ export default function FavoriteButton({ postId, profileId, initialFavorited }: 
       disabled={pending}
       aria-pressed={favorited}
       className={cn(
-        'inline-flex items-center gap-2 rounded border px-3 py-2 text-sm font-medium transition-colors',
-        favorited ? 'border-brand bg-brand-soft text-brand-dark' : 'border-line text-body hover:bg-surface',
+        'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors active:scale-[0.97]',
+        favorited ? 'border-brand bg-brand-soft text-brand-dark' : 'border-brand text-brand hover:bg-brand-soft',
       )}
     >
       <Icon icon="FavouriteIcon" size={18} />

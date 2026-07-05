@@ -13,39 +13,46 @@
 */
 
 :root {
-  /* Fundos e superfícies */
-  --color-bg: #f8f9fa;
-  --color-surface: #fafafa;
+  /* Fundos e superfícies (tema "Jardim" — verde-menta) */
+  --color-bg: #f7fbf8;
+  --color-surface: #eef8f2;
   --color-card: #ffffff;
 
   /* Texto */
-  --color-title: #0a0a0a;
-  --color-body: #1e293b; /* slate-800 */
-  --color-muted: #64748b; /* slate-500/600 */
+  --color-title: #14382a; /* verde-escuro */
+  --color-body: #2c4a3d; /* verde-acinzentado */
+  --color-muted: #6b8a7c; /* verde-muted */
 
-  /* Marca (identidade local — azul do São Francisco) */
-  --color-brand: #0e7490; /* cyan-700 */
-  --color-brand-dark: #155e63;
-  --color-brand-soft: #ecfeff;
+  /* Marca (verde-menta) */
+  --color-brand: #2fa87c;
+  --color-brand-dark: #1d7a58;
+  --color-brand-soft: #def3e8;
+
+  /* Acentos do tema */
+  --color-accent: #e85a6b; /* coral — CTA "Anuncie", badge Eventos */
+  --color-accent-ink: #ffffff;
+  --color-highlight: #f2b64c; /* amarelo — badge "Guia Local", estrelas */
+  --color-highlight-ink: #5c4508;
+  --color-mint-2: #6ecfa4; /* menta secundária (footer, chips) */
 
   /* Linhas e estados */
-  --color-border: #e5e7eb; /* soft gray */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+  --color-border: #d8eee2; /* linhas esverdeadas */
+  --color-success: #1d7a58;
+  --color-warning: #b5822a;
+  --color-danger: #c74354;
   --color-info: #2563eb;
 
-  /* Raios */
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
+  /* Raios (cantos bem arredondados) */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
 
-  /* Sombra leve (sem exageros) */
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  /* Sombra SÓLIDA (não difusa) */
+  --shadow-card: 0 2px 0 rgba(20, 56, 42, 0.08);
 
   /* Fontes (fallback antes do next/font hidratar) */
-  --font-headline: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-headline: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 @layer base {
@@ -94,6 +101,15 @@
     @apply rounded-lg border border-line bg-card shadow-card;
   }
 
+  /* Cartão com elevação sólida no hover (translateY) */
+  .card-hover {
+    @apply transition-all duration-150;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 rgba(20, 56, 42, 0.09);
+  }
+
   /* Carrossel leve com scroll-snap (sem libs) */
   .snap-row {
     @apply flex gap-3 overflow-x-auto scroll-smooth pb-2;
@@ -132,7 +148,14 @@
     @apply text-brand underline underline-offset-2;
   }
   .prose-post blockquote {
-    @apply my-4 border-l-4 border-line pl-4 italic text-muted;
+    @apply my-6 rounded-[20px] bg-brand-soft px-5 py-4 text-title;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 1.1875rem;
+    line-height: 1.5;
+  }
+  .prose-post blockquote p {
+    @apply my-0;
   }
   .prose-post img {
     @apply my-4 rounded-lg;
@@ -146,4 +169,59 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ---------------------------------------------------------------------
+   Detalhes decorativos do tema "Jardim" (CSS puro, sem imagens)
+--------------------------------------------------------------------- */
+
+/* Borda de arbustos apontando para baixo (base de faixa menta) */
+.bush-edge-down {
+  height: 30px;
+  background-image: radial-gradient(closest-side circle at 50% 0, var(--color-brand-soft) 96%, transparent 100%);
+  background-size: 88px 58px;
+  background-repeat: repeat-x;
+  background-position: 0 -28px;
+  position: relative;
+}
+.bush-edge-down::after {
+  content: '';
+  display: block;
+  height: 22px;
+  margin-top: -46px;
+  background-image: radial-gradient(closest-side circle at 50% 0, #bfe8d3 96%, transparent 100%);
+  background-size: 56px 42px;
+  background-repeat: repeat-x;
+  background-position: 22px -22px;
+  opacity: 0.55;
+}
+
+/* Borda de arbustos apontando para cima (topo de faixa menta) */
+.bush-edge-up {
+  height: 30px;
+  background-image: radial-gradient(closest-side circle at 50% 100%, var(--color-brand-soft) 96%, transparent 100%);
+  background-size: 88px 58px;
+  background-repeat: repeat-x;
+  background-position: 0 2px;
+}
+
+/* "Pílula-folha": marcador dos títulos de seção */
+.leaf-pill {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: var(--color-brand);
+  border-radius: 99px 99px 99px 4px;
+}
+
+/* Blob decorativo atrás dos números das métricas do admin */
+.metric-blob {
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 99px;
+  opacity: 0.9;
+  z-index: 0;
 }

@@ -9,6 +9,16 @@ interface PostCardProps {
   variant?: 'default' | 'compact' | 'featured';
 }
 
+// Cor do selo de categoria conforme o tema "Jardim".
+type BadgeTone = 'accent' | 'highlight' | 'brand';
+function categoryTone(slug?: string | null): BadgeTone {
+  if (slug === 'eventos') return 'accent';
+  if (slug && ['onde-comer', 'onde-malhar', 'hospedagem', 'guia-local'].includes(slug)) {
+    return 'highlight';
+  }
+  return 'brand';
+}
+
 // Card de post reutilizável (listagens, home, relacionados).
 export default function PostCard({ post, variant = 'default' }: PostCardProps) {
   const href = `/post/${post.slug}`;
@@ -17,7 +27,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
   const isCompact = variant === 'compact';
 
   return (
-    <article className="group card-base overflow-hidden">
+    <article className="group card-base card-hover overflow-hidden">
       <Link href={href} className="block">
         <div className={`relative ${isCompact ? 'aspect-[16/10]' : 'aspect-[16/10]'} bg-surface`}>
           {post.cover_image_url ? (
@@ -33,7 +43,9 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
             <div className="flex h-full items-center justify-center text-muted">Sem imagem</div>
           )}
           <div className="absolute left-2 top-2 flex gap-1">
-            {post.category && <Badge tone="brand">{post.category.name}</Badge>}
+            {post.category && (
+              <Badge tone={categoryTone(post.category.slug)}>{post.category.name}</Badge>
+            )}
             {post.is_sponsored && <Badge tone="sponsored">Patrocinado</Badge>}
           </div>
         </div>

@@ -1,8 +1,16 @@
-// Carrossel fixo de seções (Onde comer, Onde malhar, Eventos, Hospedagem, Religiosidade).
+// Chips de categoria (pílulas brancas com bolinha colorida à esquerda).
 // Leve, com scroll-snap por CSS (sem dependências).
 import Link from 'next/link';
-import Icon from '@/components/Icon';
 import { listCarouselCategories } from '@/features/posts/queries';
+
+// Cores das bolinhas, no espírito "Jardim".
+const dotColors = [
+  'var(--color-accent)',
+  'var(--color-highlight)',
+  'var(--color-brand)',
+  'var(--color-mint-2)',
+  'var(--color-title)',
+];
 
 export default async function CategoryCarousel() {
   const categories = await listCarouselCategories();
@@ -11,19 +19,18 @@ export default async function CategoryCarousel() {
   return (
     <section aria-label="Seções em destaque">
       <div className="snap-row no-scrollbar">
-        {categories.map((cat) => (
+        {categories.map((cat, i) => (
           <Link
             key={cat.id}
             href={`/categorias/${cat.slug}`}
-            className="card-base flex w-40 flex-col gap-2 p-3 transition-colors hover:border-brand sm:w-48"
+            className="flex items-center gap-2 rounded-full border border-line bg-card px-4 py-2 text-sm font-bold text-title transition-colors hover:border-brand"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded bg-brand-soft text-brand-dark">
-              <Icon icon={cat.icon_name ?? 'Tag01Icon'} size={20} />
-            </span>
-            <span className="text-sm font-bold text-title">{cat.name}</span>
-            {cat.description && (
-              <span className="line-clamp-2 text-xs text-muted">{cat.description}</span>
-            )}
+            <span
+              className="h-2.5 w-2.5 rounded-full"
+              style={{ background: dotColors[i % dotColors.length] }}
+              aria-hidden
+            />
+            {cat.name}
           </Link>
         ))}
       </div>

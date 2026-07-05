@@ -53,6 +53,27 @@ export type AdPlacement =
   | 'category_top'
   | 'event_sidebar'
   | 'fixed_carousel_sponsor';
+// Comunidades (área social)
+export type CommunityStatus = 'ativa' | 'suspensa' | 'removida';
+export type CommunityRole = 'dono' | 'moderador' | 'membro';
+export type CommunityPostStatus = 'visivel' | 'removido';
+export type ReportReason = 'spam' | 'ofensivo' | 'off_topic' | 'ilegal' | 'outro';
+export type ReportStatus = 'aberta' | 'resolvida' | 'descartada';
+export type CommunityCategory =
+  | 'cidade'
+  | 'religiosidade'
+  | 'cultura'
+  | 'esportes'
+  | 'gastronomia'
+  | 'educacao'
+  | 'negocios'
+  | 'humor'
+  | 'outros';
+export type CommunityReportTarget = 'comunidade' | 'topico' | 'resposta';
+// Perfis sociais
+export type ProfileVisibility = 'publico' | 'amigos' | 'oculto';
+export type FriendshipStatus = 'pendente' | 'aceito';
+export type TestimonialStatus = 'pendente' | 'aprovado' | 'oculto';
 
 // Helper para descrever uma tabela com defaults gerados no banco.
 type WithTimestamps = {
@@ -691,6 +712,220 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['newsletter_subscribers']['Insert']>;
         Relationships: [];
       };
+      communities: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          category: CommunityCategory;
+          avatar_url: string | null;
+          cover_image_url: string | null;
+          rules: string | null;
+          member_count: number;
+          topic_count: number;
+          status: CommunityStatus;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          owner_id: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          category?: CommunityCategory;
+          avatar_url?: string | null;
+          cover_image_url?: string | null;
+          rules?: string | null;
+          member_count?: number;
+          topic_count?: number;
+          status?: CommunityStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['communities']['Insert']>;
+        Relationships: [];
+      };
+      community_members: {
+        Row: {
+          id: string;
+          community_id: string;
+          user_id: string;
+          role: CommunityRole;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          community_id: string;
+          user_id: string;
+          role?: CommunityRole;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['community_members']['Insert']>;
+        Relationships: [];
+      };
+      community_topics: {
+        Row: {
+          id: string;
+          community_id: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          content: string;
+          is_pinned: boolean;
+          is_locked: boolean;
+          reply_count: number;
+          last_activity_at: string;
+          status: CommunityPostStatus;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          community_id: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          content: string;
+          is_pinned?: boolean;
+          is_locked?: boolean;
+          reply_count?: number;
+          last_activity_at?: string;
+          status?: CommunityPostStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['community_topics']['Insert']>;
+        Relationships: [];
+      };
+      community_replies: {
+        Row: {
+          id: string;
+          topic_id: string;
+          author_id: string;
+          content: string;
+          status: CommunityPostStatus;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          topic_id: string;
+          author_id: string;
+          content: string;
+          status?: CommunityPostStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['community_replies']['Insert']>;
+        Relationships: [];
+      };
+      community_reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          target_type: CommunityReportTarget;
+          target_id: string;
+          reason: ReportReason;
+          details: string | null;
+          status: ReportStatus;
+          resolved_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          reporter_id: string;
+          target_type: CommunityReportTarget;
+          target_id: string;
+          reason: ReportReason;
+          details?: string | null;
+          status?: ReportStatus;
+          resolved_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['community_reports']['Insert']>;
+        Relationships: [];
+      };
+      profile_details: {
+        Row: {
+          profile_id: string;
+          visibility: ProfileVisibility;
+          nickname: string | null;
+          city: string | null;
+          birth_date: string | null;
+          relationship: string | null;
+          interests: string | null;
+          about: string | null;
+          cover_url: string | null;
+        } & WithTimestamps;
+        Insert: {
+          profile_id: string;
+          visibility?: ProfileVisibility;
+          nickname?: string | null;
+          city?: string | null;
+          birth_date?: string | null;
+          relationship?: string | null;
+          interests?: string | null;
+          about?: string | null;
+          cover_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['profile_details']['Insert']>;
+        Relationships: [];
+      };
+      friendships: {
+        Row: {
+          id: string;
+          requester_id: string;
+          addressee_id: string;
+          status: FriendshipStatus;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          requester_id: string;
+          addressee_id: string;
+          status?: FriendshipStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['friendships']['Insert']>;
+        Relationships: [];
+      };
+      scraps: {
+        Row: {
+          id: string;
+          profile_id: string;
+          author_id: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          author_id: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['scraps']['Insert']>;
+        Relationships: [];
+      };
+      testimonials: {
+        Row: {
+          id: string;
+          profile_id: string;
+          author_id: string;
+          content: string;
+          status: TestimonialStatus;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          profile_id: string;
+          author_id: string;
+          content: string;
+          status?: TestimonialStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['testimonials']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       active_ads: {
@@ -726,6 +961,12 @@ export interface Database {
       expire_contracts: { Args: Record<string, never>; Returns: number };
       is_admin: { Args: Record<string, never>; Returns: boolean };
       is_publisher_or_admin: { Args: Record<string, never>; Returns: boolean };
+      is_community_member: { Args: { cid: string }; Returns: boolean };
+      is_community_owner: { Args: { cid: string }; Returns: boolean };
+      is_community_moderator: { Args: { cid: string }; Returns: boolean };
+      current_profile_id: { Args: Record<string, never>; Returns: string };
+      are_friends: { Args: { a: string; b: string }; Returns: boolean };
+      can_view_profile: { Args: { target: string }; Returns: boolean };
     };
     Enums: {
       user_role: UserRole;
@@ -741,6 +982,15 @@ export interface Database {
       delivery_status: DeliveryStatus;
       ad_contract_status: AdContractStatus;
       ad_placement: AdPlacement;
+      community_status: CommunityStatus;
+      community_role: CommunityRole;
+      community_post_status: CommunityPostStatus;
+      report_reason: ReportReason;
+      report_status: ReportStatus;
+      community_category: CommunityCategory;
+      profile_visibility: ProfileVisibility;
+      friendship_status: FriendshipStatus;
+      testimonial_status: TestimonialStatus;
     };
   };
 }

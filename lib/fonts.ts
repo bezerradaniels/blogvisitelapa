@@ -1,21 +1,19 @@
-// Fontes do projeto via next/font (auto-hospedadas, sem requisição externa).
-//
-// NOTA: "Stack Sans Headline/Text" é uma fonte comercial e NÃO está no Google Fonts.
-// Usamos um par equivalente (Hanken Grotesk p/ títulos, Inter p/ corpo) exposto nas
-// variáveis CSS --font-headline / --font-body. Para adotar a Stack Sans licenciada,
-// declare os @font-face dela e sobrescreva essas duas variáveis em globals.css.
-import { Hanken_Grotesk, Inter } from 'next/font/google';
+// Fontes do tema "Jardim" via next/font (auto-hospedadas, sem requisição externa).
+// Baloo 2 (títulos, arredondada e "bold") + Nunito (corpo). Ambas gratuitas no
+// Google Fonts. Propagadas pelas variáveis --font-headline / --font-body — nenhum
+// componente precisa referenciar a fonte diretamente.
+import { Baloo_2, Nunito } from 'next/font/google';
 
-export const fontHeadline = Hanken_Grotesk({
+export const fontHeadline = Baloo_2({
   subsets: ['latin'],
   weight: ['500', '600', '700', '800'],
   variable: '--font-headline',
   display: 'swap',
 });
 
-export const fontBody = Inter({
+export const fontBody = Nunito({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '600', '700', '800'],
   variable: '--font-body',
   display: 'swap',
 });

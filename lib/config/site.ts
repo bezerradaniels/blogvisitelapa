@@ -54,6 +54,7 @@ export const mainNav = [
   { label: 'Onde Malhar', href: '/onde-malhar' },
   { label: 'Hospedagem', href: '/hospedagem' },
   { label: 'Religiosidade', href: '/religiosidade' },
+  { label: 'Comunidades', href: '/comunidades' },
   { label: 'Anuncie', href: '/anuncie' },
   { label: 'Contato', href: '/contato' },
 ] as const;
