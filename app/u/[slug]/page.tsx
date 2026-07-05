@@ -104,6 +104,11 @@ export default async function PerfilPublicoPage({ params }: Props) {
           <p className="mt-1 text-xs text-muted">
             {profile.friendCount} {profile.friendCount === 1 ? 'amigo' : 'amigos'}
           </p>
+          {(profile.role === 'publisher' || profile.role === 'admin') && (
+            <Link href={`/autor/${profile.slug}`} className="mt-1 inline-block text-sm font-bold text-brand hover:underline">
+              Ver publicações →
+            </Link>
+          )}
         </div>
         <div className="flex flex-col items-end gap-2">
           {isOwner ? (

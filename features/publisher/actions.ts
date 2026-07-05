@@ -74,6 +74,26 @@ export interface SaveResult {
 
 const nullify = (v: string) => (v.trim() === '' ? null : v.trim());
 
+// Host do Supabase Storage (único permitido no next/image). URLs de capa/galeria
+// fora desse host quebrariam a renderização — por isso são rejeitadas.
+function supabaseHost(): string | null {
+  try {
+    const u = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    return u ? new URL(u).hostname : null;
+  } catch {
+    return null;
+  }
+}
+function isSiteHostedImage(url: string): boolean {
+  const host = supabaseHost();
+  if (!host) return true; // sem config (dev), não bloqueia
+  try {
+    return new URL(url).hostname === host;
+  } catch {
+    return false;
+  }
+}
+
 export async function savePost(input: PostInput): Promise<SaveResult> {
   const user = await getCurrentUser();
   if (!user?.isPublisher || !user.profile) {
@@ -85,6 +105,18 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' };
   }
   const d = parsed.data;
+
+  // Capa e galeria são renderizadas via next/image (só o host do Supabase é
+  // permitido). Bloqueia URLs externas para não quebrar a imagem no site.
+  // A imagem social (OG) pode ser externa — só aparece em meta tags.
+  const coverToCheck = nullify(d.cover_image_url);
+  if (coverToCheck && !isSiteHostedImage(coverToCheck)) {
+    return { ok: false, error: 'A imagem de capa deve ser enviada pelo site (upload).' };
+  }
+  if (d.gallery.some((item) => !isSiteHostedImage(item.url))) {
+    return { ok: false, error: 'As imagens da galeria devem ser enviadas pelo site (upload).' };
+  }
+
   const supabase = await createClient();
 
   // Slug único (a partir do título quando vazio).
