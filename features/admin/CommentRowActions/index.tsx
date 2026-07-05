@@ -14,7 +14,8 @@ export default function CommentRowActions({ commentId, status }: CommentRowActio
   const router = useRouter();
   const [pending, start] = useTransition();
 
-  function run(action: CommentModerationAction) {
+  function run(action: CommentModerationAction, confirmMsg?: string) {
+    if (confirmMsg && !confirm(confirmMsg)) return;
     start(async () => {
       await moderateComment(commentId, action);
       router.refresh();
@@ -36,7 +37,7 @@ export default function CommentRowActions({ commentId, status }: CommentRowActio
         </button>
       )}
       {status !== 'removido' && (
-        <button disabled={pending} onClick={() => run('remover')} className={`${btn} text-danger hover:bg-surface`}>
+        <button disabled={pending} onClick={() => run('remover', 'Remover este comentário?')} className={`${btn} text-danger hover:bg-surface`}>
           Remover
         </button>
       )}

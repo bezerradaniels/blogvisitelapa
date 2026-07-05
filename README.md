@@ -69,6 +69,7 @@ npm run lint       # eslint
 Guia completo em [`docs/hostinger-deploy.md`](docs/hostinger-deploy.md). Resumo:
 
 - Node.js **24**; ponto de entrada `server.js`.
+- Configure `NODE_ENV=production` no painel da aplicação.
 - Build: `npm install && npm run build`.
 - Start: o Passenger executa `server.js` (usa `output: standalone`).
 - Configure as variáveis de ambiente no painel e o domínio de imagens do Supabase (já derivado automaticamente no `next.config.mjs`).

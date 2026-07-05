@@ -2,6 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Badge from '@/components/Badge';
+import { listUserCommunities } from '@/features/communities/queries';
+import NewMessageButton from '@/features/messages/NewMessageButton';
+import { listAlbums } from '@/features/photos/queries';
+import BlockButton from '@/features/social/BlockButton';
 import DeleteScrapButton from '@/features/social/DeleteScrapButton';
 import FriendButton from '@/features/social/FriendButton';
 import ScrapForm from '@/features/social/ScrapForm';
@@ -9,6 +13,7 @@ import TestimonialForm from '@/features/social/TestimonialForm';
 import {
   getFriendState,
   getPublicProfile,
+  hasBlocked,
   listApprovedTestimonials,
   listFriends,
   listScraps,
@@ -67,7 +72,10 @@ export default async function PerfilPublicoPage({ params }: Props) {
   if (!profile) notFound();
 
   const viewerId = viewer?.profile?.id ?? null;
-  const friendState = await getFriendState(profile.id, viewerId);
+  const [friendState, blocked] = await Promise.all([
+    getFriendState(profile.id, viewerId),
+    hasBlocked(profile.id, viewerId),
+  ]);
   const isOwner = friendState === 'self';
   const isFriend = friendState === 'friends';
   const d = profile.details;
@@ -97,18 +105,24 @@ export default async function PerfilPublicoPage({ params }: Props) {
             {profile.friendCount} {profile.friendCount === 1 ? 'amigo' : 'amigos'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-2">
           {isOwner ? (
             <Link href="/perfil" className="text-sm font-bold text-brand hover:underline">
               Editar perfil
             </Link>
           ) : (
-            <FriendButton
-              targetProfileId={profile.id}
-              state={friendState}
-              isLogged={Boolean(viewer)}
-              targetSlug={slug}
-            />
+            <>
+              <div className="flex items-center gap-2">
+                <FriendButton
+                  targetProfileId={profile.id}
+                  state={friendState}
+                  isLogged={Boolean(viewer)}
+                  targetSlug={slug}
+                />
+                {isFriend && <NewMessageButton targetProfileId={profile.id} />}
+              </div>
+              {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
+            </>
           )}
         </div>
       </div>
@@ -132,10 +146,12 @@ export default async function PerfilPublicoPage({ params }: Props) {
     );
   }
 
-  const [scraps, testimonials, friends] = await Promise.all([
+  const [scraps, testimonials, friends, albums, communities] = await Promise.all([
     listScraps(profile.id),
     listApprovedTestimonials(profile.id),
     listFriends(profile.id),
+    listAlbums(profile.id),
+    listUserCommunities(profile.id),
   ]);
 
   return (
@@ -236,8 +252,8 @@ export default async function PerfilPublicoPage({ params }: Props) {
           </section>
         </div>
 
-        {/* Amigos */}
-        <aside>
+        {/* Amigos + Fotos */}
+        <aside className="space-y-4">
           <div className="card-base p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-extrabold text-title">Amigos</h2>
@@ -253,6 +269,65 @@ export default async function PerfilPublicoPage({ params }: Props) {
               </div>
             ) : (
               <p className="text-sm text-muted">Ainda sem amigos.</p>
+            )}
+          </div>
+
+          <div className="card-base p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-extrabold text-title">Fotos</h2>
+              <Link href={`/u/${slug}/fotos`} className="text-xs font-bold text-brand hover:underline">
+                Ver álbuns
+              </Link>
+            </div>
+            {albums.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {albums.slice(0, 6).map((a) => (
+                  <Link
+                    key={a.id}
+                    href={`/u/${slug}/fotos/${a.id}`}
+                    className="relative aspect-square overflow-hidden rounded-[10px] bg-surface"
+                    title={a.title}
+                  >
+                    {a.cover_url && (
+                      <Image src={a.cover_url} alt="" fill sizes="120px" className="object-cover" />
+                    )}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted">Nenhum álbum ainda.</p>
+            )}
+          </div>
+
+          <div className="card-base p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-extrabold text-title">Comunidades</h2>
+              <Link href="/comunidades" className="text-xs font-bold text-brand hover:underline">
+                Explorar
+              </Link>
+            </div>
+            {communities.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {communities.slice(0, 9).map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/comunidades/${c.slug}`}
+                    className="flex flex-col items-center gap-1 text-center"
+                    title={c.name}
+                  >
+                    <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[12px] bg-brand-soft text-base font-extrabold text-brand-dark">
+                      {c.avatar_url ? (
+                        <Image src={c.avatar_url} alt="" fill sizes="48px" className="object-cover" />
+                      ) : (
+                        c.name.charAt(0).toUpperCase()
+                      )}
+                    </span>
+                    <span className="line-clamp-1 text-xs font-semibold text-title">{c.name}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted">Nenhuma comunidade ainda.</p>
             )}
           </div>
           {profile.role === 'admin' || profile.role === 'publisher' ? (

@@ -17,7 +17,8 @@ export default function PostRowActions({ postId, status, moderationStatus, isFea
   const router = useRouter();
   const [pending, start] = useTransition();
 
-  function run(action: PostModerationAction) {
+  function run(action: PostModerationAction, confirmMsg?: string) {
+    if (confirmMsg && !confirm(confirmMsg)) return;
     start(async () => {
       await moderatePost(postId, action);
       router.refresh();
@@ -51,7 +52,11 @@ export default function PostRowActions({ postId, status, moderationStatus, isFea
           Arquivar
         </button>
       )}
-      <button disabled={pending} onClick={() => run('remover')} className={`${btn} text-danger hover:bg-surface`}>
+      <button
+        disabled={pending}
+        onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')}
+        className={`${btn} text-danger hover:bg-surface`}
+      >
         Remover
       </button>
       <Link href={`/admin/posts/${postId}/editar`} className={`${btn} text-body hover:bg-surface`}>

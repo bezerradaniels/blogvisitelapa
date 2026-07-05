@@ -146,6 +146,19 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
 
   let postId = d.id;
 
+  // Na edição, guarda as imagens atuais para limpar as que forem substituídas.
+  let oldImageUrls: string[] = [];
+  if (d.id) {
+    const [{ data: existingPost }, { data: existingGallery }] = await Promise.all([
+      supabase.from('posts').select('cover_image_url').eq('id', d.id).maybeSingle(),
+      supabase.from('post_gallery').select('url').eq('post_id', d.id),
+    ]);
+    oldImageUrls = [
+      existingPost?.cover_image_url ?? null,
+      ...(existingGallery ?? []).map((g) => g.url),
+    ].filter((u): u is string => Boolean(u));
+  }
+
   if (d.id) {
     // Edição: não reatribui o autor (admin pode editar post de terceiros).
     const update: TablesUpdate<'posts'> = { ...payload };
@@ -165,6 +178,18 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
 
   await syncTags(supabase, postId, d.tags);
   await syncGallery(supabase, postId, d.gallery);
+
+  // Remove do Storage a capa/galeria que deixaram de ser referenciadas.
+  if (oldImageUrls.length > 0) {
+    const keep = new Set<string>();
+    const newCover = nullify(d.cover_image_url);
+    if (newCover) keep.add(newCover);
+    const newSocial = nullify(d.social_image_url);
+    if (newSocial) keep.add(newSocial);
+    for (const item of d.gallery) keep.add(item.url);
+    const orphans = oldImageUrls.filter((u) => !keep.has(u));
+    if (orphans.length > 0) await removeOrphanFiles(supabase, orphans);
+  }
 
   revalidatePath('/');
   revalidatePath('/publisher');
@@ -222,6 +247,37 @@ async function syncTags(supabase: ServerClient, postId: string, raw: string) {
 
   if (tagIds.length > 0) {
     await supabase.from('post_tags').insert(tagIds.map((tag_id) => ({ post_id: postId, tag_id })));
+  }
+}
+
+// Buckets cujos arquivos pertencem ao post e podem ser removidos com segurança
+// quando deixam de ser referenciados (evita deletar assets de outras áreas).
+const POST_BUCKETS = new Set(['post-covers', 'post-gallery']);
+
+// Extrai { bucket, path } de uma URL pública do Supabase Storage.
+function parsePublicUrl(url: string): { bucket: string; path: string } | null {
+  const marker = '/storage/v1/object/public/';
+  const i = url.indexOf(marker);
+  if (i === -1) return null;
+  const rest = url.slice(i + marker.length).split('?')[0] ?? '';
+  const slash = rest.indexOf('/');
+  if (slash === -1) return null;
+  return { bucket: rest.slice(0, slash), path: rest.slice(slash + 1) };
+}
+
+// Remove do Storage os arquivos que ficaram órfãos (capa/galeria substituídas).
+// Só apaga arquivos dos buckets do post; ignora o resto silenciosamente.
+async function removeOrphanFiles(supabase: ServerClient, urls: string[]) {
+  const byBucket = new Map<string, string[]>();
+  for (const url of urls) {
+    const parsed = parsePublicUrl(url);
+    if (!parsed || !POST_BUCKETS.has(parsed.bucket) || !parsed.path) continue;
+    const list = byBucket.get(parsed.bucket) ?? [];
+    list.push(parsed.path);
+    byBucket.set(parsed.bucket, list);
+  }
+  for (const [bucket, paths] of byBucket) {
+    if (paths.length > 0) await supabase.storage.from(bucket).remove(paths);
   }
 }
 

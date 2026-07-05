@@ -1,6 +1,6 @@
 # Deploy no Hostinger (Node.js)
 
-O projeto usa `output: 'standalone'` e um `server.js` na raiz — o Passenger do Hostinger executa esse arquivo automaticamente.
+O projeto usa `output: 'standalone'` e um `server.js` na raiz — o Passenger do Hostinger executa esse arquivo automaticamente. Esse `server.js` carrega o servidor gerado em `.next/standalone/server.js`.
 
 ## Requisitos
 
@@ -14,6 +14,7 @@ O projeto usa `output: 'standalone'` e um `server.js` na raiz — o Passenger do
    - Versão do Node: **24**
    - Arquivo de inicialização / *Application startup file*: `server.js`
    - Pasta raiz: a pasta do projeto
+   - Ambiente: `NODE_ENV=production`
 3. **Variáveis de ambiente** (painel da aplicação): copie de `.env.example`
    - `NEXT_PUBLIC_SITE_URL` = seu domínio (ex.: `https://www.visitelapa.com.br`)
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -43,6 +44,7 @@ O `next.config.mjs` libera automaticamente o host do Supabase Storage a partir d
 
 - [ ] Node 24 selecionado.
 - [ ] `server.js` como arquivo de inicialização.
+- [ ] `NODE_ENV=production` configurado.
 - [ ] Todas as variáveis de ambiente configuradas.
 - [ ] `npm run build` concluído sem erros.
 - [ ] `NEXT_PUBLIC_SITE_URL` = domínio final (canonical/sitemap/RSS dependem disso).

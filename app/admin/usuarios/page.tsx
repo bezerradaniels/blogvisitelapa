@@ -1,12 +1,13 @@
 import EmptyState from '@/components/EmptyState';
 import UserRowControl from '@/features/admin/UserRowControl';
+import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminUsuariosPage() {
-  const supabase = await createClient();
+  const [current, supabase] = await Promise.all([getCurrentUser(), createClient()]);
   const { data } = await supabase
     .from('profiles')
     .select('id, full_name, slug, role, status, created_at')
@@ -40,7 +41,12 @@ export default async function AdminUsuariosPage() {
                   <td className="p-3 font-medium text-title">{u.full_name ?? '—'}</td>
                   <td className="p-3 text-muted">{formatDate(u.created_at)}</td>
                   <td className="p-3">
-                    <UserRowControl profileId={u.id} role={u.role} status={u.status} />
+                    <UserRowControl
+                      profileId={u.id}
+                      role={u.role}
+                      status={u.status}
+                      isSelf={u.id === current?.profile?.id}
+                    />
                   </td>
                 </tr>
               ))}

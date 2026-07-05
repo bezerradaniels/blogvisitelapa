@@ -74,6 +74,12 @@ export type CommunityReportTarget = 'comunidade' | 'topico' | 'resposta';
 export type ProfileVisibility = 'publico' | 'amigos' | 'oculto';
 export type FriendshipStatus = 'pendente' | 'aceito';
 export type TestimonialStatus = 'pendente' | 'aprovado' | 'oculto';
+export type NotificationType =
+  | 'amizade_pedido'
+  | 'amizade_aceita'
+  | 'recado'
+  | 'depoimento'
+  | 'mensagem';
 
 // Helper para descrever uma tabela com defaults gerados no banco.
 type WithTimestamps = {
@@ -926,6 +932,112 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['testimonials']['Insert']>;
         Relationships: [];
       };
+      blocks: {
+        Row: { id: string; blocker_id: string; blocked_id: string; created_at: string };
+        Insert: { id?: string; blocker_id: string; blocked_id: string; created_at?: string };
+        Update: Partial<Database['public']['Tables']['blocks']['Insert']>;
+        Relationships: [];
+      };
+      conversations: {
+        Row: {
+          id: string;
+          participant_a: string;
+          participant_b: string;
+          last_message_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          participant_a: string;
+          participant_b: string;
+          last_message_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['conversations']['Insert']>;
+        Relationships: [];
+      };
+      messages: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          conversation_id: string;
+          sender_id: string;
+          content: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['messages']['Insert']>;
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          recipient_id: string;
+          actor_id: string | null;
+          type: NotificationType;
+          entity_id: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          recipient_id: string;
+          actor_id?: string | null;
+          type: NotificationType;
+          entity_id?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['notifications']['Insert']>;
+        Relationships: [];
+      };
+      photo_albums: {
+        Row: {
+          id: string;
+          profile_id: string;
+          title: string;
+          cover_url: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          profile_id: string;
+          title: string;
+          cover_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['photo_albums']['Insert']>;
+        Relationships: [];
+      };
+      photos: {
+        Row: {
+          id: string;
+          album_id: string;
+          profile_id: string;
+          url: string;
+          caption: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          album_id: string;
+          profile_id: string;
+          url: string;
+          caption?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['photos']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       active_ads: {
@@ -967,6 +1079,12 @@ export interface Database {
       current_profile_id: { Args: Record<string, never>; Returns: string };
       are_friends: { Args: { a: string; b: string }; Returns: boolean };
       can_view_profile: { Args: { target: string }; Returns: boolean };
+      is_blocked: { Args: { a: string; b: string }; Returns: boolean };
+      is_conversation_participant: { Args: { cid: string }; Returns: boolean };
+      push_notification: {
+        Args: { p_recipient: string; p_type: NotificationType; p_entity: string | null };
+        Returns: undefined;
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -991,6 +1109,7 @@ export interface Database {
       profile_visibility: ProfileVisibility;
       friendship_status: FriendshipStatus;
       testimonial_status: TestimonialStatus;
+      notification_type: NotificationType;
     };
   };
 }
