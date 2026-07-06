@@ -3,15 +3,8 @@
 // Ações admin para contratos de publicidade (recurso central).
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
+import { adminGuard } from '@/lib/auth/adminGuard';
 import type { AdContractStatus } from '@/types/database';
-
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin || !user.profile) return null;
-  return { supabase: await createClient(), profileId: user.profile.id };
-}
 
 const contractSchema = z.object({
   id: z.string().uuid().optional(),
@@ -41,7 +34,7 @@ const contractSchema = z.object({
 export type ContractInput = z.input<typeof contractSchema>;
 
 export async function saveContract(input: ContractInput) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };
 
   const parsed = contractSchema.safeParse(input);
@@ -101,7 +94,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export async function setContractStatus(id: string, status: AdContractStatus) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false };
   await ctx.supabase.from('ad_contracts').update({ status, updated_by: ctx.profileId }).eq('id', id);
   await ctx.supabase.from('contract_history').insert({
@@ -115,7 +108,7 @@ export async function setContractStatus(id: string, status: AdContractStatus) {
 }
 
 export async function deleteContract(id: string) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false };
   await ctx.supabase.from('ad_contracts').delete().eq('id', id);
   revalidatePath('/admin/contratos');

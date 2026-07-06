@@ -12,7 +12,7 @@
     "postbuild": "node scripts/prepare-standalone.mjs",
     "start": "node server.js",
     "server": "node server.js",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -3,15 +3,8 @@
 // Ações admin para categorias e tags.
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
+import { adminGuard } from '@/lib/auth/adminGuard';
 import { slugify } from '@/lib/utils/format';
-
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin) return null;
-  return await createClient();
-}
 
 const categorySchema = z.object({
   id: z.string().uuid().optional(),
@@ -28,8 +21,9 @@ const categorySchema = z.object({
 export type CategoryInput = z.input<typeof categorySchema>;
 
 export async function saveCategory(input: CategoryInput) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false, error: 'Acesso restrito.' };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const { supabase } = ctx;
 
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
@@ -57,16 +51,18 @@ export async function saveCategory(input: CategoryInput) {
 }
 
 export async function deleteCategory(id: string) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false };
+  const { supabase } = ctx;
   await supabase.from('categories').delete().eq('id', id);
   revalidatePath('/admin/categorias');
   return { ok: true };
 }
 
 export async function saveTag(input: { id?: string; name: string }) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false, error: 'Acesso restrito.' };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const { supabase } = ctx;
   const name = input.name.trim();
   if (name.length < 2) return { ok: false, error: 'Informe o nome da tag.' };
   const slug = slugify(name);
@@ -80,8 +76,9 @@ export async function saveTag(input: { id?: string; name: string }) {
 }
 
 export async function deleteTag(id: string) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false };
+  const { supabase } = ctx;
   await supabase.from('tags').delete().eq('id', id);
   revalidatePath('/admin/tags');
   return { ok: true };

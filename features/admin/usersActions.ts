@@ -2,8 +2,7 @@
 
 // Ações admin para papéis e status de usuários.
 import { revalidatePath } from 'next/cache';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
+import { adminGuard } from '@/lib/auth/adminGuard';
 import type { AccountStatus, UserRole } from '@/types/database';
 
 interface ActionResult {
@@ -11,19 +10,13 @@ interface ActionResult {
   error?: string;
 }
 
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin || !user.profile) return null;
-  const supabase = await createClient();
-  return { supabase, selfProfileId: user.profile.id };
-}
-
 export async function setUserRole(profileId: string, role: UserRole): Promise<ActionResult> {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const selfProfileId = ctx.profileId;
 
   // Impede o admin de remover o próprio acesso de administrador.
-  if (profileId === ctx.selfProfileId && role !== 'admin') {
+  if (profileId === selfProfileId && role !== 'admin') {
     return { ok: false, error: 'Você não pode remover o seu próprio acesso de administrador.' };
   }
 
@@ -37,11 +30,12 @@ export async function setUserStatus(
   profileId: string,
   status: AccountStatus,
 ): Promise<ActionResult> {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const selfProfileId = ctx.profileId;
 
   // Impede o admin de desativar a própria conta.
-  if (profileId === ctx.selfProfileId && status !== 'active') {
+  if (profileId === selfProfileId && status !== 'active') {
     return { ok: false, error: 'Você não pode desativar a sua própria conta.' };
   }
 

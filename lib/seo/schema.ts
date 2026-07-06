@@ -124,8 +124,3 @@ export function eventSchema(post: PostWithRelations): JsonLd | null {
       : undefined,
   };
 }
-
-// Componente utilitário para injetar JSON-LD.
-export function jsonLdScript(data: JsonLd | JsonLd[]): string {
-  return JSON.stringify(data);
-}

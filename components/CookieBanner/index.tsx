@@ -19,12 +19,16 @@ export default function CookieBanner() {
 
   // Só decide a visibilidade no cliente (evita mismatch de hidratação).
   useEffect(() => {
+    let hasConsent = false;
     try {
-      if (!window.localStorage.getItem(STORAGE_KEY)) setVisible(true);
+      hasConsent = Boolean(window.localStorage.getItem(STORAGE_KEY));
     } catch {
-      // Se o storage estiver indisponível, mostra o aviso mesmo assim.
-      setVisible(true);
+      // Storage indisponível → trata como sem consentimento (mostra o aviso).
     }
+    // Leitura única do localStorage no mount: precisa rodar só no cliente, por
+    // isso o setState mora no efeito (padrão aceito de sincronizar estado externo).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!hasConsent) setVisible(true);
   }, []);
 
   function decide(choice: 'accepted' | 'rejected') {

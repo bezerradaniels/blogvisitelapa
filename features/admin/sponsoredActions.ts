@@ -2,24 +2,18 @@
 
 // Ações admin para patrocínios (artigos e eventos patrocinados).
 import { revalidatePath } from 'next/cache';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
+import { adminGuard } from '@/lib/auth/adminGuard';
 
 export type SponsoredKind = 'article' | 'event';
-
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin) return null;
-  return await createClient();
-}
 
 function pathFor(kind: SponsoredKind) {
   return kind === 'article' ? '/admin/publieditoriais' : '/admin/eventos-patrocinados';
 }
 
 export async function addSponsored(kind: SponsoredKind, postId: string, label: string) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false, error: 'Acesso restrito.' };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const { supabase } = ctx;
   if (!postId) return { ok: false, error: 'Selecione um post.' };
 
   const defaultLabel = kind === 'article' ? 'Conteúdo patrocinado' : 'Evento patrocinado';
@@ -38,8 +32,9 @@ export async function addSponsored(kind: SponsoredKind, postId: string, label: s
 }
 
 export async function toggleSponsored(kind: SponsoredKind, id: string, isActive: boolean) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false };
+  const { supabase } = ctx;
   if (kind === 'article') {
     await supabase.from('sponsored_articles').update({ is_active: isActive }).eq('id', id);
   } else {
@@ -50,8 +45,9 @@ export async function toggleSponsored(kind: SponsoredKind, id: string, isActive:
 }
 
 export async function removeSponsored(kind: SponsoredKind, id: string) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false };
+  const { supabase } = ctx;
   if (kind === 'article') {
     await supabase.from('sponsored_articles').delete().eq('id', id);
   } else {

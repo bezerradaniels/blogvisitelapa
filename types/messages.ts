@@ -2,7 +2,6 @@
 import type { Tables } from './database';
 import type { CommunityProfile } from './communities';
 
-export type Conversation = Tables<'conversations'>;
 export type Message = Tables<'messages'>;
 
 // Conversa com o outro participante resolvido + prévia e não-lidas.

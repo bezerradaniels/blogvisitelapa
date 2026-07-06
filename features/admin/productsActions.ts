@@ -3,14 +3,7 @@
 // Ações admin para produtos comerciais avulsos.
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
-
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin) return null;
-  return await createClient();
-}
+import { adminGuard } from '@/lib/auth/adminGuard';
 
 const productSchema = z.object({
   id: z.string().uuid().optional(),
@@ -27,8 +20,9 @@ const productSchema = z.object({
 export type ProductInput = z.input<typeof productSchema>;
 
 export async function saveProduct(input: ProductInput) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false, error: 'Acesso restrito.' };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const { supabase } = ctx;
 
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
@@ -55,8 +49,9 @@ export async function saveProduct(input: ProductInput) {
 }
 
 export async function deleteProduct(id: string) {
-  const supabase = await guard();
-  if (!supabase) return { ok: false };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false };
+  const { supabase } = ctx;
   await supabase.from('standalone_products').delete().eq('id', id);
   revalidatePath('/admin/produtos-avulsos');
   return { ok: true };

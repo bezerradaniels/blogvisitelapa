@@ -3,7 +3,6 @@ import type { Tables } from './database';
 import type { CommunityProfile } from './communities';
 
 export type ProfileDetails = Tables<'profile_details'>;
-export type Friendship = Tables<'friendships'>;
 export type Scrap = Tables<'scraps'>;
 export type Testimonial = Tables<'testimonials'>;
 
