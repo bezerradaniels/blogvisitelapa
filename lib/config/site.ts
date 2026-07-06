@@ -65,6 +65,7 @@ export const footerNav = {
     { label: 'Sobre', href: '/sobre' },
     { label: 'Política editorial', href: '/politica-editorial' },
     { label: 'Política de privacidade', href: '/politica-de-privacidade' },
+    { label: 'Política de cookies', href: '/politica-de-cookies' },
     { label: 'Termos de uso', href: '/termos-de-uso' },
   ],
   secoes: [

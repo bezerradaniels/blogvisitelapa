@@ -3,14 +3,7 @@
 // Ações admin para clientes comerciais e histórico (CRM).
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { getCurrentUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
-
-async function guard() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin || !user.profile) return null;
-  return { supabase: await createClient(), profileId: user.profile.id };
-}
+import { adminGuard } from '@/lib/auth/adminGuard';
 
 const clientSchema = z.object({
   id: z.string().uuid().optional(),
@@ -27,7 +20,7 @@ const clientSchema = z.object({
 export type ClientInput = z.input<typeof clientSchema>;
 
 export async function saveClient(input: ClientInput) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };
 
   const parsed = clientSchema.safeParse(input);
@@ -55,7 +48,7 @@ export async function saveClient(input: ClientInput) {
 }
 
 export async function deleteClient(id: string) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false };
   await ctx.supabase.from('commercial_clients').delete().eq('id', id);
   revalidatePath('/admin/clientes-comerciais');
@@ -66,7 +59,7 @@ export async function addClientHistory(
   clientId: string,
   input: { entry_type: string; title: string; content: string },
 ) {
-  const ctx = await guard();
+  const ctx = await adminGuard();
   if (!ctx) return { ok: false };
   await ctx.supabase.from('client_history').insert({
     client_id: clientId,

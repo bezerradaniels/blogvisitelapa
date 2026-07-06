@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PostCard from '@/components/PostCard';
 import EmptyState from '@/components/EmptyState';
@@ -50,9 +51,13 @@ export default async function AutorPage({ params }: Props) {
     .limit(24);
   const posts = (data ?? []) as unknown as PostWithRelations[];
 
+  // Sem publicações, não é uma página de autor de fato: evita conteúdo raso
+  // e páginas de autor indexáveis para cada usuário comum.
+  if (posts.length === 0) notFound();
+
   return (
     <div className="container-page py-8">
-      <header className="mb-6 flex items-center gap-4">
+      <header className="mb-6 flex flex-wrap items-center gap-4">
         {author.avatar_url && (
           <Image
             src={author.avatar_url}
@@ -68,6 +73,11 @@ export default async function AutorPage({ params }: Props) {
             {author.role === 'admin' ? 'Editor' : 'Colaborador'}
           </p>
           {author.bio && <p className="mt-1 max-w-2xl text-sm text-muted">{author.bio}</p>}
+          {author.slug && (
+            <Link href={`/u/${author.slug}`} className="mt-2 inline-block text-sm font-bold text-brand hover:underline">
+              Ver perfil →
+            </Link>
+          )}
         </div>
       </header>
 

@@ -3,22 +3,13 @@
 // Server Actions administrativas (moderação). Sempre exigem admin (checagem +
 // RLS). Registram trilha de auditoria.
 import { revalidatePath } from 'next/cache';
-import { getCurrentUser } from '@/lib/auth/session';
+import { adminGuard } from '@/lib/auth/adminGuard';
 import { createClient } from '@/lib/supabase/server';
 import type { TablesUpdate } from '@/types/database';
 
 export interface AdminActionResult {
   ok: boolean;
   error?: string;
-}
-
-async function requireAdminClient() {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin || !user.profile) {
-    return { user: null, supabase: null, error: 'Acesso restrito a administradores.' as const };
-  }
-  const supabase = await createClient();
-  return { user, supabase, error: null };
 }
 
 async function logAudit(
@@ -50,10 +41,11 @@ export async function moderatePost(
   postId: string,
   action: PostModerationAction,
 ): Promise<AdminActionResult> {
-  const { user, supabase, error } = await requireAdminClient();
-  if (!user || !supabase) return { ok: false, error };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito a administradores.' };
+  const { supabase, profileId } = ctx;
 
-  const update: TablesUpdate<'posts'> = { reviewed_by: user.profile!.id };
+  const update: TablesUpdate<'posts'> = { reviewed_by: profileId };
 
   switch (action) {
     case 'publicar':
@@ -92,7 +84,7 @@ export async function moderatePost(
   const { error: err } = await supabase.from('posts').update(update).eq('id', postId);
   if (err) return { ok: false, error: 'Não foi possível atualizar o post.' };
 
-  await logAudit(supabase, user.profile!.id, `post.${action}`, 'posts', postId);
+  await logAudit(supabase, profileId, `post.${action}`, 'posts', postId);
 
   revalidatePath('/admin/posts');
   revalidatePath('/');
@@ -105,8 +97,9 @@ export async function moderateComment(
   commentId: string,
   action: CommentModerationAction,
 ): Promise<AdminActionResult> {
-  const { user, supabase, error } = await requireAdminClient();
-  if (!user || !supabase) return { ok: false, error };
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito a administradores.' };
+  const { supabase, profileId } = ctx;
 
   const status =
     action === 'aprovar' ? 'aprovado' : action === 'rejeitar' ? 'rejeitado' : 'removido';
@@ -117,7 +110,7 @@ export async function moderateComment(
     .eq('id', commentId);
   if (err) return { ok: false, error: 'Não foi possível moderar o comentário.' };
 
-  await logAudit(supabase, user.profile!.id, `comment.${action}`, 'comments', commentId);
+  await logAudit(supabase, profileId, `comment.${action}`, 'comments', commentId);
 
   revalidatePath('/admin/comentarios');
   return { ok: true };

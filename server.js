@@ -1,29 +1,23 @@
-// Servidor Next.js customizado.
-// O Hostinger (hospedagem Node.js com Passenger) procura um ponto de entrada
-// na raiz do projeto. Este arquivo inicia o Next em modo produção.
-//
-// Fluxo no Hostinger:
-//   1. npm install
-//   2. npm run build   (gera a pasta .next)
-//   3. Passenger executa este server.js automaticamente
-const { createServer } = require('http');
-const { parse } = require('url');
-const next = require('next');
+// Ponto de entrada para o Passenger/Hostinger.
+// O build usa `output: 'standalone'`, entao o servidor correto e o gerado em
+// `.next/standalone/server.js`. Use `npm run dev` para desenvolvimento local.
+const fs = require('fs');
+const path = require('path');
 
-const dev = process.env.NODE_ENV !== 'production';
-const hostname = process.env.HOST || '0.0.0.0';
-// O Passenger define a PORT via variável de ambiente.
-const port = parseInt(process.env.PORT, 10) || 3000;
+process.env.NODE_ENV = 'production';
 
-const app = next({ dev, hostname, port });
-const handle = app.getRequestHandler();
+// O servidor standalone do Next le HOSTNAME; algumas hospedagens expõem HOST.
+if (process.env.HOST && !process.env.HOSTNAME) {
+  process.env.HOSTNAME = process.env.HOST;
+}
 
-app.prepare().then(() => {
-  createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
-  }).listen(port, (err) => {
-    if (err) throw err;
-    console.log(`> Pronto em http://${hostname}:${port}`);
-  });
-});
+const standaloneServer = path.join(__dirname, '.next', 'standalone', 'server.js');
+
+if (!fs.existsSync(standaloneServer)) {
+  console.error(
+    'Build standalone nao encontrado. Rode `npm install` e `npm run build` antes de iniciar a aplicacao.',
+  );
+  process.exit(1);
+}
+
+require(standaloneServer);

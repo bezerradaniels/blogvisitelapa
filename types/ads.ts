@@ -1,9 +1,5 @@
 // Tipos de domínio de publicidade.
-import type { AdPlacement, Tables } from './database';
-
-export type AdContract = Tables<'ad_contracts'>;
-export type StandaloneProduct = Tables<'standalone_products'>;
-export type CommercialClient = Tables<'commercial_clients'>;
+import type { AdPlacement } from './database';
 
 export type { AdPlacement };
 

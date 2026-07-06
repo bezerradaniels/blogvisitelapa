@@ -10,6 +10,7 @@ export type UploadBucket =
   | 'post-gallery'
   | 'ad-banners'
   | 'user-avatars'
+  | 'user-photos'
   | 'sponsored-content';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB

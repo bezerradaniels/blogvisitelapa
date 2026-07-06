@@ -8,8 +8,8 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     '/', '/noticias', '/eventos', '/onde-comer', '/onde-malhar', '/hospedagem',
-    '/religiosidade', '/anuncie', '/contato', '/sobre', '/politica-editorial',
-    '/politica-de-privacidade', '/termos-de-uso',
+    '/religiosidade', '/comunidades', '/anuncie', '/contato', '/sobre', '/politica-editorial',
+    '/politica-de-privacidade', '/politica-de-cookies', '/termos-de-uso',
   ].map((path) => ({
     url: absoluteUrl(path),
     lastModified: new Date(),

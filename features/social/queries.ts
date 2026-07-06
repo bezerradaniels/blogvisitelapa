@@ -139,6 +139,22 @@ export async function listPendingTestimonials(profileId: string): Promise<Testim
   return (data ?? []) as unknown as TestimonialWithAuthor[];
 }
 
+// Se o viewer bloqueou o alvo (para o botão de bloquear).
+export async function hasBlocked(
+  targetProfileId: string,
+  viewerProfileId: string | null,
+): Promise<boolean> {
+  if (!viewerProfileId) return false;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('blocks')
+    .select('id')
+    .eq('blocker_id', viewerProfileId)
+    .eq('blocked_id', targetProfileId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
 // Pedidos de amizade recebidos (pendentes).
 export async function listFriendRequests(profileId: string): Promise<CommunityProfile[]> {
   const supabase = await createClient();

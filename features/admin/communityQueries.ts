@@ -43,12 +43,3 @@ export async function listReports(filter = 'abertas'): Promise<AdminReportRow[]>
   const { data } = await query;
   return (data ?? []) as unknown as AdminReportRow[];
 }
-
-export async function countOpenReports(): Promise<number> {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from('community_reports')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'aberta');
-  return count ?? 0;
-}

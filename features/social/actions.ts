@@ -129,6 +129,11 @@ export async function sendFriendRequest(targetProfileId: string): Promise<Action
   if (existing) {
     if (existing.status === 'pendente' && existing.addressee_id === profileId) {
       await supabase.from('friendships').update({ status: 'aceito' }).eq('id', existing.id);
+      await supabase.rpc('push_notification', {
+        p_recipient: targetProfileId,
+        p_type: 'amizade_aceita',
+        p_entity: null,
+      });
     }
     return { ok: true };
   }
@@ -137,6 +142,11 @@ export async function sendFriendRequest(targetProfileId: string): Promise<Action
     .from('friendships')
     .insert({ requester_id: profileId, addressee_id: targetProfileId });
   if (err) return { ok: false, error: 'Não foi possível enviar o pedido.' };
+  await supabase.rpc('push_notification', {
+    p_recipient: targetProfileId,
+    p_type: 'amizade_pedido',
+    p_entity: null,
+  });
   return { ok: true };
 }
 
@@ -151,6 +161,11 @@ export async function acceptFriendRequest(requesterProfileId: string): Promise<A
     .eq('addressee_id', profileId)
     .eq('status', 'pendente');
   if (err) return { ok: false, error: 'Não foi possível aceitar o pedido.' };
+  await supabase.rpc('push_notification', {
+    p_recipient: requesterProfileId,
+    p_type: 'amizade_aceita',
+    p_entity: null,
+  });
   revalidatePath('/perfil');
   return { ok: true };
 }
@@ -190,6 +205,7 @@ export async function postScrap(
     .from('scraps')
     .insert({ profile_id: profileId, author_id: me, content: parsed.data.content.trim() });
   if (err) return { ok: false, error: 'Não foi possível enviar o recado (só amigos podem postar).' };
+  await supabase.rpc('push_notification', { p_recipient: profileId, p_type: 'recado', p_entity: null });
   return { ok: true };
 }
 
@@ -224,6 +240,7 @@ export async function postTestimonial(
   if (err) {
     return { ok: false, error: 'Não foi possível enviar o depoimento (só amigos podem escrever).' };
   }
+  await supabase.rpc('push_notification', { p_recipient: profileId, p_type: 'depoimento', p_entity: null });
   return { ok: true };
 }
 
@@ -253,5 +270,41 @@ export async function deleteTestimonial(id: string): Promise<ActionResult> {
   const { error: err } = await supabase.from('testimonials').delete().eq('id', id);
   if (err) return { ok: false, error: 'Não foi possível remover o depoimento.' };
   revalidatePath('/perfil');
+  return { ok: true };
+}
+
+// -------------------------------------------------------------------------
+// Bloqueio (remove amizade nos dois sentidos e impede novas interações)
+// -------------------------------------------------------------------------
+export async function blockUser(targetProfileId: string): Promise<ActionResult> {
+  const { profileId, supabase, error } = await requireProfile();
+  if (!profileId || !supabase) return { ok: false, error };
+  if (targetProfileId === profileId) return { ok: false, error: 'Ação inválida.' };
+
+  await supabase
+    .from('friendships')
+    .delete()
+    .or(
+      `and(requester_id.eq.${profileId},addressee_id.eq.${targetProfileId}),and(requester_id.eq.${targetProfileId},addressee_id.eq.${profileId})`,
+    );
+
+  const { error: err } = await supabase
+    .from('blocks')
+    .insert({ blocker_id: profileId, blocked_id: targetProfileId });
+  if (err && !String(err.message).includes('duplicate')) {
+    return { ok: false, error: 'Não foi possível bloquear.' };
+  }
+  return { ok: true };
+}
+
+export async function unblockUser(targetProfileId: string): Promise<ActionResult> {
+  const { profileId, supabase, error } = await requireProfile();
+  if (!profileId || !supabase) return { ok: false, error };
+  const { error: err } = await supabase
+    .from('blocks')
+    .delete()
+    .eq('blocker_id', profileId)
+    .eq('blocked_id', targetProfileId);
+  if (err) return { ok: false, error: 'Não foi possível desbloquear.' };
   return { ok: true };
 }

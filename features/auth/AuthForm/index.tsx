@@ -21,6 +21,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +31,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
     e.preventDefault();
     setError(null);
     setNotice(null);
+
+    if (mode === 'signup' && !consent) {
+      setError('É preciso aceitar os Termos de Uso e a Política de Privacidade.');
+      return;
+    }
+
     setLoading(true);
     const supabase = createClient();
 
@@ -86,14 +94,55 @@ export default function AuthForm({ mode }: AuthFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Input
-          label="Senha"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={6}
-          required
-        />
+        <div className="relative">
+          <Input
+            label="Senha"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+            className="absolute right-2 top-8 text-xs font-semibold text-brand hover:underline"
+          >
+            {showPassword ? 'Ocultar' : 'Mostrar'}
+          </button>
+        </div>
+
+        {mode === 'login' && (
+          <p className="text-right">
+            <Link href="/recuperar-senha" className="text-xs font-semibold text-brand hover:underline">
+              Esqueci minha senha
+            </Link>
+          </p>
+        )}
+
+        {mode === 'signup' && (
+          <label className="flex items-start gap-2 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-line text-brand focus:ring-brand"
+            />
+            <span>
+              Li e aceito os{' '}
+              <Link href="/termos-de-uso" className="text-brand underline" target="_blank">
+                Termos de Uso
+              </Link>{' '}
+              e a{' '}
+              <Link href="/politica-de-privacidade" className="text-brand underline" target="_blank">
+                Política de Privacidade
+              </Link>
+              .
+            </span>
+          </label>
+        )}
+
         {error && <p className="text-sm text-danger">{error}</p>}
         {notice && <p className="text-sm text-brand-dark">{notice}</p>}
         <Button variant="primary" className="w-full">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ChromeGate from '@/components/ChromeGate';
+import CookieBanner from '@/components/CookieBanner';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import JsonLd from '@/components/JsonLd';
@@ -28,6 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="min-h-[60vh]">{children}</main>
         <ChromeGate>
           <Footer />
+        </ChromeGate>
+        <ChromeGate>
+          <CookieBanner />
         </ChromeGate>
       </body>
     </html>

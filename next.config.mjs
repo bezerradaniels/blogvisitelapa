@@ -12,6 +12,12 @@ if (supabaseHostname) {
     hostname: supabaseHostname,
     pathname: '/storage/v1/object/public/**',
   });
+  // Signed URLs (bucket privado user-photos: fotos respeitam a visibilidade do perfil).
+  remotePatterns.push({
+    protocol: 'https',
+    hostname: supabaseHostname,
+    pathname: '/storage/v1/object/sign/**',
+  });
 }
 
 const nextConfig = {

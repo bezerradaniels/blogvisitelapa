@@ -30,19 +30,3 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       (role === 'publisher' || role === 'admin') && profile?.status === 'active',
   };
 }
-
-export async function requireAdmin(): Promise<CurrentUser> {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin) {
-    throw new Error('Acesso restrito a administradores.');
-  }
-  return user;
-}
-
-export async function requirePublisher(): Promise<CurrentUser> {
-  const user = await getCurrentUser();
-  if (!user?.isPublisher) {
-    throw new Error('Acesso restrito a publishers.');
-  }
-  return user;
-}
