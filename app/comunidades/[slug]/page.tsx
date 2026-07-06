@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props) {
   if (!community) return buildMetadata({ title: 'Comunidade', noindex: true });
   return buildMetadata({
     title: community.name,
-    description: community.description ?? `Comunidade ${community.name} no Visite Lapa.`,
+    description: community.description ?? `Comunidade ${community.name} no Conecta Lapa.`,
     path: `/comunidades/${slug}`,
     image: community.cover_image_url ?? community.avatar_url,
   });

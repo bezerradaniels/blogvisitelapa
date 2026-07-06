@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 
-// Design system do Visite Lapa.
+// Design system do Conecta Lapa.
 // As cores, fontes, raios e espaçamentos apontam para variáveis CSS definidas em
 // app/globals.css — assim o tema é ajustável em um único lugar (inclusive para
 // trocar a fonte por "Stack Sans" licenciada no futuro).
@@ -18,6 +18,9 @@ const config: Config = {
         base: 'var(--color-bg)',
         surface: 'var(--color-surface)',
         card: 'var(--color-card)',
+        // Fundos de seção neutros (intercalados p/ contraste)
+        section: 'var(--color-section)',
+        'section-alt': 'var(--color-section-alt)',
         // Texto
         title: 'var(--color-title)',
         body: 'var(--color-body)',

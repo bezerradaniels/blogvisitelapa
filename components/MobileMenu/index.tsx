@@ -4,17 +4,24 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Icon from '@/components/Icon';
-import { mainNav } from '@/lib/config/site';
 import { createClient } from '@/lib/supabase/client';
 
+interface NavItem {
+  label: string;
+  href: string;
+}
+
 interface MobileMenuProps {
+  items: readonly NavItem[];
   isAuthed?: boolean;
   accountHref?: string;
   accountLabel?: string;
 }
 
 export default function MobileMenu({
+  items,
   isAuthed = false,
   accountHref = '/perfil',
   accountLabel = 'Meu perfil',
@@ -52,8 +59,9 @@ export default function MobileMenu({
         <Icon icon="Menu01Icon" size={24} />
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Menu">
+      {open &&
+        createPortal(
+          <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Menu">
           <button
             type="button"
             aria-label="Fechar menu"
@@ -74,7 +82,7 @@ export default function MobileMenu({
             </div>
 
             <ul className="flex flex-col">
-              {mainNav.map((item) => (
+              {items.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} onClick={() => setOpen(false)} className={linkClass}>
                     {item.label}
@@ -124,8 +132,9 @@ export default function MobileMenu({
               )}
             </div>
           </nav>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

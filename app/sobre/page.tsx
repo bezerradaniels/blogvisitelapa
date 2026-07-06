@@ -3,14 +3,14 @@ import { siteConfig } from '@/lib/config/site';
 import { buildMetadata } from '@/lib/seo/metadata';
 
 export const metadata = buildMetadata({
-  title: 'Sobre o Visite Lapa',
+  title: 'Sobre o Conecta Lapa',
   description: `Conheça o ${siteConfig.name}, portal de notícias e guia local de ${siteConfig.geo.city}.`,
   path: '/sobre',
 });
 
 export default function SobrePage() {
   return (
-    <ProsePage title="Sobre o Visite Lapa">
+    <ProsePage title="Sobre o Conecta Lapa">
       <p>
         O <strong>{siteConfig.name}</strong> é um portal independente de notícias, eventos e guia
         local dedicado a {siteConfig.geo.city}, no {siteConfig.geo.subregion}, {siteConfig.geo.region}.

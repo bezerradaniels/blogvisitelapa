@@ -1,5 +1,5 @@
 -- =====================================================================
--- Visite Lapa — Seed inicial
+-- Conecta Lapa — Seed inicial
 -- Rode no SQL Editor do Supabase APÓS aplicar todas as migrations.
 -- =====================================================================
 
@@ -19,7 +19,7 @@ on conflict (slug) do nothing;
 
 -- Configurações iniciais do site.
 insert into public.settings (key, value, description) values
-  ('site_identity', '{"name":"Visite Lapa","slogan":"Tudo sobre Bom Jesus da Lapa"}', 'Identidade do site'),
+  ('site_identity', '{"name":"Conecta Lapa","slogan":"Tudo sobre Bom Jesus da Lapa"}', 'Identidade do site'),
   ('adsense', '{"enabled":false,"intensity":"conservadora"}', 'Configuração do Google AdSense'),
   ('comments', '{"moderation":"all_require_approval"}', 'Política de moderação de comentários'),
   ('publishers', '{"approved_publish_directly":true}', 'Política de publicação de publishers'),

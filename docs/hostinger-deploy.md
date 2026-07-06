@@ -16,7 +16,7 @@ O projeto usa `output: 'standalone'` e um `server.js` na raiz — o Passenger do
    - Pasta raiz: a pasta do projeto
    - Ambiente: `NODE_ENV=production`
 3. **Variáveis de ambiente** (painel da aplicação): copie de `.env.example`
-   - `NEXT_PUBLIC_SITE_URL` = seu domínio (ex.: `https://www.visitelapa.com.br`)
+   - `NEXT_PUBLIC_SITE_URL` = seu domínio (ex.: `https://www.conectalapa.com.br`)
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` (secreta)
    - `NEXT_PUBLIC_ADSENSE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`

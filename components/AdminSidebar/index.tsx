@@ -80,7 +80,7 @@ export default function AdminSidebar({
     <div className="flex h-full flex-col bg-title text-[#cfeede]">
       <div className="flex items-center gap-2 px-4 py-4">
         <span className="font-headline text-lg font-extrabold text-white">
-          Visite<span className="text-mint2">Lapa</span>
+          Conecta<span className="text-mint2">Lapa</span>
         </span>
         <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white">admin</span>
       </div>

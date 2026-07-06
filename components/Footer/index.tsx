@@ -13,7 +13,7 @@ export default function Footer() {
       <div className="container-page grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
           <span className="font-headline text-xl font-extrabold text-white">
-            Visite<span className="text-mint2">Lapa</span>
+            Conecta<span className="text-mint2">Lapa</span>
           </span>
           <p className="mt-2 text-xs text-[#bfe8d3]/80">
             {siteConfig.slogan}. Notícias, eventos e guia local de {siteConfig.geo.city},{' '}

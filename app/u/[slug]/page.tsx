@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props) {
   const isPublic = profile.canView && (profile.details?.visibility ?? 'oculto') === 'publico';
   return buildMetadata({
     title: profile.full_name ?? 'Perfil',
-    description: profile.details?.about ?? profile.bio ?? `Perfil de ${profile.full_name} no Visite Lapa.`,
+    description: profile.details?.about ?? profile.bio ?? `Perfil de ${profile.full_name} no Conecta Lapa.`,
     path: `/u/${slug}`,
     image: profile.avatar_url,
     noindex: !isPublic,
@@ -82,7 +82,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
 
   const header = (
     <header className="card-base mb-6 overflow-hidden p-0">
-      <div className="h-28 bg-brand-soft sm:h-36">
+      <div className="h-28 bg-section sm:h-36">
         {d?.cover_url && (
           <div className="relative h-full w-full">
             <Image src={d.cover_url} alt="" fill sizes="900px" className="object-cover" />

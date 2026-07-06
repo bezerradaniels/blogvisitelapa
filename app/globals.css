@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
-  Design tokens do Visite Lapa.
+  Design tokens do Conecta Lapa.
   Tudo aqui em variáveis CSS para manter o tema em um único lugar.
 
   Fontes: usamos next/font (Hanken Grotesk p/ títulos, Inter p/ corpo) e injetamos
@@ -17,6 +17,9 @@
   --color-bg: #f7fbf8;
   --color-surface: #eef8f2;
   --color-card: #ffffff;
+  /* Fundos de seção (neutros, intercalados para dar contraste) */
+  --color-section: #f8f9fa;
+  --color-section-alt: #fafafa;
 
   /* Texto */
   --color-title: #14382a; /* verde-escuro */
@@ -174,36 +177,6 @@
 /* ---------------------------------------------------------------------
    Detalhes decorativos do tema "Jardim" (CSS puro, sem imagens)
 --------------------------------------------------------------------- */
-
-/* Borda de arbustos apontando para baixo (base de faixa menta) */
-.bush-edge-down {
-  height: 30px;
-  background-image: radial-gradient(closest-side circle at 50% 0, var(--color-brand-soft) 96%, transparent 100%);
-  background-size: 88px 58px;
-  background-repeat: repeat-x;
-  background-position: 0 -28px;
-  position: relative;
-}
-.bush-edge-down::after {
-  content: '';
-  display: block;
-  height: 22px;
-  margin-top: -46px;
-  background-image: radial-gradient(closest-side circle at 50% 0, #bfe8d3 96%, transparent 100%);
-  background-size: 56px 42px;
-  background-repeat: repeat-x;
-  background-position: 22px -22px;
-  opacity: 0.55;
-}
-
-/* Borda de arbustos apontando para cima (topo de faixa menta) */
-.bush-edge-up {
-  height: 30px;
-  background-image: radial-gradient(closest-side circle at 50% 100%, var(--color-brand-soft) 96%, transparent 100%);
-  background-size: 88px 58px;
-  background-repeat: repeat-x;
-  background-position: 0 2px;
-}
 
 /* "Pílula-folha": marcador dos títulos de seção */
 .leaf-pill {

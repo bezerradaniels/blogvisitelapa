@@ -48,8 +48,8 @@ export default async function HomePage() {
 
   return (
     <div className="pb-4">
-      {/* 1. Hero editorial — faixa menta */}
-      <section aria-label="Destaques" className="bg-brand-soft">
+      {/* 1. Hero editorial — faixa neutra */}
+      <section aria-label="Destaques" className="bg-section">
         <div className="container-page py-8">
           {hero ? (
             <div className="grid gap-4 lg:grid-cols-3">
@@ -64,15 +64,14 @@ export default async function HomePage() {
             </div>
           ) : (
             <EmptyState
-              title="Bem-vindo ao Visite Lapa"
+              title="Bem-vindo ao Conecta Lapa"
               description="Ainda não há conteúdo publicado. Volte em breve para as novidades de Bom Jesus da Lapa."
             />
           )}
         </div>
       </section>
-      <div className="bush-edge-down" aria-hidden />
 
-      <div className="container-page space-y-10 pt-6">
+      <div className="container-page space-y-10 pt-8">
         {/* 2. Chips de categoria */}
         <CategoryCarousel />
 
@@ -159,9 +158,8 @@ export default async function HomePage() {
         </section>
       </div>
 
-      {/* 6. CTA anunciante — faixa menta com arbustos no topo */}
-      <div className="bush-edge-up mt-10" aria-hidden />
-      <section className="bg-brand-soft">
+      {/* 6. CTA anunciante — faixa neutra (tom alternado p/ contraste) */}
+      <section className="mt-12 bg-section-alt">
         <div className="container-page flex flex-col items-center gap-3 py-10 text-center">
           <h2 className="font-headline text-2xl font-extrabold text-title md:text-[26px]">
             Anuncie no maior portal de Bom Jesus da Lapa

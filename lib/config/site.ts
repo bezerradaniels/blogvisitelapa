@@ -1,9 +1,9 @@
-// Configuração central do Visite Lapa.
+// Configuração central do Conecta Lapa.
 // Identidade, geografia local e navegação em um único lugar (base para SEO/GEO).
 
 export const siteConfig = {
-  name: 'Visite Lapa',
-  shortName: 'Visite Lapa',
+  name: 'Conecta Lapa',
+  shortName: 'Conecta Lapa',
   slogan: 'Tudo sobre Bom Jesus da Lapa',
   description:
     'Notícias, eventos, turismo, religiosidade e guia local de Bom Jesus da Lapa, na Bahia. ' +
@@ -23,7 +23,7 @@ export const siteConfig = {
   },
   // Contatos institucionais
   contact: {
-    email: 'contato@visitelapa.com.br',
+    email: 'contato@conectalapa.com.br',
     whatsapp: '',
   },
   social: {
@@ -47,16 +47,9 @@ export function absoluteUrl(path = '/'): string {
 
 // Navegação principal (header e menu mobile).
 export const mainNav = [
-  { label: 'Início', href: '/' },
   { label: 'Notícias', href: '/noticias' },
   { label: 'Eventos', href: '/eventos' },
-  { label: 'Onde Comer', href: '/onde-comer' },
-  { label: 'Onde Malhar', href: '/onde-malhar' },
-  { label: 'Hospedagem', href: '/hospedagem' },
-  { label: 'Religiosidade', href: '/religiosidade' },
-  { label: 'Comunidades', href: '/comunidades' },
-  { label: 'Anuncie', href: '/anuncie' },
-  { label: 'Contato', href: '/contato' },
+  { label: 'Rede Social', href: '/comunidades' },
 ] as const;
 
 // Rodapé — links institucionais e de confiança editorial.

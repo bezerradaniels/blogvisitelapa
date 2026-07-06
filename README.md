@@ -1,4 +1,4 @@
-# Visite Lapa
+# Conecta Lapa
 
 **Tudo sobre Bom Jesus da Lapa.** Portal independente de notícias, eventos, turismo, religiosidade e guia local de Bom Jesus da Lapa (BA), no Vale do São Francisco, oeste baiano.
 

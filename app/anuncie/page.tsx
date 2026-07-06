@@ -3,7 +3,7 @@ import { siteConfig } from '@/lib/config/site';
 import { buildMetadata } from '@/lib/seo/metadata';
 
 export const metadata = buildMetadata({
-  title: 'Anuncie no Visite Lapa',
+  title: 'Anuncie no Conecta Lapa',
   description: `Anuncie para moradores, romeiros e visitantes de ${siteConfig.geo.city}. Banners, posts e eventos patrocinados e pacotes personalizados.`,
   path: '/anuncie',
 });

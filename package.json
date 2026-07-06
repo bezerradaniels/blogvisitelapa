@@ -1,8 +1,8 @@
 {
-  "name": "visitelapa",
+  "name": "conectalapa",
   "version": "1.0.0",
   "private": true,
-  "description": "Visite Lapa — portal de notícias, eventos e guia local de Bom Jesus da Lapa (BA). Next.js + Supabase, pronto para Hostinger Node.js.",
+  "description": "Conecta Lapa — portal de notícias, eventos e guia local de Bom Jesus da Lapa (BA). Next.js + Supabase, pronto para Hostinger Node.js.",
   "engines": {
     "node": ">=24.0.0"
   },

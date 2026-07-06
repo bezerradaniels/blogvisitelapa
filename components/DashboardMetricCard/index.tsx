@@ -12,7 +12,7 @@ const numberColor: Record<string, string> = {
   danger: 'text-[#c74354]',
 };
 const blobColor: Record<string, string> = {
-  default: '#def3e8',
+  default: '#f8f9fa',
   success: '#c9f2df',
   warning: '#fdeed2',
   danger: '#fbe0e3',

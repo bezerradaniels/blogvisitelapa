@@ -4,16 +4,25 @@ import Button from '@/components/Button';
 import HeaderNav from '@/components/HeaderNav';
 import Icon from '@/components/Icon';
 import MobileMenu from '@/components/MobileMenu';
+import SearchModal from '@/components/SearchModal';
 import { countUnread } from '@/features/notifications/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { mainNav, siteConfig } from '@/lib/config/site';
 
-// Links de navegação exibidos no desktop (sem "Anuncie"/"Contato", que viram CTAs).
-const desktopNav = mainNav.filter((i) => !['/anuncie', '/contato'].includes(i.href));
-
 export default async function Header() {
   const user = await getCurrentUser();
   const unread = user?.profile ? await countUnread(user.profile.id) : 0;
+
+  // "Rede Social" (estilo Orkut): logado vai para o próprio perfil social;
+  // deslogado vai para o login dedicado da rede social.
+  const socialHref = !user
+    ? '/login-rede-social'
+    : user.profile?.slug
+      ? `/u/${user.profile.slug}`
+      : '/perfil';
+  const navItems = mainNav.map((item) =>
+    item.href === '/comunidades' ? { ...item, href: socialHref } : item,
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur">
@@ -21,22 +30,16 @@ export default async function Header() {
         {/* Logo / nome */}
         <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
           <span className="font-headline text-xl font-extrabold tracking-tight text-title">
-            Visite<span className="text-brand">Lapa</span>
+            Conecta<span className="text-brand">Lapa</span>
           </span>
         </Link>
 
         {/* Navegação desktop */}
-        <HeaderNav items={desktopNav} />
+        <HeaderNav items={navItems} />
 
         {/* Ações */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/busca"
-            aria-label="Buscar"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-title hover:bg-brand-soft"
-          >
-            <Icon icon="Search01Icon" size={20} />
-          </Link>
+          <SearchModal />
 
           <div className="hidden md:block">
             <Button href="/anuncie" size="sm" variant="accent">
@@ -83,6 +86,7 @@ export default async function Header() {
           )}
 
           <MobileMenu
+            items={navItems}
             isAuthed={Boolean(user)}
             accountHref={user?.isAdmin ? '/admin' : user?.isPublisher ? '/publisher' : '/perfil'}
             accountLabel={user?.isAdmin ? 'Painel admin' : user?.isPublisher ? 'Meu painel' : 'Meu perfil'}
