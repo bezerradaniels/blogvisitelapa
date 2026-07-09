@@ -46,6 +46,9 @@ export default async function PerfilPage() {
         <Link href="/favoritos" className="text-brand underline">
           Meus favoritos
         </Link>
+        <Link href="/conta/senha" className="text-brand underline">
+          Alterar senha
+        </Link>
         {user.isPublisher && (
           <Link href="/publisher" className="text-brand underline">
             Painel do publisher

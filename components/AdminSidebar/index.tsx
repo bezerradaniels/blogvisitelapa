@@ -3,6 +3,7 @@
 // Navegação lateral do painel (tema "Jardim": fundo verde-escuro, item ativo menta).
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoutButton from '@/components/LogoutButton';
 import { cn } from '@/lib/utils/cn';
 
 interface LinkItem {
@@ -123,14 +124,27 @@ export default function AdminSidebar({
       </nav>
 
       {userName && (
-        <div className="m-3 flex items-center gap-2 rounded-[14px] bg-white/5 p-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint2 text-sm font-extrabold text-title">
-            {userName.charAt(0).toUpperCase()}
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-bold text-white">{userName}</span>
-            <span className="block text-[11px] text-[#8fc4ab]">{userRole}</span>
-          </span>
+        <div className="m-3 rounded-[14px] bg-white/5 p-2">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint2 text-sm font-extrabold text-title">
+              {userName.charAt(0).toUpperCase()}
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-bold text-white">{userName}</span>
+              <span className="block text-[11px] text-[#8fc4ab]">{userRole}</span>
+            </span>
+          </div>
+          <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2">
+            <Link
+              href="/conta/senha"
+              className="flex-1 rounded-[10px] px-2 py-1.5 text-center text-xs font-semibold text-[#cfeede] hover:bg-white/10"
+            >
+              Alterar senha
+            </Link>
+            <LogoutButton className="flex-1 rounded-[10px] px-2 py-1.5 text-center text-xs font-semibold text-white hover:bg-accent/80 bg-accent/60">
+              Sair
+            </LogoutButton>
+          </div>
         </div>
       )}
     </div>

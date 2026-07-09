@@ -6,9 +6,9 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import ImageUploader from '@/components/ImageUploader';
 import Input from '@/components/Input';
+import LogoutButton from '@/components/LogoutButton';
 import Textarea from '@/components/Textarea';
 import { saveProfile } from '@/features/social/actions';
-import { createClient } from '@/lib/supabase/client';
 import type { ProfileVisibility } from '@/types/database';
 
 interface ProfileFormProps {
@@ -76,13 +76,6 @@ export default function ProfileForm({ userId, initial }: ProfileFormProps) {
     router.refresh();
   }
 
-  async function logout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  }
-
   return (
     <form onSubmit={save} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -132,9 +125,7 @@ export default function ProfileForm({ userId, initial }: ProfileFormProps) {
         <Button variant="primary" disabled={loading}>
           {loading ? 'Salvando...' : 'Salvar'}
         </Button>
-        <button type="button" onClick={logout} className="text-sm text-danger hover:underline">
-          Sair da conta
-        </button>
+        <LogoutButton className="text-sm text-danger hover:underline" />
       </div>
     </form>
   );

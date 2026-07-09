@@ -2,11 +2,10 @@
 
 // Menu mobile acessível (drawer) com botão hambúrguer.
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from '@/components/Icon';
-import { createClient } from '@/lib/supabase/client';
+import LogoutButton from '@/components/LogoutButton';
 
 interface NavItem {
   label: string;
@@ -27,7 +26,6 @@ export default function MobileMenu({
   accountLabel = 'Meu perfil',
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   // Trava o scroll do body quando o drawer está aberto.
   useEffect(() => {
@@ -36,14 +34,6 @@ export default function MobileMenu({
       document.body.style.overflow = '';
     };
   }, [open]);
-
-  async function logout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setOpen(false);
-    router.push('/');
-    router.refresh();
-  }
 
   const linkClass = 'block rounded px-2 py-3 text-sm font-medium text-body hover:bg-surface';
 
@@ -104,13 +94,13 @@ export default function MobileMenu({
                   <Link href="/notificacoes" onClick={() => setOpen(false)} className={linkClass}>
                     Notificações
                   </Link>
-                  <button
-                    type="button"
-                    onClick={logout}
+                  <Link href="/conta/senha" onClick={() => setOpen(false)} className={linkClass}>
+                    Alterar senha
+                  </Link>
+                  <LogoutButton
+                    onDone={() => setOpen(false)}
                     className="mt-1 rounded px-2 py-3 text-left text-sm font-medium text-danger hover:bg-surface"
-                  >
-                    Sair da conta
-                  </button>
+                  />
                 </>
               ) : (
                 <>
