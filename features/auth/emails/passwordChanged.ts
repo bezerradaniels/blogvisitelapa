@@ -1,0 +1,149 @@
+import 'server-only';
+
+// HTML do e-mail "sua senha foi alterada" (aviso de segurança enviado pelo app).
+// Fonte de design equivalente: supabase/templates/password-changed-notification.html.
+// Mantido aqui como string para ser seguro no build standalone (sem ler arquivos).
+
+interface PasswordChangedEmailData {
+  email: string;
+  datetime: string;
+  resetUrl: string;
+  supportEmail: string;
+}
+
+// Escapa valores dinâmicos antes de injetar no HTML.
+function esc(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export function renderPasswordChangedEmail(data: PasswordChangedEmailData): string {
+  const email = esc(data.email);
+  const datetime = esc(data.datetime);
+  const resetUrl = esc(data.resetUrl);
+  const supportEmail = esc(data.supportEmail);
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Sua senha foi alterada</title>
+  <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+  <style>
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; line-height: 100%; outline: none; text-decoration: none; }
+    body { margin: 0; padding: 0; width: 100% !important; height: 100% !important; }
+    a { text-decoration: none; }
+    @media only screen and (max-width: 620px) {
+      .container { width: 100% !important; }
+      .px { padding-left: 24px !important; padding-right: 24px !important; }
+      .btn a { display: block !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg-page { background: #0f231b !important; }
+      .card { background: #14382a !important; }
+      .t-title { color: #ffffff !important; }
+      .t-body { color: #cfeede !important; }
+      .t-muted { color: #8fc4ab !important; }
+      .divider { border-color: rgba(255,255,255,0.10) !important; }
+      .meta-box { background: rgba(255,255,255,0.05) !important; }
+      .meta-box .t-body { color: #cfeede !important; }
+    }
+  </style>
+</head>
+<body class="bg-page" style="margin:0; padding:0; background-color:#fafafa;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; mso-hide:all;">
+    A senha da sua conta no Conecta Lapa foi alterada. Se não foi você, aja agora.
+    &#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;
+  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="bg-page" style="background-color:#fafafa;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="container card" style="width:600px; max-width:600px; background-color:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 6px 24px rgba(20,56,42,0.08);">
+          <tr>
+            <td style="background-color:#2fa87c; background-image:linear-gradient(135deg,#2fa87c 0%,#1d7a58 100%); padding:34px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:24px; font-weight:800; letter-spacing:-0.3px; color:#ffffff;">Conecta<span style="color:#bff0d9;">Lapa</span></td>
+                  <td align="right" style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:700; color:#eafff4; text-transform:uppercase; letter-spacing:1px;">Segurança da conta</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:40px 40px 8px 40px;">
+              <h1 class="t-title" style="margin:0 0 12px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:24px; line-height:1.3; font-weight:800; color:#14382a;">Sua senha foi alterada ✅</h1>
+              <p class="t-body" style="margin:0 0 20px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; color:#2c4a3d;">A senha da sua conta no <strong>Conecta Lapa</strong> foi alterada com sucesso. Enviamos este aviso só para você ficar sabendo.</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:0 40px 8px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="meta-box" style="background-color:#f4faf6; border-radius:14px;">
+                <tr>
+                  <td style="padding:16px 18px;">
+                    <p class="t-muted" style="margin:0 0 4px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:1.5; color:#6b8a7c; text-transform:uppercase; letter-spacing:0.5px;">Conta</p>
+                    <p class="t-body" style="margin:0 0 12px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.5; color:#14382a; font-weight:700;">${email}</p>
+                    <p class="t-muted" style="margin:0 0 4px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:1.5; color:#6b8a7c; text-transform:uppercase; letter-spacing:0.5px;">Data e hora</p>
+                    <p class="t-body" style="margin:0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.5; color:#14382a; font-weight:700;">${datetime}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:20px 40px 0 40px;">
+              <p class="t-body" style="margin:0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.6; color:#2c4a3d;"><strong>Foi você?</strong> Então está tudo certo — nenhuma ação é necessária.</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:20px 40px 0 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fdf3f4; border-radius:12px;">
+                <tr>
+                  <td style="padding:16px 18px; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.6; color:#8a4550;"><strong>Não reconhece esta alteração?</strong> Sua conta pode estar em risco. Redefina a senha imediatamente e, se precisar, fale com a gente em <a href="mailto:${supportEmail}" style="color:#c74354; font-weight:700;">${supportEmail}</a>.</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" align="center" style="padding:24px 40px 8px 40px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="btn">
+                <tr>
+                  <td align="center" bgcolor="#c74354" style="border-radius:999px;">
+                    <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${resetUrl}" style="height:52px;v-text-anchor:middle;width:300px;" arcsize="50%" fillcolor="#c74354" stroke="f"><w:anchorlock/><center style="color:#ffffff;font-family:Segoe UI,Arial,sans-serif;font-size:16px;font-weight:bold;">Não fui eu — redefinir senha</center></v:roundrect><![endif]-->
+                    <!--[if !mso]><!-- --><a href="${resetUrl}" target="_blank" style="display:inline-block; padding:16px 36px; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; font-weight:700; color:#ffffff; background-color:#c74354; border-radius:999px;">Não fui eu — redefinir senha</a><!--<![endif]-->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:28px 40px 0 40px;">
+              <div class="divider" style="border-top:1px solid #e4f1ea; font-size:0; line-height:0;">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="px" style="padding:22px 40px 36px 40px;">
+              <p class="t-muted" style="margin:0 0 6px 0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:1.5; color:#6b8a7c;">Equipe <strong style="color:#1d7a58;">Conecta Lapa</strong></p>
+              <p class="t-muted" style="margin:0; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:1.5; color:#9bb6a9;"><a href="https://www.conectalapa.com.br" target="_blank" style="color:#2fa87c; font-weight:600;">conectalapa.com.br</a> &nbsp;·&nbsp; O portal de Bom Jesus da Lapa · Bahia</p>
+            </td>
+          </tr>
+        </table>
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="container" style="width:600px; max-width:600px;">
+          <tr>
+            <td align="center" style="padding:20px 24px 0 24px; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:11px; line-height:1.5; color:#9bb6a9;">Aviso de segurança automático. Enviado porque a senha desta conta foi alterada.</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}

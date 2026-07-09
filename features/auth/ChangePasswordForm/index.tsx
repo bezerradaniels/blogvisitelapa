@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import { notifyPasswordChanged } from '@/features/auth/actions';
 import { createClient } from '@/lib/supabase/client';
 
 interface ChangePasswordFormProps {
@@ -61,6 +62,9 @@ export default function ChangePasswordForm({ email }: ChangePasswordFormProps) {
       setError('Não foi possível alterar a senha. Tente novamente.');
       return;
     }
+
+    // Aviso de segurança por e-mail (best-effort; não bloqueia o sucesso).
+    void notifyPasswordChanged();
 
     setCurrent('');
     setPassword('');

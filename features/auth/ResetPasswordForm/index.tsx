@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import { notifyPasswordChanged } from '@/features/auth/actions';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ResetPasswordForm() {
@@ -47,6 +48,10 @@ export default function ResetPasswordForm() {
       setError('Não foi possível redefinir a senha. Solicite um novo link.');
       return;
     }
+
+    // Aviso de segurança por e-mail (best-effort; não bloqueia o sucesso).
+    void notifyPasswordChanged();
+
     setDone(true);
     setTimeout(() => {
       router.push('/perfil');
