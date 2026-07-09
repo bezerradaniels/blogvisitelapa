@@ -25,13 +25,22 @@ export default async function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-card">
       <div className="container-page flex h-[68px] items-center justify-between gap-3">
-        {/* Logo / nome */}
-        <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
-          <span className="font-headline text-xl font-extrabold tracking-tight text-title">
-            Conecta<span className="text-brand">Lapa</span>
-          </span>
+        {/* Logo oficial (completo no desktop, reduzido no mobile) */}
+        <Link href="/" className="flex items-center" aria-label={siteConfig.name}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-conecta-lapa.svg"
+            alt={siteConfig.name}
+            className="hidden h-9 w-auto sm:block"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-conecta-lapa-draw.svg"
+            alt={siteConfig.name}
+            className="h-9 w-auto sm:hidden"
+          />
         </Link>
 
         {/* Navegação desktop */}
