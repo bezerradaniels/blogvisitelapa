@@ -5,6 +5,7 @@ import {
   Analytics01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  BookOpen01Icon,
   Hotel01Icon,
   Calendar03Icon,
   Cancel01Icon,
@@ -66,6 +67,7 @@ export const icons = {
   Notification03Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  BookOpen01Icon,
   Facebook01Icon,
   InstagramIcon,
 } as const;
