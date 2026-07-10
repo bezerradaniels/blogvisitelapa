@@ -1,8 +1,8 @@
 // Fontes do tema "Jardim" via next/font (auto-hospedadas, sem requisição externa).
-// Baloo 2 (títulos, arredondada e "bold") + Nunito (corpo). Ambas gratuitas no
+// Baloo 2 (títulos, arredondada e "bold") + Figtree (corpo). Ambas gratuitas no
 // Google Fonts. Propagadas pelas variáveis --font-headline / --font-body — nenhum
 // componente precisa referenciar a fonte diretamente.
-import { Baloo_2, Nunito } from 'next/font/google';
+import { Baloo_2, Figtree } from 'next/font/google';
 
 export const fontHeadline = Baloo_2({
   subsets: ['latin'],
@@ -11,7 +11,7 @@ export const fontHeadline = Baloo_2({
   display: 'swap',
 });
 
-export const fontBody = Nunito({
+export const fontBody = Figtree({
   subsets: ['latin'],
   weight: ['400', '600', '700', '800'],
   variable: '--font-body',
