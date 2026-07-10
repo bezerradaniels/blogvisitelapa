@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/Badge';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 import type { PostWithRelations } from '@/types/posts';
 
 interface PostCardProps {
@@ -65,7 +65,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
           <p className="mt-1 line-clamp-2 text-xs text-muted md:text-sm">{post.subtitle}</p>
         )}
         <div className="mt-2 flex items-center gap-2 text-xs text-muted">
-          {post.author?.full_name && <span>{post.author.full_name}</span>}
+          {post.author?.full_name && <span>{titleCase(post.author.full_name)}</span>}
           {post.author?.full_name && <span aria-hidden>·</span>}
           <time dateTime={date}>{formatDate(date)}</time>
         </div>

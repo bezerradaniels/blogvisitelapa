@@ -22,9 +22,9 @@
   --color-section-alt: #fafafa;
 
   /* Texto */
-  --color-title: #14382a; /* verde-escuro */
-  --color-body: #2c4a3d; /* verde-acinzentado */
-  --color-muted: #6b8a7c; /* verde-muted */
+  --color-title: #1e293b; /* slate-800 */
+  --color-body: #1e293b; /* slate-800 */
+  --color-muted: #475569; /* slate-600 (hierarquia) */
 
   /* Marca (verde-menta) */
   --color-brand: #2fa87c;

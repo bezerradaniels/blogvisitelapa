@@ -7,9 +7,7 @@ import JsonLd from '@/components/JsonLd';
 import PostCard from '@/components/PostCard';
 import SectionTitle from '@/components/SectionTitle';
 import Comments from '@/features/engagement/Comments';
-import FavoriteButton from '@/features/engagement/FavoriteButton';
-import RatingStars from '@/features/engagement/RatingStars';
-import { getUserPostState, listApprovedComments } from '@/features/engagement/queries';
+import { listApprovedComments } from '@/features/engagement/queries';
 import {
   getPostBySlug,
   getSponsorLabel,
@@ -20,7 +18,7 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { articleSchema, breadcrumbSchema, eventSchema } from '@/lib/seo/schema';
 import { sanitizePostHtml } from '@/lib/utils/sanitize';
-import { formatDate, formatDateTime } from '@/lib/utils/format';
+import { formatDate, formatDateTime, titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -55,11 +53,10 @@ export default async function PostPage({ params }: Props) {
   const user = await getCurrentUser();
   const profileId = user?.profile?.id ?? null;
 
-  const [related, sponsorLabel, comments, userState] = await Promise.all([
+  const [related, sponsorLabel, comments] = await Promise.all([
     listRelatedPosts(post, 3),
     getSponsorLabel(post.id),
     listApprovedComments(post.id),
-    getUserPostState(post.id, profileId),
   ]);
 
   void registerPostView(post.id);
@@ -111,11 +108,11 @@ export default async function PostPage({ params }: Props) {
             {post.content_type === 'publieditorial' && <Badge tone="warning">Publieditorial</Badge>}
           </div>
 
-          <h1 className="mx-auto mt-3 max-w-[16ch] font-headline text-[32px] font-extrabold leading-[1.18] text-title md:text-[38px]">
+          <h1 className="mx-auto mt-3 max-w-[16ch] font-headline text-[32px] font-extrabold leading-[1.18] text-title md:max-w-none md:text-[38px]">
             {post.title}
           </h1>
           {post.subtitle && (
-            <p className="mx-auto mt-3 max-w-[46ch] text-lg text-muted">{post.subtitle}</p>
+            <p className="mx-auto mt-3 max-w-[46ch] text-lg text-muted md:max-w-none">{post.subtitle}</p>
           )}
 
           {/* Assinatura: avatar-inicial + autor + datas */}
@@ -127,9 +124,9 @@ export default async function PostPage({ params }: Props) {
               {post.author && (
                 <p className="text-sm font-bold text-title">
                   {post.author.slug ? (
-                    <Link href={`/autor/${post.author.slug}`} className="hover:text-brand">{post.author.full_name}</Link>
+                    <Link href={`/autor/${post.author.slug}`} className="hover:text-brand">{titleCase(post.author.full_name)}</Link>
                   ) : (
-                    post.author.full_name
+                    titleCase(post.author.full_name)
                   )}
                 </p>
               )}
@@ -190,21 +187,6 @@ export default async function PostPage({ params }: Props) {
             <strong>Fonte:</strong> {post.source_note}
           </p>
         )}
-
-        {/* Barra de engajamento */}
-        <div className="card-base mt-8 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="mb-1 font-headline text-base font-extrabold text-title">Gostou da matéria?</p>
-            <RatingStars
-              postId={post.id}
-              profileId={profileId}
-              initialUserRating={userState.userRating}
-              average={post.rating_avg}
-              count={post.rating_count}
-            />
-          </div>
-          <FavoriteButton postId={post.id} profileId={profileId} initialFavorited={userState.favorited} />
-        </div>
 
         {/* Banner inline */}
         <div className="mt-8">

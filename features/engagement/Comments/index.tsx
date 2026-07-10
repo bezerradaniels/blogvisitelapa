@@ -1,11 +1,10 @@
 'use client';
 
 // Comentários: lista os aprovados e permite enviar (entra como "pendente").
-import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import Button from '@/components/Button';
 import { createClient } from '@/lib/supabase/client';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 import type { CommentWithAuthor } from '@/types/posts';
 
 interface CommentsProps {
@@ -68,12 +67,14 @@ export default function Comments({ postId, profileId, initialComments }: Comment
           </form>
         )
       ) : (
-        <p className="text-sm text-muted">
-          <Link href="/login" className="text-brand underline">
-            Entre
-          </Link>{' '}
-          para comentar. Todos os comentários passam por moderação.
-        </p>
+        <div className="card-base flex flex-col items-start gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted">
+            Entre na sua conta para deixar um comentário. Todos passam por moderação.
+          </p>
+          <Button href="/login" size="sm" variant="primary" className="shrink-0">
+            Entrar para comentar
+          </Button>
+        </div>
       )}
 
       <ul className="space-y-3">
@@ -87,7 +88,7 @@ export default function Comments({ postId, profileId, initialComments }: Comment
               </span>
               <div className="min-w-0">
                 <div className="mb-0.5 flex items-center gap-2 text-xs text-muted">
-                  <span className="font-bold text-title">{c.author?.full_name ?? 'Leitor'}</span>
+                  <span className="font-bold text-title">{titleCase(c.author?.full_name) || 'Leitor'}</span>
                   <time dateTime={c.created_at}>{formatDate(c.created_at)}</time>
                 </div>
                 <p className="text-sm text-body">{c.content}</p>
