@@ -19,7 +19,7 @@ export default function Input({ label, error, id, className, ...props }: InputPr
       <input
         id={fieldId}
         className={cn(
-          'h-10 w-full rounded border border-line bg-card px-3 text-sm outline-none focus:border-brand',
+          'h-10 w-full rounded-[10px] border border-line bg-card px-3 text-sm outline-none focus:border-brand',
           error && 'border-danger',
           className,
         )}

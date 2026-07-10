@@ -8,7 +8,7 @@ export async function listActiveCategories() {
   const supabase = await createClient();
   const { data } = await supabase
     .from('categories')
-    .select('id, name')
+    .select('id, name, slug, parent_id')
     .eq('status', 'active')
     .order('sort_order', { ascending: true });
   return data ?? [];
@@ -53,6 +53,7 @@ export async function getPostForEdit(id: string): Promise<PostFormInitial | null
     event_ticket_url: post.event_ticket_url ?? '',
     event_organizer: post.event_organizer ?? '',
     event_map_url: post.event_map_url ?? '',
+    event_is_free: post.event_is_free,
     source_note: post.source_note ?? '',
     editorial_notes: post.editorial_notes ?? '',
     seo_title: post.seo_title ?? '',

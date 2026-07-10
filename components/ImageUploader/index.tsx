@@ -13,6 +13,8 @@ interface ImageUploaderProps {
   onChange: (url: string | null) => void;
   label?: string;
   ratio?: string;
+  // compact: em vez do dropzone grande, mostra só um botão pequeno (+ miniatura).
+  compact?: boolean;
 }
 
 export default function ImageUploader({
@@ -22,6 +24,7 @@ export default function ImageUploader({
   onChange,
   label = 'Imagem',
   ratio = 'aspect-[16/10]',
+  compact = false,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -37,10 +40,55 @@ export default function ImageUploader({
     onChange(url);
   }
 
+  const fileInput = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => handleFile(e.target.files?.[0])}
+    />
+  );
+
+  // Modo compacto: um botão pequeno; se já houver imagem, miniatura + remover.
+  if (compact) {
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="text-xs font-medium text-body">{label}</span>
+        {value ? (
+          <div className="flex items-center gap-2">
+            <span className="relative h-12 w-20 shrink-0 overflow-hidden rounded-[10px] border border-line bg-surface">
+              <Image src={value} alt="Pré-visualização" fill sizes="80px" className="object-cover" />
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="inline-flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:border-danger hover:text-danger"
+            >
+              <Icon icon="Cancel01Icon" size={14} />
+              Remover
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex w-fit items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5 text-xs font-semibold text-body hover:border-brand hover:text-brand"
+          >
+            <Icon icon="ImageAdd01Icon" size={16} />
+            {uploading ? 'Enviando...' : 'Enviar imagem'}
+          </button>
+        )}
+        {error && <span className="text-xs text-danger">{error}</span>}
+        {fileInput}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs font-medium text-body">{label}</span>
-      <div className={`relative overflow-hidden rounded border border-line bg-surface ${ratio}`}>
+      <div className={`relative overflow-hidden rounded-[10px] border border-line bg-surface ${ratio}`}>
         {value ? (
           <>
             <Image src={value} alt="Pré-visualização" fill sizes="400px" className="object-cover" />
@@ -48,7 +96,7 @@ export default function ImageUploader({
               type="button"
               onClick={() => onChange(null)}
               aria-label="Remover imagem"
-              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded bg-black/60 text-white"
+              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white"
             >
               <Icon icon="Cancel01Icon" size={18} />
             </button>
@@ -59,19 +107,13 @@ export default function ImageUploader({
             onClick={() => inputRef.current?.click()}
             className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted hover:text-brand"
           >
-            <Icon icon="Image01Icon" size={28} />
+            <Icon icon="ImageAdd01Icon" size={28} />
             <span className="text-xs">{uploading ? 'Enviando...' : 'Enviar imagem'}</span>
           </button>
         )}
       </div>
       {error && <span className="text-xs text-danger">{error}</span>}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
+      {fileInput}
     </div>
   );
 }

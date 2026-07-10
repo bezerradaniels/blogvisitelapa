@@ -47,6 +47,7 @@ const postSchema = z.object({
   event_ticket_url: z.string().optional().default(''),
   event_organizer: z.string().optional().default(''),
   event_map_url: z.string().optional().default(''),
+  event_is_free: z.boolean().optional().default(false),
 
   source_note: z.string().optional().default(''),
   editorial_notes: z.string().optional().default(''),
@@ -160,6 +161,7 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
     event_ticket_url: d.is_event ? nullify(d.event_ticket_url) : null,
     event_organizer: d.is_event ? nullify(d.event_organizer) : null,
     event_map_url: d.is_event ? nullify(d.event_map_url) : null,
+    event_is_free: d.is_event ? d.event_is_free : false,
     source_note: nullify(d.source_note),
     editorial_notes: nullify(d.editorial_notes),
     seo_title: nullify(d.seo_title),
@@ -228,6 +230,78 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
   revalidatePath(`/post/${slug}`);
 
   return { ok: true, slug, id: postId };
+}
+
+// Cria uma categoria ou subcategoria direto do editor de post.
+// parentId presente => subcategoria. Retorna a categoria criada para o form.
+export interface InlineCategory {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id: string | null;
+}
+
+const inlineCategorySchema = z.object({
+  name: z.string().trim().min(2, 'Informe um nome com pelo menos 2 caracteres.'),
+  parentId: z.string().uuid().optional().or(z.literal('')).default(''),
+});
+
+export async function createCategoryInline(
+  input: z.input<typeof inlineCategorySchema>,
+): Promise<{ ok: boolean; error?: string; category?: InlineCategory }> {
+  const user = await getCurrentUser();
+  if (!user?.isPublisher) return { ok: false, error: 'Acesso restrito a publishers.' };
+
+  const parsed = inlineCategorySchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' };
+  const { name, parentId } = parsed.data;
+
+  const supabase = await createClient();
+  const slug = await ensureUniqueCategorySlug(supabase, slugify(name) || `cat-${Date.now()}`);
+
+  // Subcategoria herda o tipo do pai (mantém consistência editorial/guia).
+  let type: TablesInsert<'categories'>['type'] = 'editorial';
+  if (parentId) {
+    const { data: parent } = await supabase
+      .from('categories')
+      .select('type')
+      .eq('id', parentId)
+      .maybeSingle();
+    if (!parent) return { ok: false, error: 'Categoria principal não encontrada.' };
+    type = parent.type;
+  }
+
+  const { data, error } = await supabase
+    .from('categories')
+    .insert({
+      name,
+      slug,
+      type,
+      parent_id: parentId || null,
+      status: 'active',
+      is_fixed_carousel_item: false,
+      sort_order: 100,
+    })
+    .select('id, name, slug, parent_id')
+    .single();
+
+  if (error || !data) return { ok: false, error: 'Não foi possível criar (nome já existe?).' };
+
+  revalidatePath('/');
+  revalidatePath('/admin/categorias');
+  return { ok: true, category: data as InlineCategory };
+}
+
+async function ensureUniqueCategorySlug(supabase: ServerClient, base: string): Promise<string> {
+  let candidate = base;
+  let n = 1;
+  while (n < 50) {
+    const { data } = await supabase.from('categories').select('id').eq('slug', candidate).maybeSingle();
+    if (!data) return candidate;
+    n += 1;
+    candidate = `${base}-${n}`;
+  }
+  return `${base}-${Date.now()}`;
 }
 
 // --- helpers ---------------------------------------------------------

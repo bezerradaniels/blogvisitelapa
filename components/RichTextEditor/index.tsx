@@ -51,11 +51,27 @@ function ToolbarButton({
 
 function Toolbar({ editor, prefix }: { editor: Editor; prefix?: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
 
   async function insertImage(file: File | undefined) {
     if (!file) return;
+    setBusy(true);
     const { url } = await uploadImage(file, 'post-gallery', prefix);
+    setBusy(false);
     if (url) editor.chain().focus().setImage({ src: url }).run();
+  }
+
+  // Galeria dentro do post: envia várias imagens de uma vez e insere todas em
+  // sequência no ponto do cursor.
+  async function insertGallery(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setBusy(true);
+    for (const file of Array.from(files)) {
+      const { url } = await uploadImage(file, 'post-gallery', prefix);
+      if (url) editor.chain().focus().setImage({ src: url }).run();
+    }
+    setBusy(false);
   }
 
   function toggleLink() {
@@ -72,46 +88,53 @@ function Toolbar({ editor, prefix }: { editor: Editor; prefix?: string }) {
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-line p-1">
       <ToolbarButton label="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
-        <strong>N</strong>
+        <Icon icon="TextBoldIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
-        <em>I</em>
+        <Icon icon="TextItalicIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Título 2" active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-        H2
+        <Icon icon="Heading02Icon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Título 3" active={editor.isActive('heading', { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-        H3
+        <Icon icon="Heading03Icon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Parágrafo" active={editor.isActive('paragraph')} onClick={() => editor.chain().focus().setParagraph().run()}>
-        ¶
+        <Icon icon="ParagraphIcon" size={18} />
       </ToolbarButton>
+      <span className="mx-1 h-5 w-px bg-line" />
       <ToolbarButton label="Lista com marcadores" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-        •
+        <Icon icon="LeftToRightListBulletIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Lista numerada" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-        1.
+        <Icon icon="LeftToRightListNumberIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Citação" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-        ❝
+        <Icon icon="QuoteDownIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Link" active={editor.isActive('link')} onClick={toggleLink}>
-        🔗
+        <Icon icon="Link01Icon" size={18} />
       </ToolbarButton>
-      <ToolbarButton label="Imagem" onClick={() => fileRef.current?.click()}>
-        <Icon icon="Image01Icon" size={16} />
+      <span className="mx-1 h-5 w-px bg-line" />
+      <ToolbarButton label="Inserir imagem" onClick={() => fileRef.current?.click()}>
+        <Icon icon="ImageAdd01Icon" size={18} />
+      </ToolbarButton>
+      <ToolbarButton label="Inserir galeria (várias imagens)" onClick={() => galleryRef.current?.click()}>
+        <Icon icon="Album02Icon" size={18} />
       </ToolbarButton>
       <span className="mx-1 h-5 w-px bg-line" />
       <ToolbarButton label="Desfazer" onClick={() => editor.chain().focus().undo().run()}>
-        ↶
+        <Icon icon="ArrowTurnBackwardIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Refazer" onClick={() => editor.chain().focus().redo().run()}>
-        ↷
+        <Icon icon="ArrowTurnForwardIcon" size={18} />
       </ToolbarButton>
       <ToolbarButton label="Limpar formatação" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
-        ⌫
+        <Icon icon="TextClearIcon" size={18} />
       </ToolbarButton>
+      {busy && <span className="ml-1 text-xs text-muted">Enviando…</span>}
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => insertImage(e.target.files?.[0])} />
+      <input ref={galleryRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => insertGallery(e.target.files)} />
     </div>
   );
 }
@@ -140,7 +163,7 @@ export default function RichTextEditor({ initialHTML, onChange, prefix }: RichTe
   }
 
   return (
-    <div className="card-base overflow-hidden">
+    <div className="overflow-hidden rounded-[10px] border border-line bg-card shadow-card">
       <div className="flex items-center justify-between border-b border-line bg-surface px-2 py-1">
         <span className="text-xs font-medium text-muted">Editor</span>
         <button

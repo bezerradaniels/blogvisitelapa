@@ -165,8 +165,12 @@ export default async function PostPage({ params }: Props) {
             {post.event_location && <p><strong>Local:</strong> {post.event_location}</p>}
             {post.event_address && <p><strong>Endereço:</strong> {post.event_address}</p>}
             {post.event_organizer && <p><strong>Organização:</strong> {post.event_organizer}</p>}
-            {post.event_ticket_url && (
-              <p><a className="text-brand underline" href={post.event_ticket_url} target="_blank" rel="noopener noreferrer">Ingressos</a></p>
+            {post.event_is_free ? (
+              <p><strong>Entrada:</strong> Gratuita</p>
+            ) : (
+              post.event_ticket_url && (
+                <p><a className="text-brand underline" href={post.event_ticket_url} target="_blank" rel="noopener noreferrer">Ingressos</a></p>
+              )
             )}
             {post.event_map_url && (
               <p><a className="text-brand underline" href={post.event_map_url} target="_blank" rel="noopener noreferrer">Ver no mapa</a></p>

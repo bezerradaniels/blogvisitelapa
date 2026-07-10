@@ -128,6 +128,7 @@ export interface Database {
           is_fixed_carousel_item: boolean;
           icon_name: string | null;
           image_url: string | null;
+          parent_id: string | null;
           sort_order: number;
           status: AccountStatus;
         } & WithTimestamps;
@@ -140,6 +141,7 @@ export interface Database {
           is_fixed_carousel_item?: boolean;
           icon_name?: string | null;
           image_url?: string | null;
+          parent_id?: string | null;
           sort_order?: number;
           status?: AccountStatus;
           created_at?: string;
@@ -187,6 +189,7 @@ export interface Database {
           event_ticket_url: string | null;
           event_organizer: string | null;
           event_map_url: string | null;
+          event_is_free: boolean;
           source_note: string | null;
           editorial_notes: string | null;
           seo_title: string | null;
@@ -230,6 +233,7 @@ export interface Database {
           event_ticket_url?: string | null;
           event_organizer?: string | null;
           event_map_url?: string | null;
+          event_is_free?: boolean;
           source_note?: string | null;
           editorial_notes?: string | null;
           seo_title?: string | null;

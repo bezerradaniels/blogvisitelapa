@@ -18,7 +18,7 @@ export default function Textarea({ label, error, id, className, ...props }: Text
       <textarea
         id={fieldId}
         className={cn(
-          'w-full rounded border border-line bg-card p-3 text-sm outline-none focus:border-brand',
+          'w-full rounded-[10px] border border-line bg-card p-3 text-sm outline-none focus:border-brand',
           error && 'border-danger',
           className,
         )}

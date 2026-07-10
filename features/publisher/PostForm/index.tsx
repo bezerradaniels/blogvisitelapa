@@ -6,19 +6,16 @@ import { useState, useTransition } from 'react';
 import type { JSONContent } from '@tiptap/react';
 import Button from '@/components/Button';
 import Checkbox from '@/components/Checkbox';
-import GalleryUploader, { type GalleryItem } from '@/components/GalleryUploader';
+import type { GalleryItem } from '@/components/GalleryUploader';
 import ImageUploader from '@/components/ImageUploader';
 import Input from '@/components/Input';
 import RichTextEditor from '@/components/RichTextEditor';
 import Select from '@/components/Select';
 import Textarea from '@/components/Textarea';
 import { savePost, type PostInput } from '@/features/publisher/actions';
+import { CategoryPicker, SubcategoryPicker, type CategoryOption } from '@/features/publisher/CategorySelect';
+import PublishChecklist from '@/features/publisher/PublishChecklist';
 import { slugify } from '@/lib/utils/format';
-
-interface CategoryOption {
-  id: string;
-  name: string;
-}
 
 export interface PostFormInitial extends Partial<PostInput> {
   galleryItems?: GalleryItem[];
@@ -59,8 +56,12 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
 
   const [coverUrl, setCoverUrl] = useState<string | null>(initial?.cover_image_url ?? null);
   const [coverAlt, setCoverAlt] = useState(initial?.cover_image_alt ?? '');
-  const [gallery, setGallery] = useState<GalleryItem[]>(initial?.galleryItems ?? []);
+  // Galeria dedicada removida da UI (imagens agora vão pelo editor); mantém o
+  // valor existente ao editar para não descartar galerias já salvas.
+  const [gallery] = useState<GalleryItem[]>(initial?.galleryItems ?? []);
 
+  // Categorias em estado local para refletir criações inline no dropdown.
+  const [cats, setCats] = useState<CategoryOption[]>(categories);
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? '');
   const [contentType, setContentType] = useState<PostInput['content_type']>(
     (initial?.content_type as PostInput['content_type']) ?? 'noticia',
@@ -78,6 +79,7 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
   const [eventTicket, setEventTicket] = useState(initial?.event_ticket_url ?? '');
   const [eventOrganizer, setEventOrganizer] = useState(initial?.event_organizer ?? '');
   const [eventMap, setEventMap] = useState(initial?.event_map_url ?? '');
+  const [eventIsFree, setEventIsFree] = useState(initial?.event_is_free ?? false);
 
   const [sourceNote, setSourceNote] = useState(initial?.source_note ?? '');
   const [editorialNotes, setEditorialNotes] = useState(initial?.editorial_notes ?? '');
@@ -125,6 +127,7 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
       event_ticket_url: eventTicket,
       event_organizer: eventOrganizer,
       event_map_url: eventMap,
+      event_is_free: eventIsFree,
       source_note: sourceNote,
       editorial_notes: editorialNotes,
       seo_title: seoTitle,
@@ -152,6 +155,20 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
 
   const section = 'card-base space-y-3 p-4';
   const sectionTitle = 'text-sm font-bold text-title';
+
+  // Sinais para o checklist AEO/GEO automático.
+  const checklistData = {
+    title,
+    slug,
+    excerpt,
+    contentHtml,
+    seoDescription,
+    focusKeyword,
+    coverUrl,
+    coverAlt,
+    categoryId,
+    sourceNote,
+  };
 
   return (
     <form
@@ -187,20 +204,16 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
           />
         </div>
 
-        <div className={section}>
-          <span className={sectionTitle}>Galeria de imagens</span>
-          <GalleryUploader value={gallery} onChange={setGallery} prefix={initial?.id} />
-        </div>
-
         {isEvent && (
           <div className={section}>
             <span className={sectionTitle}>Dados do evento</span>
+            <Checkbox label="Evento gratuito" checked={eventIsFree} onChange={(e) => setEventIsFree(e.target.checked)} />
             <div className="grid gap-3 sm:grid-cols-2">
               <Input label="Data de início" type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} />
               <Input label="Data de término" type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} />
               <Input label="Local" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} />
               <Input label="Endereço" value={eventAddress} onChange={(e) => setEventAddress(e.target.value)} />
-              <Input label="Link de ingresso" value={eventTicket} onChange={(e) => setEventTicket(e.target.value)} />
+              <Input label="Link de ingresso" value={eventTicket} onChange={(e) => setEventTicket(e.target.value)} disabled={eventIsFree} />
               <Input label="Organizador" value={eventOrganizer} onChange={(e) => setEventOrganizer(e.target.value)} />
               <Input label="Link do mapa" value={eventMap} onChange={(e) => setEventMap(e.target.value)} />
             </div>
@@ -217,7 +230,7 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
           </div>
           <Input label="Título para redes sociais" value={socialTitle} onChange={(e) => setSocialTitle(e.target.value)} />
           <Textarea label="Descrição para redes sociais" rows={2} value={socialDescription} onChange={(e) => setSocialDescription(e.target.value)} />
-          <ImageUploader bucket="post-covers" prefix="social" value={socialImage} onChange={setSocialImage} label="Imagem para compartilhamento" />
+          <ImageUploader bucket="post-covers" prefix="social" value={socialImage} onChange={setSocialImage} label="Imagem para compartilhamento" compact />
         </div>
 
         <div className={section}>
@@ -229,7 +242,7 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
 
       {/* Sidebar de opções */}
       <aside className="space-y-4">
-        <div className={`${section} lg:sticky lg:top-20`}>
+        <div className={section}>
           <span className={sectionTitle}>Publicação</span>
           {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex flex-col gap-2">
@@ -255,12 +268,23 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
 
         <div className={section}>
           <span className={sectionTitle}>Classificação</span>
-          <Select
-            label="Categoria"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            placeholder="Selecione..."
-            options={categories.map((c) => ({ value: c.id, label: c.name }))}
+          <CategoryPicker
+            categories={cats}
+            categoryId={categoryId}
+            onChange={setCategoryId}
+            onCreated={(c) => {
+              setCats((prev) => [...prev, c]);
+              setCategoryId(c.id);
+            }}
+          />
+          <SubcategoryPicker
+            categories={cats}
+            categoryId={categoryId}
+            onChange={setCategoryId}
+            onCreated={(c) => {
+              setCats((prev) => [...prev, c]);
+              setCategoryId(c.id);
+            }}
           />
           <Select
             label="Tipo de conteúdo"
@@ -280,6 +304,11 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
           <Checkbox label="Permitir indexação" checked={allowIndexing} onChange={(e) => setAllowIndexing(e.target.checked)} />
           <Checkbox label="Incluir no sitemap" checked={includeSitemap} onChange={(e) => setIncludeSitemap(e.target.checked)} />
           <Checkbox label="Incluir no RSS" checked={includeRss} onChange={(e) => setIncludeRss(e.target.checked)} />
+        </div>
+
+        {/* Checklist AEO/GEO — automático, por último na coluna (apenas desktop) */}
+        <div className="hidden lg:block">
+          <PublishChecklist postId={initial?.id} data={checklistData} />
         </div>
       </aside>
     </form>
