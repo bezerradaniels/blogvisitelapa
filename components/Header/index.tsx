@@ -27,15 +27,17 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-card">
       <div className="container-page flex h-[68px] items-center justify-between gap-3">
-        {/* Logo (wordmark de texto) */}
-        <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
-          <span className="font-headline text-xl font-extrabold tracking-tight text-title">
-            Conecta<span className="text-brand">Lapa</span>
-          </span>
-        </Link>
+        {/* Logo + navegação, agrupados à esquerda */}
+        <div className="flex items-center gap-6 lg:gap-8">
+          <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
+            <span className="font-headline text-xl font-extrabold tracking-tight text-title">
+              Conecta<span className="text-brand">Lapa</span>
+            </span>
+          </Link>
 
-        {/* Navegação desktop */}
-        <HeaderNav items={navItems} />
+          {/* Navegação desktop */}
+          <HeaderNav items={navItems} />
+        </div>
 
         {/* Ações */}
         <div className="flex items-center gap-2">
