@@ -5,7 +5,7 @@ import { footerNav, siteConfig } from '@/lib/config/site';
 export default function Footer() {
   const year = new Date().getFullYear();
 
-  const linkClass = 'text-sm text-[#bfe8d3] hover:text-white';
+  const linkClass = 'text-sm text-white hover:text-mint2';
   const headClass = 'mb-2 text-xs font-bold uppercase tracking-wide text-mint2';
 
   return (
@@ -15,7 +15,7 @@ export default function Footer() {
           <span className="font-headline text-xl font-extrabold text-white">
             Conecta<span className="text-mint2">Lapa</span>
           </span>
-          <p className="mt-2 text-xs text-[#bfe8d3]/80">
+          <p className="mt-2 text-xs text-white">
             {siteConfig.slogan}. Notícias, eventos e guia local de {siteConfig.geo.city},{' '}
             {siteConfig.geo.stateCode}.
           </p>
@@ -62,7 +62,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 py-4">
-        <p className="container-page text-center text-xs text-[#bfe8d3]/70">
+        <p className="container-page text-center text-xs text-white">
           © {year} {siteConfig.name}. Todos os direitos reservados.
         </p>
       </div>
