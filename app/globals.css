@@ -187,6 +187,13 @@
   border-radius: 99px 99px 99px 4px;
 }
 
+/* Faixa de capa de fallback (perfil/comunidade sem imagem de capa) */
+.cover-fallback {
+  background:
+    radial-gradient(120% 120% at 0% 0%, var(--color-brand-soft) 0%, transparent 60%),
+    linear-gradient(120deg, var(--color-surface), var(--color-brand-soft));
+}
+
 /* Blob decorativo atrás dos números das métricas do admin */
 .metric-blob {
   position: absolute;

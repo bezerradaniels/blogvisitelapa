@@ -54,7 +54,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
       <div className={isCompact ? 'p-3' : 'p-4'}>
         <Link href={href}>
           <h3
-            className={`font-bold text-title group-hover:text-brand ${
+            className={`font-bold text-title group-hover:text-brand md:!text-slate-800 ${
               isFeatured ? 'text-lg md:text-2xl' : 'text-sm md:text-base'
             } line-clamp-3`}
           >

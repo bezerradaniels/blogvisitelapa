@@ -26,7 +26,7 @@ export default function FriendButton({ targetProfileId, state, isLogged, targetS
 
   if (!isLogged) {
     return (
-      <Button href={`/login?redirect=/u/${targetSlug}`} variant="accent" size="sm">
+      <Button href={`/login?redirect=/u/${targetSlug}`} variant="primary" size="sm">
         Entrar para adicionar
       </Button>
     );
@@ -69,7 +69,7 @@ export default function FriendButton({ targetProfileId, state, isLogged, targetS
   }
 
   return (
-    <Button onClick={() => run(() => sendFriendRequest(targetProfileId))} variant="accent" size="sm" disabled={pending}>
+    <Button onClick={() => run(() => sendFriendRequest(targetProfileId))} variant="primary" size="sm" disabled={pending}>
       {pending ? '...' : 'Adicionar amigo'}
     </Button>
   );

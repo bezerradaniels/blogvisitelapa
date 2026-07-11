@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
 import Badge from '@/components/Badge';
 import { listUserCommunities } from '@/features/communities/queries';
 import NewMessageButton from '@/features/messages/NewMessageButton';
@@ -42,14 +43,16 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
+/* ---------- helpers apresentacionais (server, inline) ---------- */
+
 function ProfileAvatar({ url, name, size = 40 }: { url: string | null; name: string | null; size?: number }) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-soft font-extrabold text-brand-dark"
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-soft font-headline font-extrabold text-brand-dark"
       style={{ width: size, height: size, fontSize: size / 2.5 }}
     >
       {url ? (
-        <Image src={url} alt="" width={size} height={size} className="object-cover" />
+        <Image src={url} alt="" width={size} height={size} className="h-full w-full object-cover" />
       ) : (
         (name ?? 'U').charAt(0).toUpperCase()
       )}
@@ -57,12 +60,55 @@ function ProfileAvatar({ url, name, size = 40 }: { url: string | null; name: str
   );
 }
 
+// Título de seção com a "pílula-folha" do tema. Sem margem própria — quem usa
+// define o espaçamento (evita desalinhar dentro de linhas flex com "Ver todos").
+function SectionHeading({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <h2 className={`flex items-center gap-2 text-base font-extrabold text-title${className ? ` ${className}` : ''}`}>
+      <span className="leaf-pill" aria-hidden />
+      {children}
+    </h2>
+  );
+}
+
+// Contador social (dado real; nostálgico, não é reputação).
+function StatChip({ label, value, href }: { label: string; value: number; href?: string }) {
+  const inner = (
+    <span className="inline-flex items-baseline gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 transition-[filter] hover:brightness-95">
+      <span className="font-headline text-base font-extrabold leading-none text-brand-dark">{value}</span>
+      <span className="text-xs font-semibold text-muted">{label}</span>
+    </span>
+  );
+  return href ? (
+    <Link href={href} className="focus-visible:outline-none">
+      {inner}
+    </Link>
+  ) : (
+    inner
+  );
+}
+
 function FriendTile({ p }: { p: CommunityProfile }) {
   return (
-    <Link href={`/u/${p.slug}`} className="flex flex-col items-center gap-1 text-center" title={p.full_name ?? ''}>
-      <ProfileAvatar url={p.avatar_url} name={p.full_name} size={48} />
-      <span className="line-clamp-1 text-xs font-semibold text-title">{p.full_name ?? 'Usuário'}</span>
+    <Link
+      href={`/u/${p.slug}`}
+      className="card-hover flex flex-col items-center gap-1.5 text-center"
+      title={p.full_name ?? ''}
+    >
+      <ProfileAvatar url={p.avatar_url} name={p.full_name} size={56} />
+      <span className="line-clamp-1 w-full text-xs font-semibold text-title">{p.full_name ?? 'Usuário'}</span>
     </Link>
+  );
+}
+
+// Campo rótulo/valor do card "Sobre".
+function Field({ label, value, full }: { label: string; value: ReactNode; full?: boolean }) {
+  if (!value) return null;
+  return (
+    <div className={full ? 'sm:col-span-2' : undefined}>
+      <dt className="text-xs font-semibold text-muted">{label}</dt>
+      <dd className="whitespace-pre-wrap text-sm text-body">{value}</dd>
+    </div>
   );
 }
 
@@ -79,45 +125,39 @@ export default async function PerfilPublicoPage({ params }: Props) {
   const isOwner = friendState === 'self';
   const isFriend = friendState === 'friends';
   const d = profile.details;
+  const isAuthor = profile.role === 'publisher' || profile.role === 'admin';
 
-  const header = (
-    <header className="card-base mb-6 overflow-hidden p-0">
-      <div className="h-28 bg-section sm:h-36">
-        {d?.cover_url && (
-          <div className="relative h-full w-full">
-            <Image src={d.cover_url} alt="" fill sizes="900px" className="object-cover" />
-          </div>
-        )}
+  // Cabeçalho de identidade (reusado no estado restrito e no completo).
+  const renderHeader = (stats?: ReactNode) => (
+    <header className="card-base overflow-hidden p-0">
+      <div className="cover-fallback relative h-32 sm:h-44">
+        {d?.cover_url && <Image src={d.cover_url} alt="" fill sizes="(max-width: 1024px) 100vw, 900px" className="object-cover" priority />}
       </div>
-      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
-        <div className="-mt-12 sm:-mt-14">
-          <span className="block rounded-full border-4 border-card">
-            <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={88} />
-          </span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-extrabold text-title">{profile.full_name}</h1>
-          <p className="text-sm text-muted">
-            {d?.nickname ? `“${d.nickname}”` : null}
-            {d?.city ? `${d?.nickname ? ' · ' : ''}${d.city}` : null}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            {profile.friendCount} {profile.friendCount === 1 ? 'amigo' : 'amigos'}
-          </p>
-          {(profile.role === 'publisher' || profile.role === 'admin') && (
-            <Link href={`/autor/${profile.slug}`} className="mt-1 inline-block text-sm font-bold text-brand hover:underline">
-              Ver publicações →
-            </Link>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          {isOwner ? (
-            <Link href="/perfil" className="text-sm font-bold text-brand hover:underline">
-              Editar perfil
-            </Link>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-end gap-4">
+            <div className="relative z-10 -mt-20 shrink-0 sm:-mt-24">
+              <span className="inline-block rounded-full border-4 border-card shadow-card">
+                <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={112} />
+              </span>
+            </div>
+            <div className="min-w-0 pb-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-extrabold text-title">{profile.full_name}</h1>
+                {isAuthor && <Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge>}
+              </div>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-3 sm:pb-1">
+            {isOwner ? (
+              <Link
+                href="/perfil"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface"
+              >
+                Editar perfil
+              </Link>
+            ) : (
+              <>
                 <FriendButton
                   targetProfileId={profile.id}
                   state={friendState}
@@ -125,11 +165,13 @@ export default async function PerfilPublicoPage({ params }: Props) {
                   targetSlug={slug}
                 />
                 {isFriend && <NewMessageButton targetProfileId={profile.id} />}
-              </div>
-              {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
-            </>
-          )}
+                {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
+              </>
+            )}
+          </div>
         </div>
+        {profile.bio && <p className="mt-3 line-clamp-2 max-w-prose text-sm text-body">{profile.bio}</p>}
+        {stats && <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">{stats}</div>}
       </div>
     </header>
   );
@@ -138,14 +180,27 @@ export default async function PerfilPublicoPage({ params }: Props) {
   if (!profile.canView) {
     return (
       <div className="container-page max-w-3xl py-8">
-        {header}
-        <div className="card-base p-6 text-center">
-          <h2 className="text-base font-bold text-title">Este perfil é restrito</h2>
-          <p className="mt-1 text-sm text-muted">
+        {renderHeader()}
+        <div className="card-base mt-6 flex flex-col items-center px-6 py-10 text-center">
+          <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-xl text-brand-dark" aria-hidden>
+            🔒
+          </span>
+          <h2 className="text-base font-extrabold text-title">Este perfil é restrito</h2>
+          <p className="mt-1 max-w-sm text-sm text-muted">
             {friendState === 'none' || friendState === 'request_sent'
               ? 'Adicione como amigo para ver o perfil completo.'
               : 'O conteúdo deste perfil não está disponível.'}
           </p>
+          {!isOwner && (
+            <div className="mt-4">
+              <FriendButton
+                targetProfileId={profile.id}
+                state={friendState}
+                isLogged={Boolean(viewer)}
+                targetSlug={slug}
+              />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -159,62 +214,86 @@ export default async function PerfilPublicoPage({ params }: Props) {
     listUserCommunities(profile.id),
   ]);
 
+  const hasAbout = Boolean(d?.about || d?.interests || d?.relationship || d?.birth_date || d?.city);
+
+  const statStrip = (
+    <>
+      <StatChip label="amigos" value={profile.friendCount} href={`/u/${slug}/amigos`} />
+      <StatChip label="recados" value={scraps.length} href="#recados" />
+      <StatChip label="depoimentos" value={testimonials.length} href="#depoimentos" />
+      <StatChip label="fotos" value={albums.length} href="#fotos" />
+      <StatChip label="comunidades" value={communities.length} href="#comunidades" />
+    </>
+  );
+
+  // Navegação contextual (âncoras — sem novas rotas).
+  const navItems: { href: string; label: string }[] = [
+    ...(hasAbout ? [{ href: '#sobre', label: 'Sobre' }] : []),
+    { href: '#recados', label: 'Recados' },
+    { href: '#depoimentos', label: 'Depoimentos' },
+    { href: '#amigos', label: 'Amigos' },
+    { href: '#fotos', label: 'Fotos' },
+    { href: '#comunidades', label: 'Comunidades' },
+  ];
+
   return (
     <div className="container-page py-8">
-      {header}
+      {renderHeader(statStrip)}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[200px_1fr_300px]">
+        {/* Navegação contextual: barra segmentada no mobile, coluna sticky no desktop */}
+        <nav aria-label="Seções do perfil" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+          <ul className="no-scrollbar flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+            {navItems.map((it) => (
+              <li key={it.href} className="shrink-0 lg:shrink">
+                <a
+                  href={it.href}
+                  className="inline-flex min-h-[44px] w-full items-center whitespace-nowrap rounded-full border border-line bg-card px-4 text-sm font-bold text-body hover:bg-surface lg:rounded-[10px]"
+                >
+                  {it.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Coluna principal */}
         <div className="min-w-0 space-y-6">
-          {/* Sobre */}
-          {(d?.about || d?.interests || d?.relationship || d?.birth_date) && (
-            <section className="card-base p-4">
-              <h2 className="mb-2 text-sm font-extrabold text-title">Sobre</h2>
-              {d?.about && <p className="mb-3 whitespace-pre-wrap text-sm text-body">{d.about}</p>}
-              <dl className="grid gap-2 text-sm sm:grid-cols-2">
-                {d?.relationship && (
-                  <div>
-                    <dt className="text-xs font-semibold text-muted">Relacionamento</dt>
-                    <dd className="text-body">{d.relationship}</dd>
-                  </div>
-                )}
-                {d?.birth_date && (
-                  <div>
-                    <dt className="text-xs font-semibold text-muted">Aniversário</dt>
-                    <dd className="text-body">{formatDate(d.birth_date, "d 'de' MMMM")}</dd>
-                  </div>
-                )}
-                {d?.interests && (
-                  <div className="sm:col-span-2">
-                    <dt className="text-xs font-semibold text-muted">Interesses</dt>
-                    <dd className="text-body">{d.interests}</dd>
-                  </div>
-                )}
+          {hasAbout && (
+            <section id="sobre" className="card-base scroll-mt-24 p-4 sm:p-5">
+              <SectionHeading className="mb-3">Sobre</SectionHeading>
+              {d?.about && <p className="mb-4 whitespace-pre-wrap text-sm text-body">{d.about}</p>}
+              <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                <Field label="Relacionamento" value={d?.relationship} />
+                {d?.birth_date && <Field label="Aniversário" value={formatDate(d.birth_date, "d 'de' MMMM")} />}
+                <Field label="Cidade" value={d?.city} />
+                <Field label="Interesses" value={d?.interests} full />
               </dl>
             </section>
           )}
 
           {/* Recados / mural */}
-          <section className="card-base p-4">
-            <h2 className="mb-3 text-sm font-extrabold text-title">Recados</h2>
+          <section id="recados" className="card-base scroll-mt-24 p-4 sm:p-5">
+            <SectionHeading className="mb-3">Recados</SectionHeading>
             {isFriend && (
-              <div className="mb-3">
+              <div className="mb-4">
                 <ScrapForm profileId={profile.id} />
               </div>
             )}
             {scraps.length > 0 ? (
               <ul className="space-y-3">
                 {scraps.map((s) => (
-                  <li key={s.id} className="flex gap-3">
-                    <ProfileAvatar url={s.author?.avatar_url ?? null} name={s.author?.full_name ?? null} size={36} />
+                  <li key={s.id} className="flex gap-3 rounded-[10px] bg-surface p-3">
+                    <ProfileAvatar url={s.author?.avatar_url ?? null} name={s.author?.full_name ?? null} size={40} />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 text-xs text-muted">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                         <Link href={`/u/${s.author?.slug}`} className="font-bold text-title hover:underline">
                           {s.author?.full_name ?? 'Usuário'}
                         </Link>
                         <span>{timeAgo(s.created_at)}</span>
                         {(isOwner || s.author?.id === viewerId) && <DeleteScrapButton scrapId={s.id} />}
                       </div>
-                      <p className="whitespace-pre-wrap text-sm text-body">{s.content}</p>
+                      <p className="mt-0.5 whitespace-pre-wrap text-sm text-body">{s.content}</p>
                     </div>
                   </li>
                 ))}
@@ -227,26 +306,26 @@ export default async function PerfilPublicoPage({ params }: Props) {
           </section>
 
           {/* Depoimentos */}
-          <section className="card-base p-4">
-            <h2 className="mb-3 text-sm font-extrabold text-title">Depoimentos</h2>
+          <section id="depoimentos" className="card-base scroll-mt-24 p-4 sm:p-5">
+            <SectionHeading className="mb-3">Depoimentos</SectionHeading>
             {isFriend && (
-              <div className="mb-3">
+              <div className="mb-4">
                 <TestimonialForm profileId={profile.id} />
               </div>
             )}
             {testimonials.length > 0 ? (
               <ul className="space-y-3">
                 {testimonials.map((t) => (
-                  <li key={t.id} className="flex gap-3">
-                    <ProfileAvatar url={t.author?.avatar_url ?? null} name={t.author?.full_name ?? null} size={36} />
+                  <li key={t.id} className="flex gap-3 rounded-[10px] bg-surface p-3">
+                    <ProfileAvatar url={t.author?.avatar_url ?? null} name={t.author?.full_name ?? null} size={40} />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 text-xs text-muted">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                         <Link href={`/u/${t.author?.slug}`} className="font-bold text-title hover:underline">
                           {t.author?.full_name ?? 'Usuário'}
                         </Link>
                         <span>{timeAgo(t.created_at)}</span>
                       </div>
-                      <p className="whitespace-pre-wrap text-sm text-body">{t.content}</p>
+                      <p className="mt-0.5 whitespace-pre-wrap text-sm text-body">{t.content}</p>
                     </div>
                   </li>
                 ))}
@@ -257,11 +336,11 @@ export default async function PerfilPublicoPage({ params }: Props) {
           </section>
         </div>
 
-        {/* Amigos + Fotos */}
-        <aside className="space-y-4">
-          <div className="card-base p-4">
+        {/* Coluna social */}
+        <aside className="space-y-6">
+          <div id="amigos" className="card-base scroll-mt-24 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-title">Amigos</h2>
+              <SectionHeading>Amigos</SectionHeading>
               <Link href={`/u/${slug}/amigos`} className="text-xs font-bold text-brand hover:underline">
                 Ver todos
               </Link>
@@ -277,9 +356,9 @@ export default async function PerfilPublicoPage({ params }: Props) {
             )}
           </div>
 
-          <div className="card-base p-4">
+          <div id="fotos" className="card-base scroll-mt-24 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-title">Fotos</h2>
+              <SectionHeading>Fotos</SectionHeading>
               <Link href={`/u/${slug}/fotos`} className="text-xs font-bold text-brand hover:underline">
                 Ver álbuns
               </Link>
@@ -290,12 +369,10 @@ export default async function PerfilPublicoPage({ params }: Props) {
                   <Link
                     key={a.id}
                     href={`/u/${slug}/fotos/${a.id}`}
-                    className="relative aspect-square overflow-hidden rounded-[10px] bg-surface"
+                    className="card-hover relative aspect-square overflow-hidden rounded-[10px] bg-surface"
                     title={a.title}
                   >
-                    {a.cover_url && (
-                      <Image src={a.cover_url} alt="" fill sizes="120px" className="object-cover" />
-                    )}
+                    {a.cover_url && <Image src={a.cover_url} alt={a.title} fill sizes="120px" className="object-cover" />}
                   </Link>
                 ))}
               </div>
@@ -304,30 +381,30 @@ export default async function PerfilPublicoPage({ params }: Props) {
             )}
           </div>
 
-          <div className="card-base p-4">
+          <div id="comunidades" className="card-base scroll-mt-24 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-title">Comunidades</h2>
+              <SectionHeading>Comunidades</SectionHeading>
               <Link href="/comunidades" className="text-xs font-bold text-brand hover:underline">
                 Explorar
               </Link>
             </div>
             {communities.length > 0 ? (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 items-start gap-3">
                 {communities.slice(0, 9).map((c) => (
                   <Link
                     key={c.id}
                     href={`/comunidades/${c.slug}`}
-                    className="flex flex-col items-center gap-1 text-center"
+                    className="card-hover flex flex-col items-center gap-1.5 text-center"
                     title={c.name}
                   >
-                    <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[12px] bg-brand-soft text-base font-extrabold text-brand-dark">
+                    <span className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-[12px] bg-brand-soft text-2xl font-extrabold text-brand-dark">
                       {c.avatar_url ? (
-                        <Image src={c.avatar_url} alt="" fill sizes="48px" className="object-cover" />
+                        <Image src={c.avatar_url} alt="" fill sizes="90px" className="object-cover" />
                       ) : (
                         c.name.charAt(0).toUpperCase()
                       )}
                     </span>
-                    <span className="line-clamp-1 text-xs font-semibold text-title">{c.name}</span>
+                    <span className="w-full break-words text-xs font-semibold leading-tight text-title">{c.name}</span>
                   </Link>
                 ))}
               </div>
@@ -335,14 +412,15 @@ export default async function PerfilPublicoPage({ params }: Props) {
               <p className="text-sm text-muted">Nenhuma comunidade ainda.</p>
             )}
           </div>
-          {profile.role === 'admin' || profile.role === 'publisher' ? (
-            <div className="card-base mt-4 p-4">
-              <Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge>
-              <Link href={`/autor/${slug}`} className="mt-2 block text-sm font-bold text-brand hover:underline">
+
+          {isAuthor && (
+            <div className="card-base p-4">
+              <p className="text-sm font-semibold text-title">Publicações</p>
+              <Link href={`/autor/${slug}`} className="mt-1 inline-block text-sm font-bold text-brand hover:underline">
                 Ver publicações →
               </Link>
             </div>
-          ) : null}
+          )}
         </aside>
       </div>
     </div>
