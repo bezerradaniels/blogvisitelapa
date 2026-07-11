@@ -90,7 +90,7 @@ export default function AdminSidebar({
         {groups.map((group, gi) => (
           <div key={gi} className="space-y-0.5">
             {group.title && (
-              <p className="px-2 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-[#5f9a7e]">
+              <p className="px-2 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-mint2">
                 {group.title}
               </p>
             )}
@@ -103,7 +103,7 @@ export default function AdminSidebar({
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex items-center gap-2 rounded-[14px] px-3 py-2 text-sm font-semibold transition-colors',
-                    active ? 'bg-brand font-extrabold text-white' : 'text-[#cfeede] hover:bg-white/10',
+                    active ? 'bg-brand font-extrabold text-white' : 'text-white hover:bg-white/10',
                   )}
                 >
                   <span

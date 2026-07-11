@@ -29,10 +29,15 @@ export default async function Header() {
       <div className="container-page flex h-[68px] items-center justify-between gap-3">
         {/* Logo + navegação, agrupados à esquerda */}
         <div className="flex items-center gap-6 lg:gap-8">
-          <Link href="/" className="flex items-center gap-2" aria-label={siteConfig.name}>
-            <span className="font-headline text-xl font-extrabold tracking-tight text-title">
-              Conecta<span className="text-brand">Lapa</span>
-            </span>
+          <Link href="/" className="flex items-center" aria-label={siteConfig.name}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-conecta-lapa.svg"
+              alt={siteConfig.name}
+              className="h-9 w-auto"
+              width={95}
+              height={36}
+            />
           </Link>
 
           {/* Navegação desktop */}

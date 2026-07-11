@@ -36,7 +36,7 @@
   --color-accent-ink: #ffffff;
   --color-highlight: #f2b64c; /* amarelo — badge "Guia Local", estrelas */
   --color-highlight-ink: #5c4508;
-  --color-mint-2: #6ecfa4; /* menta secundária (footer, chips) */
+  --color-mint-2: #4de191; /* menta secundária (footer, chips) */
 
   /* Linhas e estados */
   --color-border: #d8eee2; /* linhas esverdeadas */
@@ -183,7 +183,7 @@
   display: inline-block;
   width: 14px;
   height: 14px;
-  background: var(--color-brand);
+  background: var(--color-mint-2);
   border-radius: 99px 99px 99px 4px;
 }
 
