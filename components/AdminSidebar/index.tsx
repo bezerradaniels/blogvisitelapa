@@ -39,6 +39,7 @@ export default function AdminSidebar({
         { href: '/admin/posts', label: 'Posts' },
         { href: '/admin/categorias', label: 'Categorias' },
         { href: '/admin/tags', label: 'Tags' },
+        { href: '/admin/secoes-home', label: 'Seções da homepage' },
         { href: '/admin/comentarios', label: 'Comentários', badge: pendingComments || undefined },
         { href: '/admin/avaliacoes', label: 'Avaliações' },
         { href: '/admin/contatos', label: 'Contatos' },

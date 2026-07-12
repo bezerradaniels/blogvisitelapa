@@ -5,6 +5,8 @@ import CategoryCarousel from '@/components/CategoryCarousel';
 import EmptyState from '@/components/EmptyState';
 import PostCard from '@/components/PostCard';
 import SectionTitle from '@/components/SectionTitle';
+import HomeSectionCarousel from '@/components/HomeSectionCarousel';
+import { listPublicHomeSections } from '@/features/homeSections/queries';
 import {
   listMostReadPosts,
   listPublishedPosts,
@@ -35,12 +37,16 @@ function EventDateBox({ date }: { date: string }) {
 }
 
 export default async function HomePage() {
-  const [featuredList, latest, events, mostRead, guides] = await Promise.all([
+  const [featuredList, latest, events, mostRead, guides, afterHero, afterLatest, beforeEvents, beforeFooter] = await Promise.all([
     listPublishedPosts({ featured: true, limit: 3 }),
     listPublishedPosts({ limit: 8 }),
     listUpcomingEvents(4),
     listMostReadPosts(5),
     listPublishedPosts({ contentType: 'guia', limit: 3 }),
+    listPublicHomeSections('after-hero'),
+    listPublicHomeSections('after-latest-news'),
+    listPublicHomeSections('before-events'),
+    listPublicHomeSections('before-footer'),
   ]);
 
   const hero = featuredList[0] ?? latest[0];
@@ -72,6 +78,7 @@ export default async function HomePage() {
       </section>
 
       <div className="container-page space-y-10 pt-8">
+        {afterHero.map((section) => <DynamicSection key={section.id} section={section} />)}
         {/* 2. Chips de categoria */}
         <CategoryCarousel />
 
@@ -92,8 +99,12 @@ export default async function HomePage() {
           )}
         </section>
 
+        {afterLatest.map((section) => <DynamicSection key={section.id} section={section} />)}
+
         {/* Banner do meio */}
         <AdBanner placement="home_middle" />
+
+        {beforeEvents.map((section) => <DynamicSection key={section.id} section={section} />)}
 
         {/* 4. Próximos eventos + Mais lidas */}
         <div className="grid gap-8 lg:grid-cols-3">
@@ -156,6 +167,8 @@ export default async function HomePage() {
             <EmptyState title="Guia em construção" />
           )}
         </section>
+
+        {beforeFooter.map((section) => <DynamicSection key={section.id} section={section} />)}
       </div>
 
       {/* 6. CTA anunciante — faixa neutra (tom alternado p/ contraste) */}
@@ -175,4 +188,11 @@ export default async function HomePage() {
       </section>
     </div>
   );
+}
+
+function DynamicSection({ section }: { section: Awaited<ReturnType<typeof listPublicHomeSections>>[number] }) {
+  const href = section.show_view_all && section.view_all_mode !== 'hidden'
+    ? section.view_all_mode === 'custom' ? section.custom_view_all_url ?? undefined : `/secoes/${section.slug}`
+    : undefined;
+  return <section aria-label={section.title}><SectionTitle title={section.title} href={href} linkLabel="ver tudo" />{section.subtitle && <p className="-mt-2 mb-4 text-sm text-muted">{section.subtitle}</p>}<HomeSectionCarousel posts={section.posts} /></section>;
 }

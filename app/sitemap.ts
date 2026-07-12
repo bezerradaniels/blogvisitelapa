@@ -32,6 +32,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from('categories')
     .select('slug, updated_at')
     .eq('status', 'active');
+  const { data: sections } = await supabase
+    .from('home_sections')
+    .select('slug, updated_at')
+    .eq('status', 'active')
+    .is('deleted_at', null);
 
   const postRoutes = (posts ?? []).map((p) => ({
     url: absoluteUrl(`/post/${p.slug}`),
@@ -46,6 +51,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'daily' as const,
     priority: 0.6,
   }));
+  const sectionRoutes = (sections ?? []).map((section) => ({
+    url: absoluteUrl(`/secoes/${section.slug}`), lastModified: new Date(section.updated_at), changeFrequency: 'weekly' as const, priority: 0.6,
+  }));
 
-  return [...staticRoutes, ...postRoutes, ...categoryRoutes];
+  return [...staticRoutes, ...postRoutes, ...categoryRoutes, ...sectionRoutes];
 }

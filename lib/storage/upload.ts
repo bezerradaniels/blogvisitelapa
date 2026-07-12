@@ -11,7 +11,8 @@ export type UploadBucket =
   | 'ad-banners'
   | 'user-avatars'
   | 'user-photos'
-  | 'sponsored-content';
+  | 'sponsored-content'
+  | 'section-covers';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
