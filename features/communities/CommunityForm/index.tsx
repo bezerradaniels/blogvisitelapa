@@ -13,6 +13,8 @@ import type { CommunityCategory } from '@/types/database';
 
 interface CommunityFormProps {
   userId: string; // auth uid — pasta do bucket de avatares
+  redirectTo?: string;
+  cancelHref?: string;
   community?: {
     id: string;
     name: string;
@@ -24,7 +26,12 @@ interface CommunityFormProps {
   };
 }
 
-export default function CommunityForm({ userId, community }: CommunityFormProps) {
+export default function CommunityForm({
+  userId,
+  community,
+  redirectTo,
+  cancelHref = '/comunidades',
+}: CommunityFormProps) {
   const router = useRouter();
   const editing = Boolean(community);
 
@@ -57,7 +64,7 @@ export default function CommunityForm({ userId, community }: CommunityFormProps)
       setError(res.error ?? 'Algo deu errado.');
       return;
     }
-    router.push(`/comunidades/${res.slug}`);
+    router.push(redirectTo ?? `/comunidades/${res.slug}`);
     router.refresh();
   }
 
@@ -132,7 +139,7 @@ export default function CommunityForm({ userId, community }: CommunityFormProps)
         <Button variant="primary" disabled={loading}>
           {loading ? 'Salvando...' : editing ? 'Salvar alterações' : 'Criar comunidade'}
         </Button>
-        <Button href="/comunidades" variant="ghost" size="sm">
+        <Button href={cancelHref} variant="ghost" size="sm">
           Cancelar
         </Button>
       </div>

@@ -38,6 +38,7 @@ export async function setCommunityStatus(
 
   await logAudit(supabase, profileId, `community_${status}`, 'community', communityId);
   revalidatePath('/admin/comunidades');
+  revalidatePath(`/admin/comunidades/${communityId}`);
   revalidatePath('/comunidades');
   return { ok: true };
 }

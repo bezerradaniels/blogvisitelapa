@@ -880,6 +880,46 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['profile_details']['Insert']>;
         Relationships: [];
       };
+      social_posts: {
+        Row: {
+          id: string;
+          author_id: string;
+          content: string | null;
+          repost_of: string | null;
+          like_count: number;
+          repost_count: number;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          author_id: string;
+          content?: string | null;
+          repost_of?: string | null;
+          like_count?: number;
+          repost_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['social_posts']['Insert']>;
+        Relationships: [];
+      };
+      social_post_likes: {
+        Row: { post_id: string; profile_id: string; created_at: string };
+        Insert: { post_id: string; profile_id: string; created_at?: string };
+        Update: Partial<Database['public']['Tables']['social_post_likes']['Insert']>;
+        Relationships: [];
+      };
+      social_post_mentions: {
+        Row: { post_id: string; profile_id: string; created_at: string };
+        Insert: { post_id: string; profile_id: string; created_at?: string };
+        Update: Partial<Database['public']['Tables']['social_post_mentions']['Insert']>;
+        Relationships: [];
+      };
+      social_post_hashtags: {
+        Row: { post_id: string; tag: string; created_at: string };
+        Insert: { post_id: string; tag: string; created_at?: string };
+        Update: Partial<Database['public']['Tables']['social_post_hashtags']['Insert']>;
+        Relationships: [];
+      };
       friendships: {
         Row: {
           id: string;

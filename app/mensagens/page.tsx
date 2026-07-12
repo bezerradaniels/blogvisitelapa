@@ -17,7 +17,7 @@ export default async function MensagensPage() {
   const conversations = await listConversations(user.profile.id);
 
   return (
-    <div className="container-page max-w-2xl py-8">
+    <section className="card-base p-4 sm:p-6">
       <h1 className="mb-6 text-2xl font-extrabold text-title">Mensagens</h1>
 
       {conversations.length > 0 ? (
@@ -57,6 +57,6 @@ export default async function MensagensPage() {
           description="Abra o perfil de um amigo e toque em “Enviar mensagem”."
         />
       )}
-    </div>
+    </section>
   );
 }

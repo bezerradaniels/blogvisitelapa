@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Button from '@/components/Button';
 import EmptyState from '@/components/EmptyState';
 import FilterTabs from '@/components/FilterTabs';
 import CommunityRowActions from '@/features/admin/CommunityRowActions';
@@ -41,7 +42,7 @@ export default async function AdminCommunitiesPage({ searchParams }: Props) {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted">
-                    <Link href={`/comunidades/${c.slug}`} className="font-bold text-title hover:underline">
+                    <Link href={`/admin/comunidades/${c.id}`} className="font-bold text-title hover:text-brand hover:underline">
                       {c.name}
                     </Link>
                     <span aria-hidden>·</span>
@@ -55,7 +56,12 @@ export default async function AdminCommunitiesPage({ searchParams }: Props) {
                     Dono: {c.owner?.full_name ?? '—'} · criada em {formatDateTime(c.created_at)}
                   </p>
                 </div>
-                <CommunityRowActions communityId={c.id} status={c.status} />
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <Button href={`/admin/comunidades/${c.id}`} size="sm" variant="outline">
+                    Ver detalhes
+                  </Button>
+                  <CommunityRowActions communityId={c.id} status={c.status} />
+                </div>
               </div>
             </li>
           ))}

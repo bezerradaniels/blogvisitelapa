@@ -3,7 +3,7 @@
 // Controle de papel e status de um usuário.
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { setUserRole, setUserStatus } from '@/features/admin/usersActions';
+import { setUserRole, setUserStatus, setUserSuspended } from '@/features/admin/usersActions';
 import type { AccountStatus, UserRole } from '@/types/database';
 
 interface UserRowControlProps {
@@ -46,7 +46,10 @@ export default function UserRowControl({ profileId, role, status, isSelf }: User
     }
     setStatusValue(next);
     start(async () => {
-      const res = await setUserStatus(profileId, next);
+      const res =
+        next === 'suspended' || (status === 'suspended' && next === 'active')
+          ? await setUserSuspended(profileId, next === 'suspended')
+          : await setUserStatus(profileId, next);
       if (!res.ok) {
         alert(res.error ?? 'Não foi possível atualizar.');
         setStatusValue(status); // reverte

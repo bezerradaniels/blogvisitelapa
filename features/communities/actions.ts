@@ -129,6 +129,8 @@ export async function updateCommunity(
 
   revalidatePath(`/comunidades/${data.slug}`);
   revalidatePath('/comunidades');
+  revalidatePath('/admin/comunidades');
+  revalidatePath(`/admin/comunidades/${communityId}`);
   return { ok: true, slug: data.slug };
 }
 

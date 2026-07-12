@@ -16,10 +16,8 @@ export default async function Header() {
   // "Rede Social" (estilo Orkut): logado vai para o próprio perfil social;
   // deslogado vai para o login dedicado da rede social.
   const socialHref = !user
-    ? '/login-rede-social'
-    : user.profile?.slug
-      ? `/u/${user.profile.slug}`
-      : '/perfil';
+    ? '/login-rede-social?redirect=/rede'
+    : '/rede';
   const navItems = mainNav.map((item) =>
     item.href === '/comunidades' ? { ...item, href: socialHref } : item,
   );

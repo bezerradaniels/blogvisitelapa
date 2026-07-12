@@ -83,7 +83,7 @@ export default function LoginRedeSocialPage() {
             Acesse com sua conta do Conecta Lapa para entrar na rede social.
           </p>
           <Suspense fallback={<p className="text-sm text-muted">Carregando...</p>}>
-            <AuthForm mode="login" />
+            <AuthForm mode="login" defaultRedirect="/rede" />
           </Suspense>
         </div>
       </div>

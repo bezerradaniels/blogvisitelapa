@@ -71,23 +71,6 @@ function SectionHeading({ children, className }: { children: ReactNode; classNam
   );
 }
 
-// Contador social (dado real; nostálgico, não é reputação).
-function StatChip({ label, value, href }: { label: string; value: number; href?: string }) {
-  const inner = (
-    <span className="inline-flex items-baseline gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 transition-[filter] hover:brightness-95">
-      <span className="font-headline text-base font-extrabold leading-none text-brand-dark">{value}</span>
-      <span className="text-xs font-semibold text-muted">{label}</span>
-    </span>
-  );
-  return href ? (
-    <Link href={href} className="focus-visible:outline-none">
-      {inner}
-    </Link>
-  ) : (
-    inner
-  );
-}
-
 function FriendTile({ p }: { p: CommunityProfile }) {
   return (
     <Link
@@ -101,15 +84,53 @@ function FriendTile({ p }: { p: CommunityProfile }) {
   );
 }
 
-// Campo rótulo/valor do card "Sobre".
-function Field({ label, value, full }: { label: string; value: ReactNode; full?: boolean }) {
-  if (!value) return null;
+function ProfileRow({ label, children }: { label: string; children: ReactNode }) {
+  if (!children) return null;
   return (
-    <div className={full ? 'sm:col-span-2' : undefined}>
-      <dt className="text-xs font-semibold text-muted">{label}</dt>
-      <dd className="whitespace-pre-wrap text-sm text-body">{value}</dd>
+    <div className="grid gap-1 px-3 py-2.5 even:bg-surface sm:grid-cols-[140px_1fr] sm:gap-4">
+      <dt className="text-xs font-semibold text-muted sm:text-right">{label}</dt>
+      <dd className="whitespace-pre-wrap text-sm text-body">{children}</dd>
     </div>
   );
+}
+
+function NavItem({ href, children, count }: { href: string; children: ReactNode; count?: number }) {
+  return (
+    <li>
+      <a href={href} className="flex min-h-[40px] items-center rounded-[10px] px-3 text-sm font-bold text-body transition-colors hover:bg-surface">
+        {children}
+        {typeof count === 'number' && <span className="ml-auto text-xs font-semibold text-muted">{count}</span>}
+      </a>
+    </li>
+  );
+}
+
+function VisibilityLabel({ value }: { value: string | null | undefined }) {
+  const labels: Record<string, string> = { publico: 'Público', amigos: 'Somente amigos', oculto: 'Oculto' };
+  return <>{labels[value ?? ''] ?? 'Não informado'}</>;
+}
+
+function ProfileSummary({ profile, details }: { profile: { full_name: string | null; avatar_url: string | null; bio: string | null }; details: { nickname: string | null; city: string | null; relationship: string | null } | null }) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <span className="inline-block rounded-full border-4 border-brand-soft p-1">
+        <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={104} />
+      </span>
+      <h1 className="mt-3 text-lg font-extrabold leading-tight text-title">{profile.full_name}</h1>
+      {details?.nickname && <p className="mt-0.5 text-sm font-semibold text-brand">{details.nickname}</p>}
+      {profile.bio && <p className="mt-2 line-clamp-3 text-sm text-muted">{profile.bio}</p>}
+      <div className="mt-2 space-y-0.5 text-xs text-muted">
+        {details?.relationship && <p>{details.relationship}</p>}
+        {details?.city && <p>{details.city}</p>}
+      </div>
+    </div>
+  );
+}
+
+/* Campo vazio não ocupa espaço na ficha. */
+function OptionalProfileRow({ label, value }: { label: string; value: ReactNode }) {
+  if (!value) return null;
+  return <ProfileRow label={label}>{value}</ProfileRow>;
 }
 
 export default async function PerfilPublicoPage({ params }: Props) {
@@ -127,61 +148,14 @@ export default async function PerfilPublicoPage({ params }: Props) {
   const d = profile.details;
   const isAuthor = profile.role === 'publisher' || profile.role === 'admin';
 
-  // Cabeçalho de identidade (reusado no estado restrito e no completo).
-  const renderHeader = (stats?: ReactNode) => (
-    <header className="card-base overflow-hidden p-0">
-      <div className="cover-fallback relative h-32 sm:h-44">
-        {d?.cover_url && <Image src={d.cover_url} alt="" fill sizes="(max-width: 1024px) 100vw, 900px" className="object-cover" priority />}
-      </div>
-      <div className="p-4 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-end gap-4">
-            <div className="relative z-10 -mt-20 shrink-0 sm:-mt-24">
-              <span className="inline-block rounded-full border-4 border-card shadow-card">
-                <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={112} />
-              </span>
-            </div>
-            <div className="min-w-0 pb-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-extrabold text-title">{profile.full_name}</h1>
-                {isAuthor && <Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge>}
-              </div>
-            </div>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-3 sm:pb-1">
-            {isOwner ? (
-              <Link
-                href="/perfil"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface"
-              >
-                Editar perfil
-              </Link>
-            ) : (
-              <>
-                <FriendButton
-                  targetProfileId={profile.id}
-                  state={friendState}
-                  isLogged={Boolean(viewer)}
-                  targetSlug={slug}
-                />
-                {isFriend && <NewMessageButton targetProfileId={profile.id} />}
-                {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
-              </>
-            )}
-          </div>
-        </div>
-        {profile.bio && <p className="mt-3 line-clamp-2 max-w-prose text-sm text-body">{profile.bio}</p>}
-        {stats && <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">{stats}</div>}
-      </div>
-    </header>
-  );
-
   // Perfil restrito (oculto ou só-amigos para não-amigo).
   if (!profile.canView) {
     return (
       <div className="container-page max-w-3xl py-8">
-        {renderHeader()}
-        <div className="card-base mt-6 flex flex-col items-center px-6 py-10 text-center">
+        <div className="card-base mx-auto max-w-sm p-5">
+          <ProfileSummary profile={profile} details={d} />
+        </div>
+        <div className="card-base mx-auto mt-6 flex max-w-sm flex-col items-center px-6 py-10 text-center">
           <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-xl text-brand-dark" aria-hidden>
             🔒
           </span>
@@ -214,63 +188,65 @@ export default async function PerfilPublicoPage({ params }: Props) {
     listUserCommunities(profile.id),
   ]);
 
-  const hasAbout = Boolean(d?.about || d?.interests || d?.relationship || d?.birth_date || d?.city);
-
-  const statStrip = (
-    <>
-      <StatChip label="amigos" value={profile.friendCount} href={`/u/${slug}/amigos`} />
-      <StatChip label="recados" value={scraps.length} href="#recados" />
-      <StatChip label="depoimentos" value={testimonials.length} href="#depoimentos" />
-      <StatChip label="fotos" value={albums.length} href="#fotos" />
-      <StatChip label="comunidades" value={communities.length} href="#comunidades" />
-    </>
-  );
-
-  // Navegação contextual (âncoras — sem novas rotas).
-  const navItems: { href: string; label: string }[] = [
-    ...(hasAbout ? [{ href: '#sobre', label: 'Sobre' }] : []),
-    { href: '#recados', label: 'Recados' },
-    { href: '#depoimentos', label: 'Depoimentos' },
-    { href: '#amigos', label: 'Amigos' },
-    { href: '#fotos', label: 'Fotos' },
-    { href: '#comunidades', label: 'Comunidades' },
-  ];
-
   return (
     <div className="container-page py-8">
-      {renderHeader(statStrip)}
+      <nav aria-label="Trilha" className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-muted">
+        <Link href="/" className="hover:text-brand">Início</Link>
+        <span aria-hidden>›</span>
+        <span>Perfis</span>
+        <span aria-hidden>›</span>
+        <span className="text-title">{profile.full_name}</span>
+      </nav>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[200px_1fr_300px]">
-        {/* Navegação contextual: barra segmentada no mobile, coluna sticky no desktop */}
-        <nav aria-label="Seções do perfil" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <ul className="no-scrollbar flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
-            {navItems.map((it) => (
-              <li key={it.href} className="shrink-0 lg:shrink">
-                <a
-                  href={it.href}
-                  className="inline-flex min-h-[44px] w-full items-center whitespace-nowrap rounded-full border border-line bg-card px-4 text-sm font-bold text-body hover:bg-surface lg:rounded-[10px]"
-                >
-                  {it.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr_300px]">
+        <aside className="space-y-4">
+          <div className="card-base p-4">
+            <ProfileSummary profile={profile} details={d} />
+            {isAuthor && <div className="mt-3 text-center"><Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge></div>}
+
+            <hr className="my-4 border-line" />
+
+            <div className="flex flex-col items-center gap-3">
+              {isOwner ? (
+                <Link href="/perfil" className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface">Editar perfil</Link>
+              ) : (
+                <>
+                  <FriendButton targetProfileId={profile.id} state={friendState} isLogged={Boolean(viewer)} targetSlug={slug} />
+                  {isFriend && <NewMessageButton targetProfileId={profile.id} />}
+                  {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
+                </>
+              )}
+            </div>
+
+            <hr className="my-4 border-line" />
+
+            <nav aria-label="Seções do perfil">
+              <ul className="space-y-1">
+                <NavItem href="#sobre">Perfil</NavItem>
+                <NavItem href="#recados" count={scraps.length}>Recados</NavItem>
+                <NavItem href="#fotos" count={albums.length}>Fotos</NavItem>
+                <NavItem href="#depoimentos" count={testimonials.length}>Depoimentos</NavItem>
+                <NavItem href="#amigos" count={profile.friendCount}>Amigos</NavItem>
+                <NavItem href="#comunidades" count={communities.length}>Comunidades</NavItem>
+              </ul>
+            </nav>
+          </div>
+        </aside>
 
         {/* Coluna principal */}
         <div className="min-w-0 space-y-6">
-          {hasAbout && (
-            <section id="sobre" className="card-base scroll-mt-24 p-4 sm:p-5">
-              <SectionHeading className="mb-3">Sobre</SectionHeading>
-              {d?.about && <p className="mb-4 whitespace-pre-wrap text-sm text-body">{d.about}</p>}
-              <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                <Field label="Relacionamento" value={d?.relationship} />
-                {d?.birth_date && <Field label="Aniversário" value={formatDate(d.birth_date, "d 'de' MMMM")} />}
-                <Field label="Cidade" value={d?.city} />
-                <Field label="Interesses" value={d?.interests} full />
-              </dl>
-            </section>
-          )}
+          <section id="sobre" className="card-base scroll-mt-24 overflow-hidden p-4 sm:p-5">
+            <SectionHeading className="mb-4">Informações do perfil</SectionHeading>
+            <dl className="overflow-hidden rounded-[10px] border border-line">
+              <OptionalProfileRow label="Apelido" value={d?.nickname} />
+              <OptionalProfileRow label="Relacionamento" value={d?.relationship} />
+              <OptionalProfileRow label="Aniversário" value={d?.birth_date ? formatDate(d.birth_date, "d 'de' MMMM") : null} />
+              <OptionalProfileRow label="Cidade" value={d?.city} />
+              <OptionalProfileRow label="Interesses" value={d?.interests} />
+              <OptionalProfileRow label="Quem sou eu" value={d?.about ?? profile.bio} />
+              <ProfileRow label="Visibilidade"><VisibilityLabel value={d?.visibility} /></ProfileRow>
+            </dl>
+          </section>
 
           {/* Recados / mural */}
           <section id="recados" className="card-base scroll-mt-24 p-4 sm:p-5">

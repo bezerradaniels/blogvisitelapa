@@ -35,38 +35,38 @@ export default async function AdminHomePage() {
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Conteúdo</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Total de posts" value={m.total_posts} />
-          <DashboardMetricCard label="Publicados" value={m.published_posts} tone="success" />
-          <DashboardMetricCard label="Rascunhos" value={m.draft_posts} />
-          <DashboardMetricCard label="Aguardando revisão" value={m.pending_posts} tone="warning" />
+          <DashboardMetricCard label="Total de posts" value={m.total_posts} href="/admin/posts" />
+          <DashboardMetricCard label="Publicados" value={m.published_posts} href="/admin/posts?filtro=publicados" tone="success" />
+          <DashboardMetricCard label="Rascunhos" value={m.draft_posts} href="/admin/posts?filtro=rascunhos" />
+          <DashboardMetricCard label="Aguardando revisão" value={m.pending_posts} href="/admin/posts?filtro=pendentes" tone="warning" />
         </div>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Comunidade</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Usuários" value={m.total_users} />
-          <DashboardMetricCard label="Publishers" value={m.total_publishers} />
-          <DashboardMetricCard label="Comentários pendentes" value={m.pending_comments} tone="warning" />
-          <DashboardMetricCard label="Novos contatos" value={m.recent_contacts} />
+          <DashboardMetricCard label="Usuários" value={m.total_users} href="/admin/usuarios" />
+          <DashboardMetricCard label="Publishers" value={m.total_publishers} href="/admin/usuarios" />
+          <DashboardMetricCard label="Comentários pendentes" value={m.pending_comments} href="/admin/comentarios" tone="warning" />
+          <DashboardMetricCard label="Novos contatos" value={m.recent_contacts} href="/admin/contatos" />
         </div>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Publicidade</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Contratos ativos" value={m.active_contracts} tone="success" />
-          <DashboardMetricCard label="Vencendo (7 dias)" value={m.expiring_contracts} tone="warning" />
-          <DashboardMetricCard label="Expirados" value={m.expired_contracts} tone="danger" />
-          <DashboardMetricCard label="Leads de anunciantes" value={m.recent_leads} />
+          <DashboardMetricCard label="Contratos ativos" value={m.active_contracts} href="/admin/contratos" tone="success" />
+          <DashboardMetricCard label="Vencendo (7 dias)" value={m.expiring_contracts} href="/admin/contratos" tone="warning" />
+          <DashboardMetricCard label="Expirados" value={m.expired_contracts} href="/admin/contratos" tone="danger" />
+          <DashboardMetricCard label="Leads de anunciantes" value={m.recent_leads} href="/admin/anunciantes" />
         </div>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Patrocínios</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Posts patrocinados" value={m.sponsored_posts} />
-          <DashboardMetricCard label="Eventos patrocinados" value={m.sponsored_events} />
+          <DashboardMetricCard label="Posts patrocinados" value={m.sponsored_posts} href="/admin/publieditoriais" />
+          <DashboardMetricCard label="Eventos patrocinados" value={m.sponsored_events} href="/admin/eventos-patrocinados" />
         </div>
       </section>
     </div>

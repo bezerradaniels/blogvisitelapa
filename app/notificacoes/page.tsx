@@ -13,18 +13,18 @@ import type { NotificationWithActor } from '@/types/notifications';
 export const metadata = buildMetadata({ title: 'Notificações', path: '/notificacoes', noindex: true });
 export const dynamic = 'force-dynamic';
 
-function describe(n: NotificationWithActor, mySlug: string | null): { text: string; href: string } {
+function describe(n: NotificationWithActor): { text: string; href: string } {
   const actor = n.actor?.full_name ?? 'Alguém';
   const actorHref = n.actor?.slug ? `/u/${n.actor.slug}` : '/notificacoes';
   switch (n.type) {
     case 'amizade_pedido':
-      return { text: `${actor} enviou um pedido de amizade.`, href: '/perfil' };
+      return { text: `${actor} enviou um pedido de amizade.`, href: '/rede/amigos' };
     case 'amizade_aceita':
       return { text: `${actor} aceitou seu pedido de amizade.`, href: actorHref };
     case 'recado':
-      return { text: `${actor} deixou um recado no seu mural.`, href: mySlug ? `/u/${mySlug}` : actorHref };
+      return { text: `${actor} deixou um recado no seu mural.`, href: '/rede/recados' };
     case 'depoimento':
-      return { text: `${actor} escreveu um depoimento para você.`, href: '/perfil' };
+      return { text: `${actor} escreveu um depoimento para você.`, href: '/rede/depoimentos' };
     case 'mensagem':
       return { text: `${actor} enviou uma mensagem.`, href: n.entity_id ? `/mensagens/${n.entity_id}` : '/mensagens' };
     default:
@@ -37,10 +37,8 @@ export default async function NotificacoesPage() {
   if (!user?.profile) redirect('/login?redirect=/notificacoes');
 
   const notifications = await listNotifications(user.profile.id);
-  const mySlug = user.profile.slug;
-
   return (
-    <div className="container-page max-w-2xl py-8">
+    <section className="card-base p-4 sm:p-6">
       <div className="mb-6 flex items-center justify-between gap-2">
         <h1 className="text-2xl font-extrabold text-title">Notificações</h1>
         {notifications.some((n) => !n.read_at) && <MarkAllReadButton />}
@@ -49,7 +47,7 @@ export default async function NotificacoesPage() {
       {notifications.length > 0 ? (
         <ul className="space-y-2">
           {notifications.map((n) => {
-            const { text, href } = describe(n, mySlug);
+            const { text, href } = describe(n);
             return (
               <li key={n.id}>
                 <Link
@@ -78,6 +76,6 @@ export default async function NotificacoesPage() {
       ) : (
         <EmptyState title="Sem notificações" description="Interações com você aparecem aqui." />
       )}
-    </div>
+    </section>
   );
 }

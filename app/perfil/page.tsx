@@ -29,7 +29,7 @@ export default async function PerfilPage() {
   ]);
 
   return (
-    <div className="container-page max-w-2xl py-8">
+    <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl font-extrabold text-title">Meu perfil</h1>

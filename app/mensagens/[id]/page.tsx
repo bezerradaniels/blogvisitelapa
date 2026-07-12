@@ -31,7 +31,7 @@ export default async function ConversaPage({ params }: Props) {
   const me = user.profile.id;
 
   return (
-    <div className="container-page max-w-2xl py-8">
+    <section className="card-base p-4 sm:p-6">
       <div className="mb-4 flex items-center gap-3">
         <Link href="/mensagens" className="text-sm font-bold text-brand hover:underline">
           ←
@@ -73,6 +73,6 @@ export default async function ConversaPage({ params }: Props) {
       </ul>
 
       <MessageComposer conversationId={id} />
-    </div>
+    </section>
   );
 }

@@ -11,12 +11,13 @@ import { absoluteUrl } from '@/lib/config/site';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
+  defaultRedirect?: string;
 }
 
-export default function AuthForm({ mode }: AuthFormProps) {
+export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps) {
   const router = useRouter();
   const params = useSearchParams();
-  const redirect = params.get('redirect') ?? '/';
+  const redirect = params.get('redirect') ?? defaultRedirect;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
