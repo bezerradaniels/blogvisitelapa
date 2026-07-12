@@ -45,7 +45,10 @@ export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps)
       const { error: err } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: name }, emailRedirectTo: absoluteUrl('/auth/callback') },
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: absoluteUrl(`/auth/callback?redirect=${encodeURIComponent(redirect)}`),
+        },
       });
       setLoading(false);
       if (err) return setError(traduzErro(err.message));

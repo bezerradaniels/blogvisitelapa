@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import Badge from '@/components/Badge';
-import { communityCategoryLabel } from '@/lib/config/communities';
 import type { CommunityWithOwner } from '@/types/communities';
 
 // Cartão de comunidade para grids e listagens.
@@ -26,7 +24,6 @@ export default function CommunityCard({ community }: { community: CommunityWithO
           <p className="mb-2 line-clamp-2 text-sm text-muted">{community.description}</p>
         )}
         <div className="flex items-center gap-2 text-xs text-muted">
-          <Badge tone="success">{communityCategoryLabel(community.category)}</Badge>
           <span>
             {community.member_count} {community.member_count === 1 ? 'membro' : 'membros'}
           </span>

@@ -94,6 +94,9 @@ export default function MobileMenu({
                   <Link href="/notificacoes" onClick={() => setOpen(false)} className={linkClass}>
                     Notificações
                   </Link>
+                  <Link href="/configuracoes" onClick={() => setOpen(false)} className={linkClass}>
+                    Configurações e privacidade
+                  </Link>
                   <Link href="/conta/senha" onClick={() => setOpen(false)} className={linkClass}>
                     Alterar senha
                   </Link>

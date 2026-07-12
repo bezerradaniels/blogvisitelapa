@@ -46,6 +46,9 @@ export default async function PerfilPage() {
         <Link href="/favoritos" className="text-brand underline">
           Meus favoritos
         </Link>
+        <Link href="/configuracoes" className="text-brand underline">
+          Configurações e privacidade
+        </Link>
         <Link href="/conta/senha" className="text-brand underline">
           Alterar senha
         </Link>

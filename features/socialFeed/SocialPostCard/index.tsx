@@ -26,7 +26,13 @@ function LinkedContent({ content }: { content: string }) {
   });
 }
 
-export default function SocialPostCard({ post }: { post: SocialFeedPost }) {
+interface SocialPostCardProps {
+  post: SocialFeedPost;
+  isLogged?: boolean;
+  loginRedirect?: string;
+}
+
+export default function SocialPostCard({ post, isLogged = true, loginRedirect = '/rede' }: SocialPostCardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [liked, setLiked] = useState(post.likedByMe);
@@ -36,6 +42,10 @@ export default function SocialPostCard({ post }: { post: SocialFeedPost }) {
   const authorName = post.author.nickname ?? post.author.full_name ?? 'Usuário';
 
   function toggleLike() {
+    if (!isLogged) {
+      router.push(`/login-rede-social?redirect=${encodeURIComponent(loginRedirect)}`);
+      return;
+    }
     startTransition(async () => {
       const result = await toggleSocialPostLike(post.id);
       if (!result.ok) return alert(result.error ?? 'Não foi possível curtir.');
@@ -45,6 +55,10 @@ export default function SocialPostCard({ post }: { post: SocialFeedPost }) {
   }
 
   function toggleRepost() {
+    if (!isLogged) {
+      router.push(`/login-rede-social?redirect=${encodeURIComponent(loginRedirect)}`);
+      return;
+    }
     startTransition(async () => {
       const result = await toggleSocialPostRepost(post.id);
       if (!result.ok) return alert(result.error ?? 'Não foi possível repostar.');

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EmptyState from '@/components/EmptyState';
+import PublicProfileShell from '@/components/PublicProfileShell';
 import AlbumForm from '@/features/photos/AlbumForm';
 import { listAlbums } from '@/features/photos/queries';
 import { getPublicProfile } from '@/features/social/queries';
@@ -31,32 +32,25 @@ export default async function FotosPage({ params }: Props) {
 
   if (!profile.canView) {
     return (
-      <div className="container-page max-w-3xl py-8">
-        <Link href={`/u/${slug}`} className="text-sm font-bold text-brand hover:underline">
-          ← {profile.full_name}
-        </Link>
+      <PublicProfileShell profile={profile} slug={slug}>
         <EmptyState title="Perfil restrito" description="Adicione como amigo para ver as fotos." />
-      </div>
+      </PublicProfileShell>
     );
   }
 
   const albums = await listAlbums(profile.id);
 
   return (
-    <div className="container-page max-w-3xl py-8">
-      <Link href={`/u/${slug}`} className="text-sm font-bold text-brand hover:underline">
-        ← {profile.full_name}
-      </Link>
-      <h1 className="mb-6 mt-2 text-2xl font-extrabold text-title">Álbuns de fotos</h1>
+    <PublicProfileShell profile={profile} slug={slug}>
+      <div className="space-y-4">
+        <section className="card-base p-4 sm:p-6">
+          <h1 className="mb-6 text-2xl font-extrabold text-title">Álbuns de fotos</h1>
 
-      {isOwner && (
-        <div className="card-base mb-6 p-4">
-          <AlbumForm slug={slug} />
-        </div>
-      )}
+          {isOwner && <AlbumForm slug={slug} />}
+        </section>
 
-      {albums.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {albums.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {albums.map((a) => (
             <Link key={a.id} href={`/u/${slug}/fotos/${a.id}`} className="card-hover card-base overflow-hidden p-0">
               <div className="relative aspect-square bg-surface">
@@ -72,10 +66,11 @@ export default async function FotosPage({ params }: Props) {
               </div>
             </Link>
           ))}
-        </div>
-      ) : (
-        <EmptyState title="Nenhum álbum ainda" description={isOwner ? 'Crie um álbum acima.' : undefined} />
-      )}
-    </div>
+          </div>
+        ) : (
+          <EmptyState title="Nenhum álbum ainda" description={isOwner ? 'Crie um álbum acima.' : undefined} />
+        )}
+      </div>
+    </PublicProfileShell>
   );
 }

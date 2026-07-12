@@ -167,6 +167,73 @@ export async function getSocialFeed(
   });
 }
 
+export async function getProfileSocialPosts(
+  profileId: string,
+  viewerProfileId: string | null,
+  limit = 3,
+): Promise<SocialFeedPost[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('social_posts')
+    .select(`
+      id, author_id, content, repost_of, like_count, repost_count, created_at,
+      author:profiles!social_posts_author_id_fkey(
+        id, full_name, slug, avatar_url,
+        details:profile_details(nickname)
+      )
+    `)
+    .eq('author_id', profileId)
+    .is('repost_of', null)
+    .order('created_at', { ascending: false })
+    .limit(Math.min(Math.max(limit, 1), 50));
+  // Mantém o restante do perfil público disponível durante o intervalo entre o
+  // deploy da aplicação e a aplicação da migration 0021. Outros erros continuam
+  // explícitos para não esconder falhas reais de consulta.
+  if (error?.code === '42501') return [];
+  if (error) throw new Error(`Não foi possível carregar as atualizações: ${error.message}`);
+
+  const rows = (data ?? []) as unknown as RawPost[];
+  const ids = rows.map((row) => row.id);
+  const [{ data: likes }, { data: reposts }] = viewerProfileId && ids.length > 0
+    ? await Promise.all([
+        supabase
+          .from('social_post_likes')
+          .select('post_id')
+          .eq('profile_id', viewerProfileId)
+          .in('post_id', ids),
+        supabase
+          .from('social_posts')
+          .select('repost_of')
+          .eq('author_id', viewerProfileId)
+          .in('repost_of', ids),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const likedIds = new Set((likes ?? []).map((like) => like.post_id));
+  const repostedIds = new Set((reposts ?? []).map((repost) => repost.repost_of));
+
+  return rows.flatMap((row) => {
+    if (!row.author || !row.content) return [];
+    return [{
+      id: row.id,
+      content: row.content,
+      createdAt: row.created_at,
+      likeCount: row.like_count,
+      repostCount: row.repost_count,
+      author: {
+        id: row.author.id,
+        full_name: row.author.full_name,
+        slug: row.author.slug,
+        avatar_url: row.author.avatar_url,
+        nickname: row.author.details?.nickname ?? null,
+      },
+      repostedBy: null,
+      likedByMe: likedIds.has(row.id),
+      repostedByMe: repostedIds.has(row.id),
+      canDelete: viewerProfileId === row.author_id,
+    } satisfies SocialFeedPost];
+  });
+}
+
 export async function getSocialFeedSidebar(profileId: string): Promise<SocialFeedSidebar> {
   const supabase = await createClient();
   const friendIds = await getFriendIds(profileId);

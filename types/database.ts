@@ -72,6 +72,7 @@ export type CommunityCategory =
 export type CommunityReportTarget = 'comunidade' | 'topico' | 'resposta';
 // Perfis sociais
 export type ProfileVisibility = 'publico' | 'amigos' | 'oculto';
+export type InteractionAudience = 'todos' | 'amigos_de_amigos' | 'amigos' | 'ninguem';
 export type FriendshipStatus = 'pendente' | 'aceito';
 export type TestimonialStatus = 'pendente' | 'aprovado' | 'oculto';
 export type NotificationType =
@@ -880,6 +881,72 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['profile_details']['Insert']>;
         Relationships: [];
       };
+      user_privacy_settings: {
+        Row: {
+          profile_id: string;
+          search_visibility: ProfileVisibility;
+          allow_search_indexing: boolean;
+          friend_list_visibility: ProfileVisibility;
+          community_list_visibility: ProfileVisibility;
+          activity_visibility: ProfileVisibility;
+          online_status_visibility: ProfileVisibility;
+          friend_request_permission: InteractionAudience;
+          message_permission: InteractionAudience;
+        } & WithTimestamps;
+        Insert: {
+          profile_id: string;
+          search_visibility?: ProfileVisibility;
+          allow_search_indexing?: boolean;
+          friend_list_visibility?: ProfileVisibility;
+          community_list_visibility?: ProfileVisibility;
+          activity_visibility?: ProfileVisibility;
+          online_status_visibility?: ProfileVisibility;
+          friend_request_permission?: InteractionAudience;
+          message_permission?: InteractionAudience;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_privacy_settings']['Insert']>;
+        Relationships: [];
+      };
+      user_field_visibility: {
+        Row: {
+          profile_id: string;
+          field_key: string;
+          visibility: ProfileVisibility;
+          updated_at: string;
+        };
+        Insert: {
+          profile_id: string;
+          field_key: string;
+          visibility: ProfileVisibility;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_field_visibility']['Insert']>;
+        Relationships: [];
+      };
+      user_notification_prefs: {
+        Row: {
+          profile_id: string;
+          inapp_amizade: boolean;
+          inapp_recado: boolean;
+          inapp_depoimento: boolean;
+          inapp_mensagem: boolean;
+          email_enabled: boolean;
+        } & WithTimestamps;
+        Insert: {
+          profile_id: string;
+          inapp_amizade?: boolean;
+          inapp_recado?: boolean;
+          inapp_depoimento?: boolean;
+          inapp_mensagem?: boolean;
+          email_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
+        Relationships: [];
+      };
       social_posts: {
         Row: {
           id: string;
@@ -1123,6 +1190,17 @@ export interface Database {
       current_profile_id: { Args: Record<string, never>; Returns: string };
       are_friends: { Args: { a: string; b: string }; Returns: boolean };
       can_view_profile: { Args: { target: string }; Returns: boolean };
+      can_view_field: { Args: { p_owner: string; p_key: string }; Returns: boolean };
+      effective_field_visibility: {
+        Args: { p_owner: string; p_key: string };
+        Returns: ProfileVisibility;
+      };
+      visible_profile_details: { Args: { p_target: string }; Returns: Json };
+      visible_profile_details_as: { Args: { p_target: string; p_audience: string }; Returns: Json };
+      are_friends_of_friends: { Args: { a: string; b: string }; Returns: boolean };
+      can_request_friendship: { Args: { p_target: string }; Returns: boolean };
+      can_message: { Args: { p_target: string }; Returns: boolean };
+      profile_allows_indexing: { Args: { p_target: string }; Returns: boolean };
       is_blocked: { Args: { a: string; b: string }; Returns: boolean };
       is_conversation_participant: { Args: { cid: string }; Returns: boolean };
       push_notification: {
@@ -1151,6 +1229,7 @@ export interface Database {
       report_status: ReportStatus;
       community_category: CommunityCategory;
       profile_visibility: ProfileVisibility;
+      interaction_audience: InteractionAudience;
       friendship_status: FriendshipStatus;
       testimonial_status: TestimonialStatus;
       notification_type: NotificationType;

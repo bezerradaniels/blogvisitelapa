@@ -138,6 +138,14 @@ export async function sendFriendRequest(targetProfileId: string): Promise<Action
     return { ok: true };
   }
 
+  // Respeita a permissão de pedido de amizade do alvo (a RLS também reforça).
+  const { data: allowed } = await supabase.rpc('can_request_friendship', {
+    p_target: targetProfileId,
+  });
+  if (!allowed) {
+    return { ok: false, error: 'Esta pessoa não está aceitando pedidos de amizade.' };
+  }
+
   const { error: err } = await supabase
     .from('friendships')
     .insert({ requester_id: profileId, addressee_id: targetProfileId });

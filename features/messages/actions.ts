@@ -25,8 +25,9 @@ export async function openConversation(otherProfileId: string): Promise<MessageR
   if (!me || !supabase) return { ok: false, error };
   if (otherProfileId === me) return { ok: false, error: 'Conversa inválida.' };
 
-  const { data: friends } = await supabase.rpc('are_friends', { a: me, b: otherProfileId });
-  if (!friends) return { ok: false, error: 'Só é possível conversar com amigos.' };
+  // can_message respeita amizade, bloqueio e a permissão de mensagem do alvo.
+  const { data: canMsg } = await supabase.rpc('can_message', { p_target: otherProfileId });
+  if (!canMsg) return { ok: false, error: 'Esta pessoa não está aceitando mensagens.' };
 
   const [a, b] = me < otherProfileId ? [me, otherProfileId] : [otherProfileId, me];
 

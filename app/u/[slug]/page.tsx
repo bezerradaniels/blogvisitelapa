@@ -9,8 +9,11 @@ import { listAlbums } from '@/features/photos/queries';
 import BlockButton from '@/features/social/BlockButton';
 import DeleteScrapButton from '@/features/social/DeleteScrapButton';
 import FriendButton from '@/features/social/FriendButton';
+import InteractionGate from '@/features/social/InteractionGate';
 import ScrapForm from '@/features/social/ScrapForm';
 import TestimonialForm from '@/features/social/TestimonialForm';
+import SocialPostCard from '@/features/socialFeed/SocialPostCard';
+import { getProfileSocialPosts } from '@/features/socialFeed/queries';
 import {
   getFriendState,
   getPublicProfile,
@@ -20,6 +23,7 @@ import {
   listScraps,
 } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
+import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { formatDate, timeAgo } from '@/lib/utils/format';
 import type { CommunityProfile } from '@/types/communities';
@@ -32,14 +36,21 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const profile = await getPublicProfile(slug);
   if (!profile) return buildMetadata({ title: 'Perfil', noindex: true });
-  // Só indexa perfis públicos (details só vem quando visível ao visitante anônimo).
+  // Só indexa perfis públicos (details só vem quando visível ao visitante anônimo)
+  // E que permitem indexação por buscadores (preferência do usuário).
   const isPublic = profile.canView && (profile.details?.visibility ?? 'oculto') === 'publico';
+  let allowsIndexing = false;
+  if (isPublic) {
+    const supabase = await createClient();
+    const { data } = await supabase.rpc('profile_allows_indexing', { p_target: profile.id });
+    allowsIndexing = data !== false;
+  }
   return buildMetadata({
     title: profile.full_name ?? 'Perfil',
     description: profile.details?.about ?? profile.bio ?? `Perfil de ${profile.full_name} no Conecta Lapa.`,
     path: `/u/${slug}`,
     image: profile.avatar_url,
-    noindex: !isPublic,
+    noindex: !isPublic || !allowsIndexing,
   });
 }
 
@@ -180,7 +191,8 @@ export default async function PerfilPublicoPage({ params }: Props) {
     );
   }
 
-  const [scraps, testimonials, friends, albums, communities] = await Promise.all([
+  const [recentPosts, scraps, testimonials, friends, albums, communities] = await Promise.all([
+    getProfileSocialPosts(profile.id, viewerId, 3),
     listScraps(profile.id),
     listApprovedTestimonials(profile.id),
     listFriends(profile.id),
@@ -222,12 +234,13 @@ export default async function PerfilPublicoPage({ params }: Props) {
 
             <nav aria-label="Seções do perfil">
               <ul className="space-y-1">
-                <NavItem href="#sobre">Perfil</NavItem>
-                <NavItem href="#recados" count={scraps.length}>Recados</NavItem>
-                <NavItem href="#fotos" count={albums.length}>Fotos</NavItem>
-                <NavItem href="#depoimentos" count={testimonials.length}>Depoimentos</NavItem>
-                <NavItem href="#amigos" count={profile.friendCount}>Amigos</NavItem>
-                <NavItem href="#comunidades" count={communities.length}>Comunidades</NavItem>
+                <NavItem href={`/u/${slug}`}>Perfil</NavItem>
+                <NavItem href={`/u/${slug}/feed`}>Feed</NavItem>
+                <NavItem href={`/u/${slug}/recados`} count={scraps.length}>Recados</NavItem>
+                <NavItem href={`/u/${slug}/fotos`} count={albums.length}>Fotos</NavItem>
+                <NavItem href={`/u/${slug}/depoimentos`} count={testimonials.length}>Depoimentos</NavItem>
+                <NavItem href={`/u/${slug}/amigos`} count={profile.friendCount}>Amigos</NavItem>
+                <NavItem href={`/u/${slug}/comunidades`} count={communities.length}>Comunidades</NavItem>
               </ul>
             </nav>
           </div>
@@ -248,12 +261,51 @@ export default async function PerfilPublicoPage({ params }: Props) {
             </dl>
           </section>
 
+          {/* Atualizações curtas do perfil */}
+          <section className="scroll-mt-24 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <SectionHeading>Feed</SectionHeading>
+              <Link href={`/u/${slug}/feed`} className="text-xs font-bold text-brand hover:underline">
+                Ver mais atualizações
+              </Link>
+            </div>
+            {recentPosts.length > 0 ? (
+              recentPosts.map((post) => (
+                <SocialPostCard
+                  key={post.id}
+                  post={post}
+                  isLogged={Boolean(viewer)}
+                  loginRedirect={`/u/${slug}/feed`}
+                />
+              ))
+            ) : (
+              <div className="card-base p-4 text-sm text-muted">Nenhuma atualização publicada ainda.</div>
+            )}
+          </section>
+
           {/* Recados / mural */}
           <section id="recados" className="card-base scroll-mt-24 p-4 sm:p-5">
-            <SectionHeading className="mb-3">Recados</SectionHeading>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <SectionHeading>Recados</SectionHeading>
+              <Link href={`/u/${slug}/recados`} className="text-xs font-bold text-brand hover:underline">
+                Ver todos
+              </Link>
+            </div>
             {isFriend && (
               <div className="mb-4">
                 <ScrapForm profileId={profile.id} />
+              </div>
+            )}
+            {!isFriend && !isOwner && (
+              <div className="mb-4">
+                <InteractionGate
+                  kind="recado"
+                  isLogged={Boolean(viewer)}
+                  friendState={friendState}
+                  targetProfileId={profile.id}
+                  targetSlug={slug}
+                  targetName={d?.nickname ?? profile.full_name ?? 'este usuário'}
+                />
               </div>
             )}
             {scraps.length > 0 ? (
@@ -283,10 +335,27 @@ export default async function PerfilPublicoPage({ params }: Props) {
 
           {/* Depoimentos */}
           <section id="depoimentos" className="card-base scroll-mt-24 p-4 sm:p-5">
-            <SectionHeading className="mb-3">Depoimentos</SectionHeading>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <SectionHeading>Depoimentos</SectionHeading>
+              <Link href={`/u/${slug}/depoimentos`} className="text-xs font-bold text-brand hover:underline">
+                Ver todos
+              </Link>
+            </div>
             {isFriend && (
               <div className="mb-4">
                 <TestimonialForm profileId={profile.id} />
+              </div>
+            )}
+            {!isFriend && !isOwner && (
+              <div className="mb-4">
+                <InteractionGate
+                  kind="depoimento"
+                  isLogged={Boolean(viewer)}
+                  friendState={friendState}
+                  targetProfileId={profile.id}
+                  targetSlug={slug}
+                  targetName={d?.nickname ?? profile.full_name ?? 'este usuário'}
+                />
               </div>
             )}
             {testimonials.length > 0 ? (
@@ -360,8 +429,8 @@ export default async function PerfilPublicoPage({ params }: Props) {
           <div id="comunidades" className="card-base scroll-mt-24 p-4">
             <div className="mb-3 flex items-center justify-between">
               <SectionHeading>Comunidades</SectionHeading>
-              <Link href="/comunidades" className="text-xs font-bold text-brand hover:underline">
-                Explorar
+              <Link href={`/u/${slug}/comunidades`} className="text-xs font-bold text-brand hover:underline">
+                Ver todas
               </Link>
             </div>
             {communities.length > 0 ? (

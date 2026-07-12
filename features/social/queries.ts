@@ -29,14 +29,37 @@ export async function getPublicProfile(slug: string): Promise<PublicProfile | nu
   // can_view_profile respeita público/amigos/oculto (SECURITY DEFINER).
   const { data: canView } = await supabase.rpc('can_view_profile', { target: profile.id });
 
+  // Detalhes JÁ FILTRADOS por campo no banco (0022): cada campo respeita sua
+  // visibilidade individual limitada pela geral. Campos ocultos vêm como null —
+  // o servidor não envia dado privado ao cliente.
   let details: ProfileDetails | null = null;
   if (canView) {
-    const { data } = await supabase
-      .from('profile_details')
-      .select('*')
-      .eq('profile_id', profile.id)
-      .maybeSingle();
-    details = (data as ProfileDetails) ?? null;
+    const { data: vd } = await supabase.rpc('visible_profile_details', { p_target: profile.id });
+    if (vd) {
+      const j = vd as {
+        nickname: string | null;
+        city: string | null;
+        birth_date: string | null;
+        relationship: string | null;
+        interests: string | null;
+        about: string | null;
+        cover_url: string | null;
+        visibility: ProfileDetails['visibility'];
+      };
+      details = {
+        profile_id: profile.id,
+        visibility: j.visibility ?? 'oculto',
+        nickname: j.nickname ?? null,
+        city: j.city ?? null,
+        birth_date: j.birth_date ?? null,
+        relationship: j.relationship ?? null,
+        interests: j.interests ?? null,
+        about: j.about ?? null,
+        cover_url: j.cover_url ?? null,
+        created_at: '',
+        updated_at: '',
+      };
+    }
   }
 
   const { count } = await supabase

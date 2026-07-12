@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EmptyState from '@/components/EmptyState';
+import PublicProfileShell from '@/components/PublicProfileShell';
 import PhotoUploader from '@/features/photos/PhotoUploader';
 import { DeleteAlbumButton, DeletePhotoButton } from '@/features/photos/PhotoActions';
 import { getAlbum, listPhotos } from '@/features/photos/queries';
@@ -37,37 +38,39 @@ export default async function AlbumPage({ params }: Props) {
   const photos = await listPhotos(albumId);
 
   return (
-    <div className="container-page max-w-4xl py-8">
-      <Link href={`/u/${slug}/fotos`} className="text-sm font-bold text-brand hover:underline">
-        ← Álbuns de {profile.full_name}
-      </Link>
+    <PublicProfileShell profile={profile} slug={slug}>
+      <section className="card-base p-4 sm:p-6">
+        <Link href={`/u/${slug}/fotos`} className="text-sm font-bold text-brand hover:underline">
+          ← Álbuns de {profile.full_name}
+        </Link>
 
-      <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-extrabold text-title">{album.title}</h1>
-        {isOwner && (
-          <div className="flex items-center gap-3">
-            <PhotoUploader albumId={albumId} userId={viewer!.userId} />
-            <DeleteAlbumButton albumId={albumId} slug={slug} />
-          </div>
-        )}
-      </div>
-
-      {photos.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((p) => (
-            <div key={p.id} className="group relative aspect-square overflow-hidden rounded-[14px] bg-surface">
-              <Image src={p.url} alt={p.caption ?? ''} fill sizes="300px" className="object-cover" />
-              {isOwner && (
-                <div className="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <DeletePhotoButton photoId={p.id} />
-                </div>
-              )}
+        <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-extrabold text-title">{album.title}</h1>
+          {isOwner && (
+            <div className="flex items-center gap-3">
+              <PhotoUploader albumId={albumId} userId={viewer!.userId} />
+              <DeleteAlbumButton albumId={albumId} slug={slug} />
             </div>
-          ))}
+          )}
         </div>
-      ) : (
-        <EmptyState title="Álbum vazio" description={isOwner ? 'Adicione fotos acima.' : undefined} />
-      )}
-    </div>
+
+        {photos.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {photos.map((p) => (
+              <div key={p.id} className="group relative aspect-square overflow-hidden rounded-[14px] bg-surface">
+                <Image src={p.url} alt={p.caption ?? ''} fill sizes="300px" className="object-cover" />
+                {isOwner && (
+                  <div className="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <DeletePhotoButton photoId={p.id} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState title="Álbum vazio" description={isOwner ? 'Adicione fotos acima.' : undefined} />
+        )}
+      </section>
+    </PublicProfileShell>
   );
 }
