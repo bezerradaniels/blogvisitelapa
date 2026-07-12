@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import SettingsNav from '@/components/SettingsNav';
+import AccountStatusBanner from '@/features/settings/AccountStatusBanner';
 import { getCurrentUser } from '@/lib/auth/session';
 
 // Layout de duas colunas: navegação persistente (sticky no desktop) + conteúdo.
@@ -9,6 +10,7 @@ import { getCurrentUser } from '@/lib/auth/session';
 export default async function ConfiguracoesLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   if (!user?.profile) redirect('/login-rede-social?redirect=/configuracoes');
+  const status = user.profile.status;
 
   return (
     <div className="container-page py-6 sm:py-8">
@@ -31,7 +33,12 @@ export default async function ConfiguracoesLayout({ children }: { children: Reac
             <SettingsNav />
           </div>
         </aside>
-        <main className="min-w-0">{children}</main>
+        <main className="min-w-0">
+          {(status === 'deactivated' || status === 'pending_deletion') && (
+            <AccountStatusBanner status={status} />
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -28,9 +28,17 @@ export async function createAlbum(input: z.input<typeof albumSchema>): Promise<P
   const parsed = albumSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
 
+  // Aplica a visibilidade padrão de mídia do usuário ao novo álbum (0027).
+  const { data: cp } = await supabase
+    .from('user_content_prefs')
+    .select('default_album_visibility')
+    .eq('profile_id', me)
+    .maybeSingle();
+  const visibility = cp?.default_album_visibility ?? 'amigos';
+
   const { data, error: err } = await supabase
     .from('photo_albums')
-    .insert({ profile_id: me, title: parsed.data.title.trim() })
+    .insert({ profile_id: me, title: parsed.data.title.trim(), visibility })
     .select('id')
     .maybeSingle();
   if (err || !data) return { ok: false, error: 'Não foi possível criar o álbum.' };

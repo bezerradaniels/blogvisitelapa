@@ -133,7 +133,17 @@ export async function getSocialFeed(
   const likedIds = new Set((likes ?? []).map((like) => like.post_id));
   const repostedIds = new Set((reposts ?? []).map((repost) => repost.repost_of));
 
-  return rows.flatMap((row) => {
+  // Palavras silenciadas do viewer (preferência de conteúdo — 0027).
+  const { data: contentPrefs } = await supabase
+    .from('user_content_prefs')
+    .select('muted_words')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+  const mutedWords = (contentPrefs?.muted_words ?? [])
+    .map((w) => w.toLowerCase().trim())
+    .filter(Boolean);
+
+  const posts = rows.flatMap((row) => {
     const target = row.repost_of ? originalById.get(row.repost_of) : row;
     if (!target) return [];
     if (!target.author || !target.content || !row.author) return [];
@@ -164,6 +174,12 @@ export async function getSocialFeed(
       repostedByMe: repostedIds.has(target.id),
       canDelete: target.author_id === profileId,
     } satisfies SocialFeedPost];
+  });
+
+  if (mutedWords.length === 0) return posts;
+  return posts.filter((p) => {
+    const c = p.content.toLowerCase();
+    return !mutedWords.some((w) => c.includes(w));
   });
 }
 

@@ -241,6 +241,69 @@ export async function saveDiscoverySettings(
 }
 
 // -------------------------------------------------------------------------
+// Conteúdo/feed: palavras silenciadas, autoplay, conteúdo sensível.
+// -------------------------------------------------------------------------
+const contentSchema = z.object({
+  muted_words: z.array(z.string().min(1).max(40)).max(100),
+  autoplay_videos: z.boolean(),
+  hide_sensitive: z.boolean(),
+});
+
+export async function saveContentPrefs(
+  input: z.input<typeof contentSchema>,
+): Promise<ActionResult> {
+  const { profileId, supabase, error } = await requireProfile();
+  if (!profileId || !supabase) return { ok: false, error };
+
+  const parsed = contentSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
+
+  // Normaliza: minúsculas, sem duplicatas, sem vazios.
+  const words = Array.from(
+    new Set(parsed.data.muted_words.map((w) => w.toLowerCase().trim()).filter(Boolean)),
+  );
+
+  const { error: uErr } = await supabase.from('user_content_prefs').upsert(
+    {
+      profile_id: profileId,
+      muted_words: words,
+      autoplay_videos: parsed.data.autoplay_videos,
+      hide_sensitive: parsed.data.hide_sensitive,
+    },
+    { onConflict: 'profile_id' },
+  );
+  if (uErr) return { ok: false, error: 'Não foi possível salvar as preferências de conteúdo.' };
+
+  revalidatePath('/configuracoes/conteudo');
+  revalidatePath('/feed');
+  return { ok: true };
+}
+
+// -------------------------------------------------------------------------
+// Mídia: visibilidade padrão de novos álbuns.
+// -------------------------------------------------------------------------
+const mediaSchema = z.object({ default_album_visibility: visibilityEnum });
+
+export async function saveMediaPrefs(
+  input: z.input<typeof mediaSchema>,
+): Promise<ActionResult> {
+  const { profileId, supabase, error } = await requireProfile();
+  if (!profileId || !supabase) return { ok: false, error };
+
+  const parsed = mediaSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
+
+  const { error: uErr } = await supabase.from('user_content_prefs').upsert(
+    { profile_id: profileId, default_album_visibility: parsed.data.default_album_visibility },
+    { onConflict: 'profile_id' },
+  );
+  if (uErr) return { ok: false, error: 'Não foi possível salvar a privacidade de mídia.' };
+
+  revalidatePath('/configuracoes/midia');
+  return { ok: true };
+}
+
+// -------------------------------------------------------------------------
 // Notificações: toggles por categoria (in-app) + master de e-mail.
 // -------------------------------------------------------------------------
 const notificationSchema = z.object({

@@ -13,7 +13,12 @@ export type Json =
 
 // ---- Enums ----------------------------------------------------------
 export type UserRole = 'common_user' | 'publisher' | 'admin';
-export type AccountStatus = 'active' | 'suspended' | 'pending';
+export type AccountStatus =
+  | 'active'
+  | 'suspended'
+  | 'pending'
+  | 'deactivated'
+  | 'pending_deletion';
 export type PostStatus =
   | 'rascunho'
   | 'enviado_para_revisao'
@@ -102,6 +107,9 @@ export interface Database {
           role: UserRole;
           bio: string | null;
           status: AccountStatus;
+          deactivated_at: string | null;
+          deletion_requested_at: string | null;
+          deletion_reason: string | null;
         } & WithTimestamps;
         Insert: {
           id?: string;
@@ -113,6 +121,9 @@ export interface Database {
           role?: UserRole;
           bio?: string | null;
           status?: AccountStatus;
+          deactivated_at?: string | null;
+          deletion_requested_at?: string | null;
+          deletion_reason?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -947,6 +958,26 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
         Relationships: [];
       };
+      user_content_prefs: {
+        Row: {
+          profile_id: string;
+          muted_words: string[];
+          autoplay_videos: boolean;
+          hide_sensitive: boolean;
+          default_album_visibility: ProfileVisibility;
+        } & WithTimestamps;
+        Insert: {
+          profile_id: string;
+          muted_words?: string[];
+          autoplay_videos?: boolean;
+          hide_sensitive?: boolean;
+          default_album_visibility?: ProfileVisibility;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_content_prefs']['Insert']>;
+        Relationships: [];
+      };
       social_posts: {
         Row: {
           id: string;
@@ -1115,12 +1146,14 @@ export interface Database {
           profile_id: string;
           title: string;
           cover_url: string | null;
+          visibility: ProfileVisibility;
         } & WithTimestamps;
         Insert: {
           id?: string;
           profile_id: string;
           title: string;
           cover_url?: string | null;
+          visibility?: ProfileVisibility;
           created_at?: string;
           updated_at?: string;
         };
@@ -1147,6 +1180,35 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['photos']['Insert']>;
+        Relationships: [];
+      };
+      home_sections: {
+        Row: {
+          id: string; title: string; subtitle: string | null; description: string | null; slug: string;
+          status: 'active' | 'inactive'; display_order: number;
+          placement_zone: 'after-hero' | 'after-latest-news' | 'before-events' | 'before-footer';
+          selection_mode: 'manual' | 'automatic'; show_view_all: boolean;
+          view_all_mode: 'internal' | 'custom' | 'hidden'; custom_view_all_url: string | null;
+          cover_image_url: string | null; cover_image_alt: string | null; automatic_rules: Json | null;
+          created_by: string | null; updated_by: string | null; deleted_at: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string; title: string; subtitle?: string | null; description?: string | null; slug: string;
+          status?: 'active' | 'inactive'; display_order?: number;
+          placement_zone?: 'after-hero' | 'after-latest-news' | 'before-events' | 'before-footer';
+          selection_mode?: 'manual' | 'automatic'; show_view_all?: boolean;
+          view_all_mode?: 'internal' | 'custom' | 'hidden'; custom_view_all_url?: string | null;
+          cover_image_url?: string | null; cover_image_alt?: string | null; automatic_rules?: Json | null;
+          created_by?: string | null; updated_by?: string | null; deleted_at?: string | null;
+          created_at?: string; updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['home_sections']['Insert']>;
+        Relationships: [];
+      };
+      home_section_posts: {
+        Row: { section_id: string; post_id: string; display_order: number; created_at: string; updated_at: string };
+        Insert: { section_id: string; post_id: string; display_order?: number; created_at?: string; updated_at?: string };
+        Update: Partial<Database['public']['Tables']['home_section_posts']['Insert']>;
         Relationships: [];
       };
     };
@@ -1180,6 +1242,7 @@ export interface Database {
         }[];
       };
       register_post_view: { Args: { p_post_id: string }; Returns: undefined };
+      replace_home_section_posts: { Args: { p_section_id: string; p_post_ids: string[] }; Returns: undefined };
       admin_metrics_guarded: { Args: Record<string, never>; Returns: Json };
       expire_contracts: { Args: Record<string, never>; Returns: number };
       is_admin: { Args: Record<string, never>; Returns: boolean };
@@ -1201,6 +1264,7 @@ export interface Database {
       can_request_friendship: { Args: { p_target: string }; Returns: boolean };
       can_message: { Args: { p_target: string }; Returns: boolean };
       profile_allows_indexing: { Args: { p_target: string }; Returns: boolean };
+      can_view_album: { Args: { p_album: string }; Returns: boolean };
       is_blocked: { Args: { a: string; b: string }; Returns: boolean };
       is_conversation_participant: { Args: { cid: string }; Returns: boolean };
       push_notification: {

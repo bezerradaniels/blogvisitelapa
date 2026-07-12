@@ -33,6 +33,82 @@ export async function getPrivacyPrefs(profileId: string): Promise<PrivacyPrefs> 
   };
 }
 
+export interface SecurityEvent {
+  id: string;
+  action: string;
+  createdAt: string;
+}
+
+// Eventos de segurança/conta do próprio usuário (RLS: audit_logs_self_read).
+export async function getMySecurityEvents(profileId: string): Promise<SecurityEvent[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('audit_logs')
+    .select('id, action, created_at')
+    .eq('actor_id', profileId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  return ((data ?? []) as { id: string; action: string; created_at: string }[]).map((r) => ({
+    id: r.id,
+    action: r.action,
+    createdAt: r.created_at,
+  }));
+}
+
+export type ContentPrefs = Tables<'user_content_prefs'>;
+
+// Preferências de conteúdo/mídia (padrões se não houver linha).
+export async function getContentPrefs(profileId: string): Promise<ContentPrefs> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('user_content_prefs')
+    .select('*')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+  if (data) return data;
+  return {
+    profile_id: profileId,
+    muted_words: [],
+    autoplay_videos: true,
+    hide_sensitive: false,
+    default_album_visibility: 'amigos',
+    created_at: '',
+    updated_at: '',
+  };
+}
+
+export interface BlockedUser {
+  profileId: string;
+  fullName: string | null;
+  slug: string | null;
+  avatarUrl: string | null;
+  since: string;
+}
+
+// Lista de usuários bloqueados pelo perfil atual (RLS: só o próprio bloqueador).
+export async function listBlockedUsers(profileId: string): Promise<BlockedUser[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('blocks')
+    .select('created_at, blocked:profiles!blocks_blocked_id_fkey(id, full_name, slug, avatar_url)')
+    .eq('blocker_id', profileId)
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  return ((data ?? []) as unknown as {
+    created_at: string;
+    blocked: { id: string; full_name: string | null; slug: string | null; avatar_url: string | null } | null;
+  }[])
+    .filter((r) => r.blocked)
+    .map((r) => ({
+      profileId: r.blocked!.id,
+      fullName: r.blocked!.full_name,
+      slug: r.blocked!.slug,
+      avatarUrl: r.blocked!.avatar_url,
+      since: r.created_at,
+    }));
+}
+
 export type NotificationPrefs = Tables<'user_notification_prefs'>;
 
 // Preferências de notificação (padrões ligados se não houver linha).
