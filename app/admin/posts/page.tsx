@@ -4,7 +4,7 @@ import EmptyState from '@/components/EmptyState';
 import FilterTabs from '@/components/FilterTabs';
 import StatusBadge from '@/components/StatusBadge';
 import PostRowActions from '@/features/admin/PostRowActions';
-import { listAdminPosts } from '@/features/admin/queries';
+import { listAdminPosts, listPostAuthors } from '@/features/admin/queries';
 import { formatDate } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
@@ -25,7 +25,7 @@ interface Props {
 
 export default async function AdminPostsPage({ searchParams }: Props) {
   const { filtro = 'todos', q = '' } = await searchParams;
-  const posts = await listAdminPosts(filtro, q);
+  const [posts, authors] = await Promise.all([listAdminPosts(filtro, q), listPostAuthors()]);
 
   return (
     <div className="space-y-4">
@@ -43,14 +43,14 @@ export default async function AdminPostsPage({ searchParams }: Props) {
           name="q"
           defaultValue={q}
           placeholder="Buscar por título..."
-          className="h-9 w-full max-w-xs rounded border border-line px-3 text-sm outline-none focus:border-brand"
+          className="h-9 w-full max-w-xs rounded-[10px] border border-line px-3 text-sm outline-none focus:border-brand"
         />
       </form>
 
       {posts.length === 0 ? (
         <EmptyState title="Nenhum post encontrado" />
       ) : (
-        <div className="card-base overflow-x-auto">
+        <div className="overflow-x-auto rounded-[10px] border border-line bg-card shadow-card">
           <table className="w-full text-sm">
             <thead className="bg-surface text-left text-xs text-muted">
               <tr>
@@ -71,13 +71,18 @@ export default async function AdminPostsPage({ searchParams }: Props) {
                     </Link>
                     {p.category && <span className="block text-xs text-muted">{p.category.name}</span>}
                   </td>
-                  <td className="p-3 text-muted">{p.author?.full_name ?? '—'}</td>
+                  <td className="p-3 text-muted uppercase">{p.author?.full_name ?? '—'}</td>
                   <td className="p-3"><StatusBadge status={p.status} /></td>
                   <td className="p-3"><StatusBadge status={p.moderation_status} /></td>
                   <td className="p-3 text-muted">{formatDate(p.updated_at)}</td>
                   <td className="p-3">
                     <PostRowActions
                       postId={p.id}
+                      title={p.title}
+                      slug={p.slug}
+                      authorId={p.author_id}
+                      publishedAt={p.published_at}
+                      authors={authors}
                       status={p.status}
                       moderationStatus={p.moderation_status}
                       isFeatured={p.is_featured}

@@ -4,6 +4,7 @@
 import {
   Album02Icon,
   Analytics01Icon,
+  Archive02Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowTurnBackwardIcon,
@@ -13,6 +14,7 @@ import {
   Calendar03Icon,
   Cancel01Icon,
   ChurchIcon,
+  Delete02Icon,
   Dumbbell01Icon,
   Facebook01Icon,
   FavouriteIcon,
@@ -40,6 +42,7 @@ import {
   Notification03Icon,
   News01Icon,
   ParagraphIcon,
+  PencilEdit02Icon,
   PlusSignIcon,
   QuoteDownIcon,
   Restaurant02Icon,
@@ -79,6 +82,7 @@ export const icons = {
   Login03Icon,
   Settings01Icon,
   Analytics01Icon,
+  Archive02Icon,
   File01Icon,
   Tag01Icon,
   Image01Icon,
@@ -110,7 +114,9 @@ export const icons = {
   ArrowTurnForwardIcon,
   TextClearIcon,
   PlusSignIcon,
+  PencilEdit02Icon,
   Tick02Icon,
+  Delete02Icon,
 } as const;
 
 export type IconName = keyof typeof icons;

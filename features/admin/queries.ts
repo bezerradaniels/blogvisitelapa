@@ -12,6 +12,8 @@ export interface AdminPostRow {
   is_featured: boolean;
   content_type: string;
   updated_at: string;
+  published_at: string | null;
+  author_id: string;
   author: { full_name: string | null } | null;
   category: { name: string } | null;
 }
@@ -29,7 +31,7 @@ export async function listAdminPosts(filter = 'todos', term = ''): Promise<Admin
   let query = supabase
     .from('posts')
     .select(
-      'id, title, slug, status, moderation_status, is_featured, content_type, updated_at, author:profiles!posts_author_id_fkey(full_name), category:categories(name)',
+      'id, title, slug, status, moderation_status, is_featured, content_type, updated_at, published_at, author_id, author:profiles!posts_author_id_fkey(full_name), category:categories(name)',
     )
     .order('updated_at', { ascending: false })
     .limit(100);
@@ -41,6 +43,22 @@ export async function listAdminPosts(filter = 'todos', term = ''): Promise<Admin
 
   const { data } = await query;
   return (data ?? []) as unknown as AdminPostRow[];
+}
+
+export interface PostAuthorOption {
+  id: string;
+  full_name: string | null;
+}
+
+export async function listPostAuthors(): Promise<PostAuthorOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .eq('status', 'active')
+    .in('role', ['publisher', 'admin'])
+    .order('full_name');
+  return data ?? [];
 }
 
 export interface AdminCommentRow {

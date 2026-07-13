@@ -3,13 +3,60 @@
 // Server Actions administrativas (moderação). Sempre exigem admin (checagem +
 // RLS). Registram trilha de auditoria.
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 import { adminGuard } from '@/lib/auth/adminGuard';
 import { createClient } from '@/lib/supabase/server';
+import { slugify } from '@/lib/utils/format';
 import type { TablesUpdate } from '@/types/database';
 
 export interface AdminActionResult {
   ok: boolean;
   error?: string;
+}
+
+const quickPostEditSchema = z.object({
+  postId: z.string().uuid(),
+  title: z.string().trim().min(3, 'Informe um título com pelo menos 3 caracteres.'),
+  slug: z.string().trim().min(1, 'Informe um slug.'),
+  authorId: z.string().uuid('Selecione um autor válido.'),
+  publishedAt: z.string().datetime({ offset: true }).nullable(),
+});
+
+export type QuickPostEditInput = z.input<typeof quickPostEditSchema>;
+
+// Atualiza apenas os campos exibidos no modal de edição rápida.
+export async function quickEditPost(input: QuickPostEditInput): Promise<AdminActionResult> {
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito a administradores.' };
+
+  const parsed = quickPostEditSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' };
+
+  const { postId, title, authorId, publishedAt } = parsed.data;
+  const slug = slugify(parsed.data.slug);
+  if (!slug) return { ok: false, error: 'Informe um slug válido.' };
+
+  const { supabase, profileId } = ctx;
+  const [{ data: post }, { data: author }, { data: slugConflict }] = await Promise.all([
+    supabase.from('posts').select('slug').eq('id', postId).maybeSingle(),
+    supabase.from('profiles').select('id').eq('id', authorId).eq('status', 'active').in('role', ['publisher', 'admin']).maybeSingle(),
+    supabase.from('posts').select('id').eq('slug', slug).neq('id', postId).maybeSingle(),
+  ]);
+
+  if (!post) return { ok: false, error: 'Post não encontrado.' };
+  if (!author) return { ok: false, error: 'O autor selecionado não está disponível.' };
+  if (slugConflict) return { ok: false, error: 'Este slug já está em uso.' };
+
+  const update: TablesUpdate<'posts'> = { title, slug, author_id: authorId, published_at: publishedAt };
+  const { error } = await supabase.from('posts').update(update).eq('id', postId);
+  if (error) return { ok: false, error: 'Não foi possível atualizar o post.' };
+
+  await logAudit(supabase, profileId, 'post.quick_edit', 'posts', postId);
+  revalidatePath('/admin/posts');
+  revalidatePath(`/post/${post.slug}`);
+  revalidatePath(`/post/${slug}`);
+  revalidatePath('/');
+  return { ok: true };
 }
 
 async function logAudit(
