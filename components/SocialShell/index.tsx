@@ -20,7 +20,7 @@ export default async function SocialShell({ children }: { children: ReactNode })
     { count: friends },
     { count: communities },
   ] = await Promise.all([
-    supabase.from('profile_details').select('nickname, city, relationship').eq('profile_id', profile.id).maybeSingle(),
+    supabase.from('profile_details').select('nickname').eq('profile_id', profile.id).maybeSingle(),
     supabase.from('scraps').select('id', { count: 'exact', head: true }).eq('profile_id', profile.id),
     supabase.from('photo_albums').select('id', { count: 'exact', head: true }).eq('profile_id', profile.id),
     supabase.from('testimonials').select('id', { count: 'exact', head: true }).eq('profile_id', profile.id).eq('status', 'aprovado'),
@@ -65,11 +65,7 @@ export default async function SocialShell({ children }: { children: ReactNode })
             <div className="min-w-0 flex-1 lg:block">
               <h1 className="truncate text-base font-extrabold leading-tight text-title lg:mt-4 lg:text-lg">{displayName}</h1>
               <div className="hidden lg:block">
-                {details?.nickname && <p className="mt-1 text-sm font-semibold text-brand">{details.nickname}</p>}
-                <div className="mt-2 space-y-0.5 text-xs text-muted">
-                  {details?.relationship && <p>{details.relationship}</p>}
-                  {details?.city && <p>{details.city}</p>}
-                </div>
+                {profile.slug && <p className="mt-1 text-sm font-semibold text-brand">@{profile.slug}</p>}
 
                 <hr className="my-4 border-line" />
                 <div className="flex flex-col gap-2">

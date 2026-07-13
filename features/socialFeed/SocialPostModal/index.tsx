@@ -58,7 +58,8 @@ export default function SocialPostModal({
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const authorName = post.author.nickname ?? (titleCase(post.author.full_name) || 'Usuário');
+  const authorName = titleCase(post.author.full_name) || 'Usuário';
+  const authorUsername = post.author.slug ? `@${post.author.slug}` : null;
 
   // Carrega respostas ao abrir; trava scroll do body e fecha no Esc.
   useEffect(() => {
@@ -149,15 +150,15 @@ export default function SocialPostModal({
                 >
                   {authorName}
                 </Link>
-                {post.author.slug && <span className="text-xs text-muted">@{post.author.slug}</span>}
+                {authorUsername && <span className="text-xs text-muted">{authorUsername}</span>}
                 <time className="text-xs text-muted" dateTime={post.createdAt}>· {timeAgo(post.createdAt)}</time>
               </div>
               <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-body">
                 <LinkedContent content={post.content} />
               </p>
               <div className="mt-2 flex items-center gap-5 text-xs font-semibold">
-                <button type="button" onClick={onToggleLike} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
-                  <Icon icon="FavouriteIcon" size={16} /> {likeCount || 'Curtir'}
+                <button type="button" onClick={onToggleLike} aria-label={`Curtir (${likeCount})`} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
+                  <Icon icon="FavouriteIcon" size={16} /> {likeCount}
                 </button>
               </div>
             </div>
@@ -173,7 +174,8 @@ export default function SocialPostModal({
             ) : (
               <ul className="space-y-4">
                 {comments.map((comment) => {
-                  const name = comment.author.nickname ?? (titleCase(comment.author.full_name) || 'Usuário');
+                  const name = titleCase(comment.author.full_name) || 'Usuário';
+                  const username = comment.author.slug ? `@${comment.author.slug}` : null;
                   return (
                     <li key={comment.id} className="flex gap-3">
                       <Link href={comment.author.slug ? `/u/${comment.author.slug}` : '#'} onClick={onClose}>
@@ -188,6 +190,7 @@ export default function SocialPostModal({
                           >
                             {name}
                           </Link>
+                          {username && <span className="text-xs text-muted">{username}</span>}
                           <time className="text-xs text-muted" dateTime={comment.createdAt}>· {timeAgo(comment.createdAt)}</time>
                           {(comment.canDelete || postOwnedByMe) && (
                             <button

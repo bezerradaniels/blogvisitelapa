@@ -29,7 +29,8 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
   const [repostCount, setRepostCount] = useState(post.repostCount);
   const [commentCount, setCommentCount] = useState(post.commentCount);
   const [modalOpen, setModalOpen] = useState(false);
-  const authorName = post.author.nickname ?? (titleCase(post.author.full_name) || 'Usuário');
+  const authorName = titleCase(post.author.full_name) || 'Usuário';
+  const authorUsername = post.author.slug ? `@${post.author.slug}` : null;
 
   function openComments() {
     if (!isLogged) {
@@ -79,7 +80,7 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
     <article className="card-base p-4">
       {post.repostedBy && (
         <p className="mb-2 text-xs font-semibold text-muted">
-          ↻ {post.repostedBy.nickname ?? (titleCase(post.repostedBy.full_name) || 'Um amigo')} repostou
+          ↻ {titleCase(post.repostedBy.full_name) || 'Um amigo'}{post.repostedBy.slug ? ` @${post.repostedBy.slug}` : ''} repostou
         </p>
       )}
       <div className="flex gap-3">
@@ -98,7 +99,7 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
             <Link href={post.author.slug ? `/u/${post.author.slug}` : '#'} className="font-bold text-title hover:text-brand hover:underline">
               {authorName}
             </Link>
-            {post.author.slug && <span className="text-xs text-muted">@{post.author.slug}</span>}
+            {authorUsername && <span className="text-xs text-muted">{authorUsername}</span>}
             <time className="text-xs text-muted" dateTime={post.createdAt}>· {timeAgo(post.createdAt)}</time>
           </div>
           <div
@@ -118,14 +119,14 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
             </p>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-5 text-xs font-semibold">
-            <button type="button" disabled={pending} onClick={toggleLike} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
-              <Icon icon="FavouriteIcon" size={16} /> {likeCount || 'Curtir'}
+            <button type="button" disabled={pending} onClick={toggleLike} aria-label={`Curtir (${likeCount})`} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
+              <Icon icon="FavouriteIcon" size={16} /> {likeCount}
             </button>
-            <button type="button" onClick={openComments} className="inline-flex items-center gap-1.5 text-muted hover:text-brand">
-              <Icon icon="BubbleChatIcon" size={16} /> {commentCount || 'Responder'}
+            <button type="button" onClick={openComments} aria-label={`Responder (${commentCount})`} className="inline-flex items-center gap-1.5 text-muted hover:text-brand">
+              <Icon icon="BubbleChatIcon" size={16} /> {commentCount}
             </button>
-            <button type="button" disabled={pending} onClick={toggleRepost} className={`inline-flex items-center gap-1.5 ${reposted ? 'text-brand' : 'text-muted hover:text-brand'}`}>
-              <Icon icon="ArrowReloadHorizontalIcon" size={16} /> {repostCount || 'Repostar'}
+            <button type="button" disabled={pending} onClick={toggleRepost} aria-label={`Repostar (${repostCount})`} className={`inline-flex items-center gap-1.5 ${reposted ? 'text-brand' : 'text-muted hover:text-brand'}`}>
+              <Icon icon="ArrowReloadHorizontalIcon" size={16} /> {repostCount}
             </button>
             {post.canDelete && (
               <button type="button" disabled={pending} onClick={remove} className="ml-auto inline-flex items-center gap-1.5 text-muted hover:text-danger">

@@ -100,7 +100,7 @@ export async function saveProfile(input: z.input<typeof profileSchema>): Promise
     },
     { onConflict: 'profile_id' },
   );
-  if (dErr) return { ok: false, error: 'Não foi possível salvar os detalhes do perfil.' };
+  if (dErr) return { ok: false, error: `Não foi possível salvar os detalhes do perfil: ${dErr.message}` };
 
   revalidatePath('/perfil');
   revalidatePath(`/u/${finalSlug}`);

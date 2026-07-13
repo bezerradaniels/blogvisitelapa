@@ -56,11 +56,7 @@ export default async function PublicProfileShell({ profile, slug, children }: Pu
             <div className="min-w-0 flex-1 lg:block">
               <h1 className="truncate text-base font-extrabold leading-tight text-title lg:mt-4 lg:text-lg">{displayName}</h1>
               <div className="hidden lg:block">
-                {details?.nickname && <p className="mt-1 text-sm font-semibold text-brand">{details.nickname}</p>}
-                <div className="mt-2 space-y-0.5 text-xs text-muted">
-                  {details?.relationship && <p>{details.relationship}</p>}
-                  {details?.city && <p>{details.city}</p>}
-                </div>
+                <p className="mt-1 text-sm font-semibold text-brand">@{slug}</p>
                 {isOwner && (
                   <>
                     <hr className="my-4 border-line" />

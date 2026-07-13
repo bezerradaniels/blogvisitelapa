@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import Badge from '@/components/Badge';
+import SocialSidebarNav, { type SocialNavItem } from '@/components/SocialSidebarNav';
 import { listUserCommunities } from '@/features/communities/queries';
 import NewMessageButton from '@/features/messages/NewMessageButton';
 import { listAlbums } from '@/features/photos/queries';
@@ -86,11 +87,11 @@ function FriendTile({ p }: { p: CommunityProfile }) {
   return (
     <Link
       href={`/u/${p.slug}`}
-      className="card-hover flex flex-col items-center gap-1.5 text-center"
+      className="card-hover flex w-fit max-w-full flex-col items-center gap-2 text-center"
       title={titleCase(p.full_name)}
     >
-      <ProfileAvatar url={p.avatar_url} name={p.full_name} size={56} />
-      <span className="line-clamp-1 w-full text-xs font-semibold text-title">{titleCase(p.full_name) || 'Usuário'}</span>
+      <ProfileAvatar url={p.avatar_url} name={p.full_name} size={64} />
+      <span className="line-clamp-2 max-w-full self-start text-left text-sm font-bold text-title">{titleCase(p.full_name) || 'Usuário'}</span>
     </Link>
   );
 }
@@ -98,42 +99,22 @@ function FriendTile({ p }: { p: CommunityProfile }) {
 function ProfileRow({ label, children }: { label: string; children: ReactNode }) {
   if (!children) return null;
   return (
-    <div className="grid gap-1 px-3 py-2.5 even:bg-surface sm:grid-cols-[140px_1fr] sm:gap-4">
-      <dt className="text-xs font-semibold text-muted sm:text-right">{label}</dt>
+    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-4 px-3 py-2.5 even:bg-surface">
+      <dt className="text-left text-xs font-semibold text-muted">{label}</dt>
       <dd className="whitespace-pre-wrap text-sm text-body">{children}</dd>
     </div>
   );
 }
 
-function NavItem({ href, children, count }: { href: string; children: ReactNode; count?: number }) {
-  return (
-    <li>
-      <a href={href} className="flex min-h-[40px] items-center rounded-[10px] px-3 text-sm font-bold text-body transition-colors hover:bg-surface">
-        {children}
-        {typeof count === 'number' && <span className="ml-auto text-xs font-semibold text-muted">{count}</span>}
-      </a>
-    </li>
-  );
-}
-
-function VisibilityLabel({ value }: { value: string | null | undefined }) {
-  const labels: Record<string, string> = { publico: 'Público', amigos: 'Somente amigos', oculto: 'Oculto' };
-  return <>{labels[value ?? ''] ?? 'Não informado'}</>;
-}
-
-function ProfileSummary({ profile, details }: { profile: { full_name: string | null; avatar_url: string | null; bio: string | null }; details: { nickname: string | null; city: string | null; relationship: string | null } | null }) {
+function ProfileSummary({ profile, slug }: { profile: { full_name: string | null; avatar_url: string | null; bio: string | null }; slug: string }) {
   return (
     <div className="flex flex-col items-center text-center">
       <span className="inline-block rounded-full border-4 border-brand-soft p-1">
         <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={104} />
       </span>
       <h1 className="mt-3 text-lg font-extrabold leading-tight text-title">{titleCase(profile.full_name)}</h1>
-      {details?.nickname && <p className="mt-0.5 text-sm font-semibold text-brand">{details.nickname}</p>}
+      <p className="mt-0.5 text-sm font-semibold text-brand">@{slug}</p>
       {profile.bio && <p className="mt-2 line-clamp-3 text-sm text-muted">{profile.bio}</p>}
-      <div className="mt-2 space-y-0.5 text-xs text-muted">
-        {details?.relationship && <p>{details.relationship}</p>}
-        {details?.city && <p>{details.city}</p>}
-      </div>
     </div>
   );
 }
@@ -164,7 +145,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
     return (
       <div className="container-page max-w-3xl py-8">
         <div className="card-base mx-auto max-w-sm p-5">
-          <ProfileSummary profile={profile} details={d} />
+          <ProfileSummary profile={profile} slug={slug} />
         </div>
         <div className="card-base mx-auto mt-6 flex max-w-sm flex-col items-center px-6 py-10 text-center">
           <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-xl text-brand-dark" aria-hidden>
@@ -199,6 +180,15 @@ export default async function PerfilPublicoPage({ params }: Props) {
     listAlbums(profile.id),
     listUserCommunities(profile.id),
   ]);
+  const profileNavItems: SocialNavItem[] = [
+    { href: `/u/${slug}`, label: 'Perfil', exact: true },
+    { href: `/u/${slug}/feed`, label: 'Feed', count: recentPosts.length },
+    { href: `/u/${slug}/recados`, label: 'Recados', count: scraps.length },
+    { href: `/u/${slug}/fotos`, label: 'Fotos', count: albums.length },
+    { href: `/u/${slug}/depoimentos`, label: 'Depoimentos', count: testimonials.length },
+    { href: `/u/${slug}/amigos`, label: 'Amigos', count: profile.friendCount },
+    { href: `/u/${slug}/comunidades`, label: 'Comunidades', count: communities.length },
+  ];
 
   return (
     <div className="container-page py-8">
@@ -211,39 +201,48 @@ export default async function PerfilPublicoPage({ params }: Props) {
       </nav>
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr_300px]">
-        <aside className="space-y-4">
-          <div className="card-base p-4">
-            <ProfileSummary profile={profile} details={d} />
-            {isAuthor && <div className="mt-3 text-center"><Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge></div>}
-
-            <hr className="my-4 border-line" />
-
-            <div className="flex flex-col items-center gap-3">
+        <aside className="card-base overflow-hidden lg:sticky lg:top-24 lg:self-start">
+          <div className="flex items-center gap-3 p-3 text-left lg:block lg:p-4 lg:text-center">
+            <span className="rounded-full ring-[3px] ring-brand-soft lg:hidden"><ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={56} /></span>
+            <span className="hidden rounded-full ring-4 ring-brand-soft lg:inline-block"><ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={104} /></span>
+            <div className="min-w-0 flex-1 lg:block">
+              <div className="flex items-center justify-between gap-3 lg:block">
+                <h1 className="truncate text-base font-extrabold leading-tight text-title lg:mt-4 lg:text-lg">{titleCase(profile.full_name) || 'Usuário'}</h1>
+                {!isOwner && (
+                  <span className="shrink-0 lg:hidden">
+                    <FriendButton targetProfileId={profile.id} state={friendState} isLogged={Boolean(viewer)} targetSlug={slug} />
+                  </span>
+                )}
+              </div>
+              <div className="hidden lg:block">
+                <p className="mt-1 text-sm font-semibold text-brand">@{slug}</p>
+                {isAuthor && <div className="mt-3"><Badge tone="brand">{profile.role === 'admin' ? 'Editor' : 'Colaborador'}</Badge></div>}
+                <hr className="my-4 border-line" />
+                <div className="flex flex-col items-center gap-3">
+                  {isOwner ? (
+                    <Link href="/perfil" className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface">Editar perfil</Link>
+                  ) : (
+                    <>
+                      <FriendButton targetProfileId={profile.id} state={friendState} isLogged={Boolean(viewer)} targetSlug={slug} />
+                      {isFriend && <NewMessageButton targetProfileId={profile.id} />}
+                      {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          {(isOwner || isFriend) && <div className="border-t border-line p-3 lg:hidden">
+            <div className="flex flex-wrap items-center gap-2">
               {isOwner ? (
-                <Link href="/perfil" className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface">Editar perfil</Link>
+                <Link href="/perfil" className="inline-flex min-h-9 items-center justify-center rounded-full border border-line bg-card px-4 text-sm font-bold text-brand hover:bg-surface">Editar perfil</Link>
               ) : (
-                <>
-                  <FriendButton targetProfileId={profile.id} state={friendState} isLogged={Boolean(viewer)} targetSlug={slug} />
-                  {isFriend && <NewMessageButton targetProfileId={profile.id} />}
-                  {viewer && <BlockButton targetProfileId={profile.id} blocked={blocked} />}
-                </>
+                isFriend && <NewMessageButton targetProfileId={profile.id} />
               )}
             </div>
-
-            <hr className="my-4 border-line" />
-
-            <nav aria-label="Seções do perfil">
-              <ul className="space-y-1">
-                <NavItem href={`/u/${slug}`}>Perfil</NavItem>
-                <NavItem href={`/u/${slug}/feed`}>Feed</NavItem>
-                <NavItem href={`/u/${slug}/recados`} count={scraps.length}>Recados</NavItem>
-                <NavItem href={`/u/${slug}/fotos`} count={albums.length}>Fotos</NavItem>
-                <NavItem href={`/u/${slug}/depoimentos`} count={testimonials.length}>Depoimentos</NavItem>
-                <NavItem href={`/u/${slug}/amigos`} count={profile.friendCount}>Amigos</NavItem>
-                <NavItem href={`/u/${slug}/comunidades`} count={communities.length}>Comunidades</NavItem>
-              </ul>
-            </nav>
-          </div>
+          </div>}
+          <hr className="mx-4 hidden border-line lg:block" />
+          <SocialSidebarNav items={profileNavItems} />
         </aside>
 
         {/* Coluna principal */}
@@ -251,13 +250,12 @@ export default async function PerfilPublicoPage({ params }: Props) {
           <section id="sobre" className="card-base scroll-mt-24 overflow-hidden p-4 sm:p-5">
             <SectionHeading className="mb-4">Informações do perfil</SectionHeading>
             <dl className="overflow-hidden rounded-[10px] border border-line">
-              <OptionalProfileRow label="Apelido" value={d?.nickname} />
+              <OptionalProfileRow label="Username" value={slug} />
               <OptionalProfileRow label="Relacionamento" value={d?.relationship} />
               <OptionalProfileRow label="Aniversário" value={d?.birth_date ? formatDate(d.birth_date, "d 'de' MMMM") : null} />
               <OptionalProfileRow label="Cidade" value={d?.city} />
               <OptionalProfileRow label="Interesses" value={d?.interests} />
               <OptionalProfileRow label="Quem sou eu" value={d?.about ?? profile.bio} />
-              <ProfileRow label="Visibilidade"><VisibilityLabel value={d?.visibility} /></ProfileRow>
             </dl>
           </section>
 
@@ -383,15 +381,15 @@ export default async function PerfilPublicoPage({ params }: Props) {
 
         {/* Coluna social */}
         <aside className="space-y-6">
-          <div id="amigos" className="card-base scroll-mt-24 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <SectionHeading>Amigos</SectionHeading>
-              <Link href={`/u/${slug}/amigos`} className="text-xs font-bold text-brand hover:underline">
+          <div id="amigos" className="card-base scroll-mt-24 p-5">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 text-lg font-extrabold text-title"><span className="leaf-pill h-6 w-6" aria-hidden />Amigos</h2>
+              <Link href={`/u/${slug}/amigos`} className="text-sm font-bold text-brand hover:underline">
                 Ver todos
               </Link>
             </div>
             {friends.length > 0 ? (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-4">
                 {friends.slice(0, 9).map((p) => (
                   <FriendTile key={p.id} p={p} />
                 ))}

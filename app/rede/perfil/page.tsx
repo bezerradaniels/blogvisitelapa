@@ -14,7 +14,7 @@ export default async function RedePerfilPage() {
   const { data: details } = await supabase.from('profile_details').select('*').eq('profile_id', user.profile.id).maybeSingle();
   const rows = [
     ['Nome', titleCase(user.profile.full_name)],
-    ['Apelido', details?.nickname],
+    ['Username', user.profile.slug],
     ['Cidade', details?.city],
     ['Relacionamento', details?.relationship],
     ['Aniversário', details?.birth_date ? formatDate(details.birth_date, "d 'de' MMMM") : null],
