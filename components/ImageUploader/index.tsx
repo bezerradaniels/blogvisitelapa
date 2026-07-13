@@ -15,6 +15,11 @@ interface ImageUploaderProps {
   ratio?: string;
   // compact: em vez do dropzone grande, mostra só um botão pequeno (+ miniatura).
   compact?: boolean;
+  // profile: cartão horizontal para alteração de avatar, inspirado em perfis sociais.
+  profile?: {
+    primaryText: string;
+    secondaryText?: string;
+  };
 }
 
 export default function ImageUploader({
@@ -25,6 +30,7 @@ export default function ImageUploader({
   label = 'Imagem',
   ratio = 'aspect-[16/10]',
   compact = false,
+  profile,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -49,6 +55,40 @@ export default function ImageUploader({
       onChange={(e) => handleFile(e.target.files?.[0])}
     />
   );
+
+  if (profile) {
+    const initial = profile.primaryText.charAt(0).toUpperCase() || 'U';
+    return (
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-medium text-body">{label}</span>
+        <div className="flex flex-wrap items-center gap-4 rounded-[24px] bg-surface p-4 sm:flex-nowrap sm:px-6 sm:py-5">
+          {value ? (
+            <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-brand-soft sm:h-24 sm:w-24">
+              <Image src={value} alt="Foto de perfil" fill sizes="96px" className="object-cover" />
+            </span>
+          ) : (
+            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-brand-soft text-3xl font-extrabold text-brand-dark sm:h-24 sm:w-24 sm:text-4xl">
+              {initial}
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-lg font-extrabold text-title">{profile.primaryText || 'Seu perfil'}</p>
+            {profile.secondaryText && <p className="truncate text-sm text-muted sm:text-base">{profile.secondaryText}</p>}
+          </div>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="h-10 shrink-0 rounded-[10px] bg-brand px-5 text-sm font-extrabold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:px-6"
+          >
+            {uploading ? 'Enviando...' : 'Mudar foto'}
+          </button>
+        </div>
+        {error && <span className="text-xs text-danger">{error}</span>}
+        {fileInput}
+      </div>
+    );
+  }
 
   // Modo compacto: um botão pequeno; se já houver imagem, miniatura + remover.
   if (compact) {

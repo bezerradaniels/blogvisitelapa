@@ -32,6 +32,7 @@ interface PrivacySelectorProps {
   globalVisibility?: ProfileVisibility;
   className?: string;
   size?: 'sm' | 'md';
+  variant?: 'segmented' | 'select';
 }
 
 export default function PrivacySelector({
@@ -46,9 +47,32 @@ export default function PrivacySelector({
   globalVisibility,
   className,
   size = 'md',
+  variant = 'segmented',
 }: PrivacySelectorProps) {
   const limited = globalVisibility ? isLimitedByGlobal(value, globalVisibility) : false;
   const effective = globalVisibility ? effectiveFieldVisibility(value, globalVisibility) : value;
+
+  if (variant === 'select') {
+    return (
+      <select
+        name={name}
+        aria-label={legend ?? 'Visibilidade'}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value as ProfileVisibility)}
+        className={cn(
+          'h-9 min-w-32 rounded-[10px] border border-line bg-card px-3 text-sm font-semibold text-body outline-none focus:border-brand disabled:cursor-not-allowed disabled:opacity-60',
+          className,
+        )}
+      >
+        {ORDER.map((opt) => (
+          <option key={opt} value={opt}>
+            {VISIBILITY_LABEL[opt]}
+          </option>
+        ))}
+      </select>
+    );
+  }
 
   return (
     <fieldset className={cn('min-w-0', className)} disabled={disabled}>

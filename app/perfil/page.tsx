@@ -125,7 +125,6 @@ export default async function PerfilPage() {
             relationship: details?.relationship ?? '',
             interests: details?.interests ?? '',
             about: details?.about ?? '',
-            cover_url: details?.cover_url ?? null,
             visibility: details?.visibility ?? 'publico',
           }}
         />

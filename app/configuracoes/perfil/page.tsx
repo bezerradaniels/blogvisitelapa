@@ -26,7 +26,7 @@ export default async function PerfilConfigPage() {
         title="Perfil e privacidade"
         description="Edite suas informações e escolha quem pode ver cada campo. A regra mais restritiva sempre vence: a visibilidade geral limita a de cada campo."
       />
-      <ProfilePrivacyForm userId={profile.id} initial={initial} />
+      <ProfilePrivacyForm initial={initial} />
     </div>
   );
 }

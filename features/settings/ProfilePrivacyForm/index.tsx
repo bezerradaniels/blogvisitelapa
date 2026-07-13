@@ -1,18 +1,15 @@
 'use client';
 
-// Formulário de Perfil com privacidade POR CAMPO.
-// Cada campo tem seu valor + um PrivacySelector (Público / Só amigos / Só eu).
+// Formulário exclusivamente de privacidade POR CAMPO.
+// Cada campo exibe apenas um PrivacySelector (Público / Só amigos / Só eu).
 // No topo, a visibilidade GERAL do perfil (limite máximo) e presets rápidos.
 // Salvamento explícito com barra fixa e proteção contra saída sem salvar.
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
-import ImageUploader from '@/components/ImageUploader';
-import Input from '@/components/Input';
 import PrivacySelector from '@/components/PrivacySelector';
 import SettingsSection from '@/components/SettingsSection';
-import Textarea from '@/components/Textarea';
 import { saveProfileSettings } from '@/features/settings/actions';
 import {
   FIELD_GROUP_LABELS,
@@ -25,12 +22,8 @@ import type { ProfileSettingsData } from '@/features/settings/queries';
 import type { ProfileVisibility } from '@/types/database';
 
 interface Props {
-  userId: string;
   initial: ProfileSettingsData;
 }
-
-// Campos de texto (o valor mora em `values`); imagens moram em estado à parte.
-type TextFieldKey = Exclude<FieldKey, 'avatar_url' | 'cover_url'>;
 
 const GLOBAL_HINT: Record<ProfileVisibility, string> = {
   publico: 'Seu perfil aparece para qualquer pessoa (respeitando o campo).',
@@ -44,21 +37,8 @@ const PRESETS: { key: 'publico' | 'amigos' | 'privado'; label: string; value: Pr
   { key: 'privado', label: 'Perfil privado', value: 'oculto' },
 ];
 
-export default function ProfilePrivacyForm({ userId, initial }: Props) {
+export default function ProfilePrivacyForm({ initial }: Props) {
   const router = useRouter();
-  const [values, setValues] = useState({
-    full_name: initial.full_name,
-    nickname: initial.nickname,
-    bio: initial.bio,
-    about: initial.about,
-    interests: initial.interests,
-    city: initial.city,
-    relationship: initial.relationship,
-    birth_date: initial.birth_date,
-    phone: initial.phone,
-  });
-  const [avatar, setAvatar] = useState<string | null>(initial.avatar_url);
-  const [cover, setCover] = useState<string | null>(initial.cover_url);
   const [globalVis, setGlobalVis] = useState<ProfileVisibility>(initial.visibility);
   const [fieldVis, setFieldVis] = useState<Record<FieldKey, ProfileVisibility>>(initial.fieldVisibility);
 
@@ -70,10 +50,6 @@ export default function ProfilePrivacyForm({ userId, initial }: Props) {
   function markDirty() {
     setDirty(true);
     setSaved(false);
-  }
-  function setText(key: TextFieldKey, value: string) {
-    setValues((p) => ({ ...p, [key]: value }));
-    markDirty();
   }
   function setVisibility(key: FieldKey, v: ProfileVisibility) {
     setFieldVis((p) => ({ ...p, [key]: v }));
@@ -120,17 +96,17 @@ export default function ProfilePrivacyForm({ userId, initial }: Props) {
     setError(null);
     setLoading(true);
     const res = await saveProfileSettings({
-      full_name: values.full_name,
-      bio: values.bio,
-      phone: values.phone,
-      avatar_url: avatar ?? '',
-      cover_url: cover ?? '',
-      nickname: values.nickname,
-      city: values.city,
-      birth_date: values.birth_date,
-      relationship: values.relationship,
-      interests: values.interests,
-      about: values.about,
+      full_name: initial.full_name,
+      bio: initial.bio,
+      phone: initial.phone,
+      avatar_url: initial.avatar_url ?? '',
+      cover_url: initial.cover_url ?? '',
+      nickname: initial.nickname,
+      city: initial.city,
+      birth_date: initial.birth_date,
+      relationship: initial.relationship,
+      interests: initial.interests,
+      about: initial.about,
       visibility: globalVis,
       fieldVisibility: fieldVis,
     });
@@ -190,59 +166,20 @@ export default function ProfilePrivacyForm({ userId, initial }: Props) {
           <SettingsSection key={group} title={FIELD_GROUP_LABELS[group]}>
             <div className="space-y-5">
               {fields.map((f) => (
-                <div key={f.key} className="border-b border-line pb-5 last:border-0 last:pb-0">
-                  {/* Controle de valor do campo */}
-                  {f.key === 'avatar_url' ? (
-                    <ImageUploader
-                      bucket="user-avatars"
-                      prefix={userId}
-                      value={avatar}
-                      onChange={(v) => {
-                        setAvatar(v);
-                        markDirty();
-                      }}
-                      label={f.label}
-                      ratio="aspect-square"
-                    />
-                  ) : f.key === 'cover_url' ? (
-                    <ImageUploader
-                      bucket="user-avatars"
-                      prefix={userId}
-                      value={cover}
-                      onChange={(v) => {
-                        setCover(v);
-                        markDirty();
-                      }}
-                      label={f.label}
-                      ratio="aspect-[16/9]"
-                    />
-                  ) : f.key === 'about' ? (
-                    <Textarea label={f.label} rows={3} value={values.about} onChange={(e) => setText('about', e.target.value)} />
-                  ) : f.key === 'interests' ? (
-                    <Textarea label={f.label} rows={2} value={values.interests} onChange={(e) => setText('interests', e.target.value)} />
-                  ) : f.key === 'bio' ? (
-                    <Textarea label={f.label} rows={2} maxLength={500} value={values.bio} onChange={(e) => setText('bio', e.target.value)} />
-                  ) : f.key === 'birth_date' ? (
-                    <Input label={f.label} type="date" value={values.birth_date} onChange={(e) => setText('birth_date', e.target.value)} />
-                  ) : (
-                    <Input
-                      label={f.label}
-                      value={values[f.key as TextFieldKey]}
-                      onChange={(e) => setText(f.key as TextFieldKey, e.target.value)}
-                    />
-                  )}
-                  {f.hint && <p className="mt-1 text-xs text-muted">{f.hint}</p>}
-
+                <div key={f.key} className="border-b border-line py-3 first:pt-0 last:border-0 last:pb-0">
                   {/* Controle de visibilidade do campo */}
-                  <div className="mt-2">
-                    <span className="mb-1 block text-xs font-semibold text-body">Quem pode ver:</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-body">{f.label}</span>
+                      {f.hint && <p className="mt-0.5 truncate text-xs text-muted">{f.hint}</p>}
+                    </div>
                     <PrivacySelector
                       name={`vis-${f.key}`}
                       legend={`Visibilidade de ${f.label}`}
                       value={fieldVis[f.key]}
                       onChange={(v) => setVisibility(f.key, v)}
                       globalVisibility={globalVis}
-                      size="sm"
+                      variant="select"
                     />
                   </div>
                 </div>
@@ -253,7 +190,7 @@ export default function ProfilePrivacyForm({ userId, initial }: Props) {
       })}
 
       {/* Barra de salvamento fixa */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-card/95 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-card">
         <div className="container-page flex items-center justify-between gap-3 py-3">
           <div className="min-w-0 text-xs text-muted">
             {error ? (
