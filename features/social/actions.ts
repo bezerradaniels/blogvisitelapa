@@ -58,7 +58,6 @@ const profileSchema = z.object({
   relationship: z.string().max(60).optional().default(''),
   interests: z.string().max(2000).optional().default(''),
   about: z.string().max(4000).optional().default(''),
-  cover_url: z.string().url().optional().or(z.literal('')).default(''),
   visibility: z.enum(['publico', 'amigos', 'oculto']),
 });
 
@@ -98,7 +97,6 @@ export async function saveProfile(input: z.input<typeof profileSchema>): Promise
       relationship: v.relationship.trim() || null,
       interests: v.interests.trim() || null,
       about: v.about.trim() || null,
-      cover_url: v.cover_url || null,
     },
     { onConflict: 'profile_id' },
   );
@@ -146,14 +144,16 @@ export async function sendFriendRequest(targetProfileId: string): Promise<Action
     return { ok: false, error: 'Esta pessoa não está aceitando pedidos de amizade.' };
   }
 
-  const { error: err } = await supabase
+  const { data: friendship, error: err } = await supabase
     .from('friendships')
-    .insert({ requester_id: profileId, addressee_id: targetProfileId });
-  if (err) return { ok: false, error: 'Não foi possível enviar o pedido.' };
+    .insert({ requester_id: profileId, addressee_id: targetProfileId })
+    .select('id')
+    .single();
+  if (err || !friendship) return { ok: false, error: 'Não foi possível enviar o pedido.' };
   await supabase.rpc('push_notification', {
     p_recipient: targetProfileId,
     p_type: 'amizade_pedido',
-    p_entity: null,
+    p_entity: friendship.id,
   });
   return { ok: true };
 }
@@ -183,14 +183,10 @@ export async function removeFriendship(otherProfileId: string): Promise<ActionRe
   const { profileId, supabase, error } = await requireProfile();
   if (!profileId || !supabase) return { ok: false, error };
 
-  const { error: err } = await supabase
-    .from('friendships')
-    .delete()
-    .or(
-      `and(requester_id.eq.${profileId},addressee_id.eq.${otherProfileId}),and(requester_id.eq.${otherProfileId},addressee_id.eq.${profileId})`,
-    );
+  const { error: err } = await supabase.rpc('remove_friendship', { p_other: otherProfileId });
   if (err) return { ok: false, error: 'Não foi possível atualizar a amizade.' };
   revalidatePath('/perfil');
+  revalidatePath('/notificacoes');
   return { ok: true };
 }
 
