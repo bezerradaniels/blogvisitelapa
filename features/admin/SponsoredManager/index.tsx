@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
-import { addSponsored, removeSponsored, toggleSponsored, type SponsoredKind } from '@/features/admin/sponsoredActions';
+import { addSponsored, toggleSponsored, type SponsoredKind } from '@/features/admin/sponsoredActions';
 import { formatDate } from '@/lib/utils/format';
 
 interface PostOption { id: string; title: string; slug: string }
@@ -19,42 +19,47 @@ interface SponsoredRow {
   post: { title: string; slug: string } | null;
 }
 
+interface ContractItemOption {
+  id: string;
+  contract_id: string;
+  label: string;
+}
+
 export default function SponsoredManager({
   kind,
   posts,
   entries,
+  contractItems = [],
 }: {
   kind: SponsoredKind;
   posts: PostOption[];
   entries: SponsoredRow[];
+  contractItems?: ContractItemOption[];
 }) {
   const router = useRouter();
   const [postId, setPostId] = useState('');
   const [label, setLabel] = useState('');
+  const [contractItemId, setContractItemId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   function add() {
     setError(null);
     start(async () => {
-      const res = await addSponsored(kind, postId, label);
+      const res = await addSponsored(kind, { postId, label, contractItemId });
       if (!res.ok) return setError(res.error ?? 'Erro.');
       setPostId('');
       setLabel('');
+      setContractItemId('');
       router.refresh();
     });
   }
 
   function toggle(id: string, active: boolean) {
+    if (!active && !window.confirm('Desativar este patrocínio? O vínculo será preservado no histórico.')) return;
     start(async () => {
-      await toggleSponsored(kind, id, active);
-      router.refresh();
-    });
-  }
-
-  function remove(id: string) {
-    start(async () => {
-      await removeSponsored(kind, id);
+      const res = await toggleSponsored(kind, id, active);
+      if (!res.ok) return setError(res.error ?? 'Não foi possível atualizar.');
       router.refresh();
     });
   }
@@ -71,10 +76,18 @@ export default function SponsoredManager({
             placeholder="Selecione um post..."
             options={posts.map((p) => ({ value: p.id, label: p.title }))}
           />
+          <Select
+            label="Item contratado"
+            value={contractItemId}
+            onChange={(e) => setContractItemId(e.target.value)}
+            placeholder={contractItems.length ? 'Selecione o entregável contratado' : 'Nenhum item de conteúdo disponível'}
+            disabled={contractItems.length === 0}
+            options={contractItems.map((item) => ({ value: item.id, label: item.label }))}
+          />
           <Input label="Rótulo" value={label} onChange={(e) => setLabel(e.target.value)} placeholder={kind === 'article' ? 'Conteúdo patrocinado' : 'Evento patrocinado'} />
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}
-        <Button onClick={add}>{pending ? 'Salvando...' : 'Vincular patrocínio'}</Button>
+        <Button onClick={add} disabled={pending || !contractItemId}>{pending ? 'Salvando...' : 'Vincular patrocínio'}</Button>
       </div>
 
       {entries.length === 0 ? (
@@ -106,7 +119,6 @@ export default function SponsoredManager({
                     <button onClick={() => toggle(s.id, !s.is_active)} className="text-xs text-brand hover:underline">
                       {s.is_active ? 'Desativar' : 'Ativar'}
                     </button>
-                    <button onClick={() => remove(s.id)} className="ml-3 text-xs text-danger hover:underline">Excluir</button>
                   </td>
                 </tr>
               ))}

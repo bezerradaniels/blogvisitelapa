@@ -2,7 +2,7 @@
 
 // Navegação lateral do painel (tema "Jardim": fundo verde-escuro, item ativo menta).
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import LogoutButton from '@/components/LogoutButton';
 import { cn } from '@/lib/utils/cn';
 
@@ -31,6 +31,7 @@ export default function AdminSidebar({
   userRole,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const groups: Group[] = [
     {
@@ -55,13 +56,14 @@ export default function AdminSidebar({
     {
       title: 'Comercial',
       items: [
-        { href: '/admin/anunciantes', label: 'Anunciantes' },
-        { href: '/admin/clientes-comerciais', label: 'Clientes' },
-        { href: '/admin/publicidade', label: 'Publicidade' },
-        { href: '/admin/contratos', label: 'Contratos' },
-        { href: '/admin/publieditoriais', label: 'Publieditoriais' },
-        { href: '/admin/eventos-patrocinados', label: 'Eventos patrocinados' },
-        { href: '/admin/produtos-avulsos', label: 'Produtos avulsos' },
+        { href: '/admin/comercial', label: 'Visão comercial' },
+        { href: '/admin/comercial/leads', label: 'Leads' },
+        { href: '/admin/comercial/clientes', label: 'Clientes' },
+        { href: '/admin/comercial/contratos', label: 'Contratos' },
+        { href: '/admin/comercial/campanhas', label: 'Campanhas e publicidade' },
+        { href: '/admin/comercial/conteudo', label: 'Conteúdo patrocinado' },
+        { href: '/admin/comercial/produtos', label: 'Produtos e inventário' },
+        { href: '/admin/comercial/financeiro', label: 'Financeiro' },
       ],
     },
     {
@@ -75,8 +77,13 @@ export default function AdminSidebar({
   ];
 
   function isActive(href: string) {
-    return href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+    if (href === '/admin' || href === '/admin/comercial') return pathname === href;
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
+
+  const currentMobileHref = groups
+    .flatMap((group) => group.items)
+    .find((item) => isActive(item.href))?.href ?? '/admin';
 
   return (
     <div className="flex h-full flex-col bg-title text-[#cfeede]">
@@ -88,6 +95,22 @@ export default function AdminSidebar({
       </div>
 
       <nav aria-label="Menu do painel" className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+        <div className="lg:hidden">
+          <label htmlFor="admin-mobile-navigation" className="sr-only">Navegação do painel</label>
+          <select
+            id="admin-mobile-navigation"
+            value={currentMobileHref}
+            onChange={(event) => router.push(event.target.value)}
+            className="h-10 w-full rounded-[10px] border border-white/20 bg-white/10 px-3 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-mint2"
+          >
+            {groups.flatMap((group) => group.items.map((item) => (
+              <option key={item.href} value={item.href} className="text-title">
+                {group.title ? `${group.title} — ${item.label}` : item.label}
+              </option>
+            )))}
+          </select>
+        </div>
+        <div className="hidden space-y-4 lg:block">
         {groups.map((group, gi) => (
           <div key={gi} className="space-y-0.5">
             {group.title && (
@@ -122,6 +145,7 @@ export default function AdminSidebar({
             })}
           </div>
         ))}
+        </div>
       </nav>
 
       {userName && (

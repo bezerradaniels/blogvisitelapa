@@ -59,8 +59,10 @@ export default function ClientManager({ clients }: { clients: ClientRow[] }) {
   }
 
   function remove(id: string) {
+    if (!window.confirm('Arquivar este cliente? Contratos e histórico serão preservados.')) return;
     start(async () => {
-      await deleteClient(id);
+      const res = await deleteClient(id);
+      if (!res.ok) return setError(res.error ?? 'Não foi possível arquivar o cliente.');
       router.refresh();
     });
   }
@@ -117,7 +119,7 @@ export default function ClientManager({ clients }: { clients: ClientRow[] }) {
                 <td className="p-3 text-right">
                   <Link href={`/admin/clientes-comerciais/${c.id}`} className="text-xs text-brand hover:underline">Histórico</Link>
                   <button onClick={() => edit(c)} className="ml-3 text-xs text-brand hover:underline">Editar</button>
-                  <button onClick={() => remove(c.id)} className="ml-3 text-xs text-danger hover:underline">Excluir</button>
+                  <button onClick={() => remove(c.id)} className="ml-3 text-xs text-danger hover:underline">Arquivar</button>
                 </td>
               </tr>
             ))}

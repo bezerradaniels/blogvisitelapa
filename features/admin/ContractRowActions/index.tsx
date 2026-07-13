@@ -17,6 +17,7 @@ export default function ContractRowActions({ id, status }: ContractRowActionsPro
   const [pending, start] = useTransition();
 
   function setStatus(s: AdContractStatus) {
+    if (s === 'cancelado' && !window.confirm('Cancelar este contrato? As entregas vinculadas também serão canceladas.')) return;
     start(async () => {
       await setContractStatus(id, s);
       router.refresh();
@@ -24,6 +25,7 @@ export default function ContractRowActions({ id, status }: ContractRowActionsPro
   }
 
   function remove() {
+    if (!window.confirm('A exclusão física não é permitida. Deseja cancelar este contrato?')) return;
     start(async () => {
       await deleteContract(id);
       router.refresh();
@@ -49,11 +51,11 @@ export default function ContractRowActions({ id, status }: ContractRowActionsPro
           Cancelar
         </button>
       )}
-      <Link href={`/admin/contratos/${id}`} className={`${btn} text-brand hover:bg-surface`}>
-        Editar
+      <Link href={`/admin/comercial/contratos/${id}`} className={`${btn} text-brand hover:bg-surface`}>
+        Abrir
       </Link>
       <button disabled={pending} onClick={remove} className={`${btn} text-danger hover:bg-surface`}>
-        Excluir
+        Cancelar e arquivar
       </button>
     </div>
   );

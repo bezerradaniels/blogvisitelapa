@@ -12,10 +12,20 @@ export type UploadBucket =
   | 'user-avatars'
   | 'user-photos'
   | 'sponsored-content'
-  | 'section-covers';
+  | 'section-covers'
+  | 'commercial-files';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
+const COMMERCIAL_FILE_ALLOWED = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+const COMMERCIAL_FILE_MAX_BYTES = 10 * 1024 * 1024;
 
 export interface UploadResult {
   url: string | null;
@@ -56,4 +66,26 @@ export async function uploadImage(
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return { url: data.publicUrl, error: null };
+}
+
+/** Upload privado de documento comercial. Retorna o caminho, nunca uma URL
+ * pública: o download deve ser assinado no servidor para cada administrador. */
+export async function uploadCommercialFile(
+  file: File,
+  contractId: string,
+): Promise<{ path: string | null; error: string | null }> {
+  if (!COMMERCIAL_FILE_ALLOWED.includes(file.type)) {
+    return { path: null, error: 'Formato inválido. Use PDF, DOC, DOCX, JPG, PNG ou WEBP.' };
+  }
+  if (file.size > COMMERCIAL_FILE_MAX_BYTES) {
+    return { path: null, error: 'Arquivo muito grande (máx. 10 MB).' };
+  }
+  const supabase = createClient();
+  const path = safePath(file.name, `contracts/${contractId}`);
+  const { error } = await supabase.storage.from('commercial-files').upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) return { path: null, error: 'Falha no envio. Verifique permissões e tente novamente.' };
+  return { path, error: null };
 }

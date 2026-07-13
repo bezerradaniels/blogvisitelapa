@@ -13,7 +13,8 @@
     "start": "node server.js",
     "server": "node server.js",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:commercial": "node --test features/commercial/domain.test.mts"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^1.0.16",

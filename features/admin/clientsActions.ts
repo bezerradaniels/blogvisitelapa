@@ -7,7 +7,7 @@ import { adminGuard } from '@/lib/auth/adminGuard';
 
 const clientSchema = z.object({
   id: z.string().uuid().optional(),
-  client_name: z.string().min(2, 'Informe o nome do cliente.'),
+  client_name: z.string().trim().min(2, 'Informe o nome do cliente.'),
   company_name: z.string().optional().default(''),
   segment: z.string().optional().default(''),
   email: z.string().optional().default(''),
@@ -27,13 +27,15 @@ export async function saveClient(input: ClientInput) {
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
   const d = parsed.data;
 
+  const normalizedEmail = d.email.trim().toLowerCase();
+  const normalizedDocument = d.document.replace(/\D/g, '');
   const payload = {
-    client_name: d.client_name.trim(),
+    client_name: d.client_name,
     company_name: d.company_name.trim() || null,
     segment: d.segment.trim() || null,
-    email: d.email.trim() || null,
+    email: normalizedEmail || null,
     whatsapp: d.whatsapp.trim() || null,
-    document: d.document.trim() || null,
+    document: normalizedDocument || null,
     notes: d.notes.trim() || null,
     status: d.status,
   };
@@ -41,18 +43,51 @@ export async function saveClient(input: ClientInput) {
   const { error } = d.id
     ? await ctx.supabase.from('commercial_clients').update(payload).eq('id', d.id)
     : await ctx.supabase.from('commercial_clients').insert(payload);
-  if (error) return { ok: false, error: 'Não foi possível salvar o cliente.' };
+  if (error) {
+    const duplicate = error.code === '23505';
+    return {
+      ok: false,
+      error: duplicate
+        ? 'Já existe um cliente com este documento ou e-mail.'
+        : 'Não foi possível salvar o cliente.',
+    };
+  }
 
   revalidatePath('/admin/clientes-comerciais');
+  revalidatePath('/admin/comercial/clientes');
   return { ok: true };
 }
 
 export async function deleteClient(id: string) {
   const ctx = await adminGuard();
-  if (!ctx) return { ok: false };
-  await ctx.supabase.from('commercial_clients').delete().eq('id', id);
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  if (!z.string().uuid().safeParse(id).success) return { ok: false, error: 'Cliente inválido.' };
+
+  const { count, error: countError } = await ctx.supabase
+    .from('ad_contracts')
+    .select('id', { count: 'exact', head: true })
+    .eq('client_id', id);
+  if (countError) return { ok: false, error: 'Não foi possível verificar os contratos do cliente.' };
+
+  // Um cliente é um registro comercial e histórico; ele nunca é removido
+  // permanentemente pela interface. Com ou sem contratos, a ação o arquiva.
+  const { error } = await ctx.supabase
+    .from('commercial_clients')
+    .update({ status: 'inativo', is_active: false, archived_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) return { ok: false, error: 'Não foi possível arquivar o cliente.' };
+
+  await ctx.supabase.from('client_history').insert({
+    client_id: id,
+    entry_type: 'arquivamento',
+    title: 'Cliente arquivado',
+    content: count ? `Arquivado com ${count} contrato(s) preservado(s).` : 'Arquivado sem contratos vinculados.',
+    created_by: ctx.profileId,
+  });
+
   revalidatePath('/admin/clientes-comerciais');
-  return { ok: true };
+  revalidatePath('/admin/comercial/clientes');
+  return { ok: true, archived: true };
 }
 
 export async function addClientHistory(
@@ -69,5 +104,6 @@ export async function addClientHistory(
     created_by: ctx.profileId,
   });
   revalidatePath(`/admin/clientes-comerciais/${clientId}`);
+  revalidatePath(`/admin/comercial/clientes/${clientId}`);
   return { ok: true };
 }

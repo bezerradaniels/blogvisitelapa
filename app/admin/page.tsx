@@ -55,18 +55,18 @@ export default async function AdminHomePage() {
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Publicidade</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Contratos ativos" value={m.active_contracts} href="/admin/contratos" tone="success" />
-          <DashboardMetricCard label="Vencendo (7 dias)" value={m.expiring_contracts} href="/admin/contratos" tone="warning" />
-          <DashboardMetricCard label="Expirados" value={m.expired_contracts} href="/admin/contratos" tone="danger" />
-          <DashboardMetricCard label="Leads de anunciantes" value={m.recent_leads} href="/admin/anunciantes" />
+          <DashboardMetricCard label="Contratos ativos" value={m.active_contracts} href="/admin/comercial/contratos?status=ativo" tone="success" />
+          <DashboardMetricCard label="Vencendo (7 dias)" value={m.expiring_contracts} href="/admin/comercial/contratos?status=vencendo" tone="warning" />
+          <DashboardMetricCard label="Expirados" value={m.expired_contracts} href="/admin/comercial/contratos?status=expirado" tone="danger" />
+          <DashboardMetricCard label="Leads de anunciantes" value={m.recent_leads} href="/admin/comercial/leads" />
         </div>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Patrocínios</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <DashboardMetricCard label="Posts patrocinados" value={m.sponsored_posts} href="/admin/publieditoriais" />
-          <DashboardMetricCard label="Eventos patrocinados" value={m.sponsored_events} href="/admin/eventos-patrocinados" />
+          <DashboardMetricCard label="Posts patrocinados" value={m.sponsored_posts} href="/admin/comercial/conteudo?tipo=artigo" />
+          <DashboardMetricCard label="Eventos patrocinados" value={m.sponsored_events} href="/admin/comercial/conteudo?tipo=evento" />
         </div>
       </section>
     </div>

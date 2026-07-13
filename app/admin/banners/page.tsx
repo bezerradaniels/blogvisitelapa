@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-// Banners são gerenciados como contratos de publicidade (com criativo/banner).
+// Banners são campanhas vinculadas a itens de contrato.
 export default function AdminBannersPage() {
-  redirect('/admin/contratos');
+  redirect('/admin/comercial/campanhas');
 }

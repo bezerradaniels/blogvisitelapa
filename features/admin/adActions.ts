@@ -37,6 +37,13 @@ export async function saveContract(input: ContractInput) {
   const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };
 
+  // O formulário legado misturava contrato, banner e cobrança em um único
+  // registro. Novos contratos precisam usar o fluxo comercial com itens,
+  // campanhas e parcelas atômicos.
+  if (!input.id) {
+    return { ok: false, error: 'Use o novo fluxo em Comercial → Contratos para criar um contrato.' };
+  }
+
   const parsed = contractSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
   const d = parsed.data;
@@ -62,7 +69,6 @@ export async function saveContract(input: ContractInput) {
     link_url: d.link_url.trim() || null,
     priority: Number(d.priority) || 0,
     renewal_enabled: d.renewal_enabled,
-    status: d.status,
     updated_by: ctx.profileId,
   };
 
@@ -95,22 +101,31 @@ const STATUS_LABEL: Record<string, string> = {
 
 export async function setContractStatus(id: string, status: AdContractStatus) {
   const ctx = await adminGuard();
-  if (!ctx) return { ok: false };
-  await ctx.supabase.from('ad_contracts').update({ status, updated_by: ctx.profileId }).eq('id', id);
-  await ctx.supabase.from('contract_history').insert({
-    contract_id: id,
-    action: STATUS_LABEL[status] ?? status,
-    created_by: ctx.profileId,
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  if (!z.string().uuid().safeParse(id).success) return { ok: false, error: 'Contrato inválido.' };
+  const { error } = await ctx.supabase.rpc('transition_commercial_contract_status', {
+    p_contract_id: id,
+    p_new_status: status,
+    p_notes: `Alteração solicitada pela rota legada (${STATUS_LABEL[status] ?? status}).`,
   });
+  if (error) return { ok: false, error: 'Não foi possível atualizar o status do contrato.' };
   revalidatePath('/admin/contratos');
+  revalidatePath('/admin/comercial/contratos');
   revalidatePath('/');
   return { ok: true };
 }
 
 export async function deleteContract(id: string) {
   const ctx = await adminGuard();
-  if (!ctx) return { ok: false };
-  await ctx.supabase.from('ad_contracts').delete().eq('id', id);
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  if (!z.string().uuid().safeParse(id).success) return { ok: false, error: 'Contrato inválido.' };
+  const { error } = await ctx.supabase.rpc('transition_commercial_contract_status', {
+    p_contract_id: id,
+    p_new_status: 'cancelado',
+    p_notes: 'Cancelado pela ação legada; a exclusão física não é permitida.',
+  });
+  if (error) return { ok: false, error: 'Não foi possível cancelar o contrato.' };
   revalidatePath('/admin/contratos');
-  return { ok: true };
+  revalidatePath('/admin/comercial/contratos');
+  return { ok: true, archived: true };
 }

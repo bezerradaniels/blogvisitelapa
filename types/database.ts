@@ -39,16 +39,40 @@ export type CategoryType = 'editorial' | 'guia' | 'institucional';
 export type CommentStatus = 'pendente' | 'aprovado' | 'rejeitado' | 'removido';
 export type ContactStatus = 'novo' | 'lido' | 'em_atendimento' | 'concluido' | 'arquivado';
 export type CommercialStatus = 'ativo' | 'inativo' | 'prospecto';
-export type PaymentStatus = 'pendente' | 'parcial' | 'pago' | 'atrasado' | 'cancelado';
+export type PaymentStatus = 'pendente' | 'parcial' | 'pago' | 'atrasado' | 'cancelado' | 'estornado';
 export type DeliveryStatus = 'pendente' | 'em_producao' | 'entregue' | 'cancelado';
 export type AdContractStatus =
   | 'rascunho'
+  | 'pendente_aprovacao'
+  | 'aprovado'
   | 'agendado'
   | 'ativo'
   | 'pausado'
   | 'expirado'
+  | 'concluido'
   | 'removido'
   | 'cancelado';
+export type CommercialClientType = 'pessoa_fisica' | 'empresa' | 'agencia' | 'instituicao_publica';
+export type ContractDiscountType = 'valor' | 'percentual';
+export type ContractItemDeliveryStatus =
+  | 'nao_configurado'
+  | 'aguardando_materiais'
+  | 'pronto'
+  | 'agendado'
+  | 'em_andamento'
+  | 'entregue'
+  | 'pausado'
+  | 'cancelado';
+export type CampaignStatus =
+  | 'rascunho'
+  | 'aguardando_midia'
+  | 'em_revisao'
+  | 'agendada'
+  | 'ativa'
+  | 'pausada'
+  | 'expirada'
+  | 'rejeitada'
+  | 'cancelada';
 export type AdPlacement =
   | 'home_top'
   | 'home_middle'
@@ -423,6 +447,18 @@ export interface Database {
           document: string | null;
           notes: string | null;
           status: CommercialStatus;
+          client_type: CommercialClientType;
+          legal_name: string | null;
+          trade_name: string | null;
+          primary_contact_name: string | null;
+          billing_email: string | null;
+          website: string | null;
+          address: string | null;
+          city: string | null;
+          state: string | null;
+          postal_code: string | null;
+          is_active: boolean;
+          archived_at: string | null;
         } & WithTimestamps;
         Insert: {
           id?: string;
@@ -434,6 +470,18 @@ export interface Database {
           document?: string | null;
           notes?: string | null;
           status?: CommercialStatus;
+          client_type?: CommercialClientType;
+          legal_name?: string | null;
+          trade_name?: string | null;
+          primary_contact_name?: string | null;
+          billing_email?: string | null;
+          website?: string | null;
+          address?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          is_active?: boolean;
+          archived_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -477,7 +525,7 @@ export interface Database {
           payment_status: PaymentStatus;
           payment_notes: string | null;
           internal_notes: string | null;
-          placement: AdPlacement;
+          placement: AdPlacement | null;
           banner_url: string | null;
           link_url: string | null;
           status: AdContractStatus;
@@ -485,6 +533,26 @@ export interface Database {
           renewal_enabled: boolean;
           created_by: string | null;
           updated_by: string | null;
+          contract_number: string | null;
+          description: string | null;
+          advertiser_id: string | null;
+          subtotal: number;
+          contract_discount_type: ContractDiscountType | null;
+          contract_discount_value: number;
+          additional_costs: number;
+          total_amount: number;
+          payment_terms: string | null;
+          installment_count: number;
+          billing_due_date: string | null;
+          renewal_period_days: number | null;
+          renewal_notice_days: number;
+          client_notes: string | null;
+          contract_file_url: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
+          previous_contract_id: string | null;
+          archived_at: string | null;
+          currency: string;
         } & WithTimestamps;
         Insert: {
           id?: string;
@@ -500,7 +568,7 @@ export interface Database {
           payment_status?: PaymentStatus;
           payment_notes?: string | null;
           internal_notes?: string | null;
-          placement: AdPlacement;
+          placement?: AdPlacement | null;
           banner_url?: string | null;
           link_url?: string | null;
           status?: AdContractStatus;
@@ -508,10 +576,295 @@ export interface Database {
           renewal_enabled?: boolean;
           created_by?: string | null;
           updated_by?: string | null;
+          contract_number?: string | null;
+          description?: string | null;
+          advertiser_id?: string | null;
+          subtotal?: number;
+          contract_discount_type?: ContractDiscountType | null;
+          contract_discount_value?: number;
+          additional_costs?: number;
+          total_amount?: number;
+          payment_terms?: string | null;
+          installment_count?: number;
+          billing_due_date?: string | null;
+          renewal_period_days?: number | null;
+          renewal_notice_days?: number;
+          client_notes?: string | null;
+          contract_file_url?: string | null;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          previous_contract_id?: string | null;
+          archived_at?: string | null;
+          currency?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['ad_contracts']['Insert']>;
+        Relationships: [];
+      };
+      commercial_brands: {
+        Row: {
+          id: string;
+          client_id: string;
+          name: string;
+          logo_url: string | null;
+          website: string | null;
+          contact_name: string | null;
+          contact_email: string | null;
+          contact_phone: string | null;
+          notes: string | null;
+          is_active: boolean;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          client_id: string;
+          name: string;
+          logo_url?: string | null;
+          website?: string | null;
+          contact_name?: string | null;
+          contact_email?: string | null;
+          contact_phone?: string | null;
+          notes?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['commercial_brands']['Insert']>;
+        Relationships: [];
+      };
+      advertising_placements: {
+        Row: {
+          id: string;
+          code: AdPlacement;
+          name: string;
+          page_context: string;
+          position: string;
+          desktop_dimensions: string | null;
+          mobile_dimensions: string | null;
+          accepted_formats: string[];
+          maximum_file_size: number;
+          maximum_active_items: number;
+          rotation_enabled: boolean;
+          is_active: boolean;
+          notes: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          code: AdPlacement;
+          name: string;
+          page_context: string;
+          position: string;
+          desktop_dimensions?: string | null;
+          mobile_dimensions?: string | null;
+          accepted_formats?: string[];
+          maximum_file_size?: number;
+          maximum_active_items?: number;
+          rotation_enabled?: boolean;
+          is_active?: boolean;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['advertising_placements']['Insert']>;
+        Relationships: [];
+      };
+      commercial_products: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          product_type: string;
+          description: string | null;
+          default_price: number;
+          billing_model: string;
+          default_duration_days: number | null;
+          placement_id: string | null;
+          requires_media_upload: boolean;
+          requires_destination_url: boolean;
+          requires_content_creation: boolean;
+          is_recurring: boolean;
+          is_active: boolean;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          product_type?: string;
+          description?: string | null;
+          default_price?: number;
+          billing_model?: string;
+          default_duration_days?: number | null;
+          placement_id?: string | null;
+          requires_media_upload?: boolean;
+          requires_destination_url?: boolean;
+          requires_content_creation?: boolean;
+          is_recurring?: boolean;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['commercial_products']['Insert']>;
+        Relationships: [];
+      };
+      contract_items: {
+        Row: {
+          id: string;
+          contract_id: string;
+          product_id: string | null;
+          legacy_source_contract_id: string | null;
+          custom_name: string;
+          description: string | null;
+          quantity: number;
+          unit_price: number;
+          discount_amount: number;
+          line_total: number;
+          start_date: string | null;
+          end_date: string | null;
+          placement: AdPlacement | null;
+          placement_id: string | null;
+          requires_media_upload: boolean;
+          requires_content_creation: boolean;
+          delivery_status: ContractItemDeliveryStatus;
+          notes: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          contract_id: string;
+          product_id?: string | null;
+          legacy_source_contract_id?: string | null;
+          custom_name: string;
+          description?: string | null;
+          quantity?: number;
+          unit_price?: number;
+          discount_amount?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          placement?: AdPlacement | null;
+          placement_id?: string | null;
+          requires_media_upload?: boolean;
+          requires_content_creation?: boolean;
+          delivery_status?: ContractItemDeliveryStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['contract_items']['Insert']>;
+        Relationships: [];
+      };
+      ad_campaigns: {
+        Row: {
+          id: string;
+          contract_id: string;
+          contract_item_id: string | null;
+          legacy_contract_id: string | null;
+          client_id: string | null;
+          advertiser_id: string | null;
+          campaign_name: string;
+          placement: AdPlacement;
+          placement_id: string | null;
+          desktop_media_url: string | null;
+          mobile_media_url: string | null;
+          alternative_text: string | null;
+          destination_url: string | null;
+          open_in_new_tab: boolean;
+          start_at: string;
+          end_at: string;
+          priority: number;
+          rotation_weight: number;
+          status: CampaignStatus;
+          is_visible: boolean;
+          click_tracking_enabled: boolean;
+          impression_tracking_enabled: boolean;
+          published_at: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          contract_id: string;
+          contract_item_id?: string | null;
+          legacy_contract_id?: string | null;
+          client_id?: string | null;
+          advertiser_id?: string | null;
+          campaign_name: string;
+          placement: AdPlacement;
+          placement_id?: string | null;
+          desktop_media_url?: string | null;
+          mobile_media_url?: string | null;
+          alternative_text?: string | null;
+          destination_url?: string | null;
+          open_in_new_tab?: boolean;
+          start_at: string;
+          end_at: string;
+          priority?: number;
+          rotation_weight?: number;
+          status?: CampaignStatus;
+          is_visible?: boolean;
+          click_tracking_enabled?: boolean;
+          impression_tracking_enabled?: boolean;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ad_campaigns']['Insert']>;
+        Relationships: [];
+      };
+      contract_payments: {
+        Row: {
+          id: string;
+          contract_id: string;
+          legacy_contract_id: string | null;
+          installment_number: number;
+          description: string | null;
+          amount: number;
+          paid_amount: number;
+          due_date: string;
+          paid_at: string | null;
+          payment_method: string | null;
+          status: PaymentStatus;
+          transaction_reference: string | null;
+          receipt_url: string | null;
+          notes: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          contract_id: string;
+          legacy_contract_id?: string | null;
+          installment_number?: number;
+          description?: string | null;
+          amount: number;
+          paid_amount?: number;
+          due_date: string;
+          paid_at?: string | null;
+          payment_method?: string | null;
+          status?: PaymentStatus;
+          transaction_reference?: string | null;
+          receipt_url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['contract_payments']['Insert']>;
+        Relationships: [];
+      };
+      contract_files: {
+        Row: {
+          id: string;
+          contract_id: string;
+          file_type: 'contrato_assinado' | 'briefing' | 'proposta' | 'recibo' | 'midia' | 'outro';
+          file_url: string;
+          file_name: string | null;
+          uploaded_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          contract_id: string;
+          file_type?: 'contrato_assinado' | 'briefing' | 'proposta' | 'recibo' | 'midia' | 'outro';
+          file_url: string;
+          file_name?: string | null;
+          uploaded_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['contract_files']['Insert']>;
         Relationships: [];
       };
       ad_assets: {
@@ -542,6 +895,8 @@ export interface Database {
           contract_id: string;
           action: string;
           notes: string | null;
+          previous_data: Json | null;
+          new_data: Json | null;
           created_by: string | null;
           created_at: string;
         };
@@ -550,6 +905,8 @@ export interface Database {
           contract_id: string;
           action: string;
           notes?: string | null;
+          previous_data?: Json | null;
+          new_data?: Json | null;
           created_by?: string | null;
           created_at?: string;
         };
@@ -560,6 +917,7 @@ export interface Database {
         Row: {
           id: string;
           contract_id: string;
+          campaign_id: string | null;
           placement: AdPlacement;
           utm: Json | null;
           created_at: string;
@@ -567,6 +925,7 @@ export interface Database {
         Insert: {
           id?: string;
           contract_id: string;
+          campaign_id?: string | null;
           placement: AdPlacement;
           utm?: Json | null;
           created_at?: string;
@@ -578,6 +937,7 @@ export interface Database {
         Row: {
           id: string;
           contract_id: string;
+          campaign_id: string | null;
           placement: AdPlacement;
           utm: Json | null;
           created_at: string;
@@ -585,6 +945,7 @@ export interface Database {
         Insert: {
           id?: string;
           contract_id: string;
+          campaign_id?: string | null;
           placement: AdPlacement;
           utm?: Json | null;
           created_at?: string;
@@ -597,6 +958,7 @@ export interface Database {
           id: string;
           post_id: string;
           contract_id: string | null;
+          contract_item_id: string | null;
           client_id: string | null;
           label: string;
           start_date: string | null;
@@ -607,6 +969,7 @@ export interface Database {
           id?: string;
           post_id: string;
           contract_id?: string | null;
+          contract_item_id?: string | null;
           client_id?: string | null;
           label?: string;
           start_date?: string | null;
@@ -623,6 +986,7 @@ export interface Database {
           id: string;
           post_id: string;
           contract_id: string | null;
+          contract_item_id: string | null;
           client_id: string | null;
           label: string;
           start_date: string | null;
@@ -633,6 +997,7 @@ export interface Database {
           id?: string;
           post_id: string;
           contract_id?: string | null;
+          contract_item_id?: string | null;
           client_id?: string | null;
           label?: string;
           start_date?: string | null;
@@ -1224,6 +1589,7 @@ export interface Database {
           priority: number;
           start_date: string;
           end_date: string;
+          contract_id: string;
         };
         Relationships: [];
       };
@@ -1245,6 +1611,18 @@ export interface Database {
       replace_home_section_posts: { Args: { p_section_id: string; p_post_ids: string[] }; Returns: undefined };
       admin_metrics_guarded: { Args: Record<string, never>; Returns: Json };
       expire_contracts: { Args: Record<string, never>; Returns: number };
+      sync_commercial_statuses: { Args: Record<string, never>; Returns: Json };
+      recalculate_contract_totals: { Args: { p_contract_id: string }; Returns: undefined };
+      create_commercial_contract: { Args: { p_payload: Json }; Returns: string };
+      transition_commercial_contract_status: {
+        Args: { p_contract_id: string; p_new_status: string; p_notes?: string | null };
+        Returns: undefined;
+      };
+      get_sponsor_label: { Args: { p_post_id: string }; Returns: string | null };
+      record_ad_event: {
+        Args: { p_campaign_id: string; p_event: string; p_utm?: Json | null };
+        Returns: undefined;
+      };
       is_admin: { Args: Record<string, never>; Returns: boolean };
       is_publisher_or_admin: { Args: Record<string, never>; Returns: boolean };
       is_community_member: { Args: { cid: string }; Returns: boolean };
@@ -1271,6 +1649,7 @@ export interface Database {
         Args: { p_recipient: string; p_type: NotificationType; p_entity: string | null };
         Returns: undefined;
       };
+      remove_friendship: { Args: { p_other: string }; Returns: undefined };
     };
     Enums: {
       user_role: UserRole;

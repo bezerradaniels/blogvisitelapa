@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import AdTracker from '@/components/AdTracker';
 import { getTopAd } from '@/lib/ads/resolver';
 import type { AdPlacement } from '@/types/ads';
 
@@ -31,13 +32,7 @@ export default async function AdBanner({ placement, className, ratio = 'aspect-[
   return (
     <div className={className}>
       <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">Publicidade</span>
-      {ad.link_url ? (
-        <a href={ad.link_url} target="_blank" rel="noopener sponsored nofollow">
-          {inner}
-        </a>
-      ) : (
-        inner
-      )}
+      <AdTracker campaignId={ad.id} href={ad.link_url}>{inner}</AdTracker>
     </div>
   );
 }

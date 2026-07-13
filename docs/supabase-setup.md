@@ -69,7 +69,8 @@ Regras: upload de capas/galeria por publishers/admins; banners/patrocinados só 
 
 - **Expirar contratos vencidos** (agende com pg_cron, ex. diário):
   ```sql
-  select public.expire_contracts();
+  -- A função é executada pelo endpoint autenticado do servidor:
+  -- POST /api/internal/comercial/sincronizar
   ```
 - **Regenerar tipos** após mudanças de schema:
   ```bash

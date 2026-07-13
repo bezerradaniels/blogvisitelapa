@@ -51,4 +51,7 @@ Intensidade escolhida: **conservadora** (leitura limpa, melhor para Discover). C
 
 ## Alertas de expiração
 
-O painel destaca contratos vencendo (7 dias) e expirados. Agende `select public.expire_contracts();`.
+O painel comercial destaca contratos vencendo e expirados. Configure o cron do
+servidor para chamar `POST /api/internal/comercial/sincronizar` com o segredo
+`COMMERCIAL_SYNC_SECRET`; a rotina sincroniza estados de contrato, campanhas e
+parcelas de forma idempotente.

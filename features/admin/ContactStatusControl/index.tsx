@@ -46,12 +46,13 @@ export default function ContactStatusControl({ id, status, onSetStatus, onDelete
       <button
         type="button"
         disabled={pending}
-        onClick={() =>
+        onClick={() => {
+          if (!window.confirm('Excluir este lead? Esta ação não poderá ser desfeita.')) return;
           start(async () => {
             await onDelete(id);
             router.refresh();
-          })
-        }
+          });
+        }}
         className="text-xs text-danger hover:underline disabled:opacity-50"
       >
         Excluir

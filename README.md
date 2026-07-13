@@ -106,7 +106,10 @@ Autorização aplicada em **duas camadas**: middleware/servidor (Next) **e** RLS
   supabase gen types typescript --project-id <ref> --schema public > types/database.generated.ts
   ```
   e ajuste `types/database.ts`.
-- Rode `public.expire_contracts()` periodicamente (pg_cron) para expirar contratos vencidos.
+- Configure um cron do servidor para chamar `POST /api/internal/comercial/sincronizar`
+  com `Authorization: Bearer $COMMERCIAL_SYNC_SECRET`. A rotina atualiza contratos,
+  campanhas e parcelas de forma idempotente; a chave de serviço permanece somente
+  no servidor.
 
 ## Estrutura
 

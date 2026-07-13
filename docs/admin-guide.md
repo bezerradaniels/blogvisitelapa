@@ -18,11 +18,12 @@ Métricas consolidadas via função `admin_metrics_guarded`:
 | `/admin/categorias` · `/admin/tags` | Taxonomias |
 | `/admin/comentarios` | Moderar comentários (aprovar/rejeitar/remover) |
 | `/admin/avaliacoes` | Avaliações |
-| `/admin/contatos` · `/admin/anunciantes` | Mensagens do público e leads comerciais |
-| `/admin/clientes-comerciais` | Clientes (com histórico CRM) |
-| `/admin/publicidade` · `/admin/banners` | Anúncios e criativos |
-| `/admin/contratos` | Contratos manuais (recurso central) |
-| `/admin/produtos-avulsos` | Produtos comerciais avulsos |
+| `/admin/contatos` · `/admin/comercial/leads` | Mensagens do público e leads comerciais |
+| `/admin/comercial` · `/admin/comercial/clientes` | Visão comercial e clientes (com histórico CRM) |
+| `/admin/comercial/campanhas` · `/admin/banners` | Campanhas e criativos vinculados |
+| `/admin/comercial/contratos` | Contratos, itens, parcelas e histórico |
+| `/admin/comercial/produtos` | Catálogo, posições e registros avulsos legados |
+| `/admin/comercial/conteudo` · `/admin/comercial/financeiro` | Conteúdo patrocinado e resumo financeiro |
 | `/admin/usuarios` | Usuários e papéis |
 | `/admin/configuracoes` | Configurações do site |
 | `/admin/auditoria` | Trilha de auditoria |
@@ -37,7 +38,9 @@ Publishers **aprovados publicam direto**. Para gerenciar quem pode publicar, aju
 
 ## Contratos e alertas
 
-O painel destaca contratos **vencendo** (7 dias) e **expirados**. Rode `select public.expire_contracts();` (ou agende via pg_cron) para expirar automaticamente contratos vencidos.
+O painel destaca contratos vencendo e expirados. Configure o cron do servidor
+para chamar `POST /api/internal/comercial/sincronizar` com
+`Authorization: Bearer $COMMERCIAL_SYNC_SECRET`.
 
 ## Status dos contatos
 

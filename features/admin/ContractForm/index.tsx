@@ -66,7 +66,13 @@ export default function ContractForm({
             <Input label="Tipo de anúncio" value={form.ad_type ?? ''} onChange={(e) => set('ad_type', e.target.value)} />
           </div>
           <Select label="Posição (placement)" value={form.placement} onChange={(e) => set('placement', e.target.value as ContractInput['placement'])} options={placements} />
-          <ImageUploader bucket="ad-banners" value={form.banner_url || null} onChange={(url) => set('banner_url', url ?? '')} label="Banner (criativo)" ratio="aspect-[16/5]" />
+          <ImageUploader
+            bucket="ad-banners"
+            value={form.banner_url || null}
+            onChange={(url) => set('banner_url', url ?? '')}
+            label="Banner (criativo)"
+            ratio={form.placement === 'post_sidebar' ? 'aspect-square' : 'aspect-[16/5]'}
+          />
           <Input label="URL de destino" value={form.link_url ?? ''} onChange={(e) => set('link_url', e.target.value)} placeholder="https://" />
         </div>
 
