@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { getSocialPostComments } from '@/features/socialFeed/queries';
+import type { SocialPostComment } from '@/types/socialFeed';
 
 export interface SocialActionResult {
   ok: boolean;
@@ -12,6 +14,7 @@ export interface SocialActionResult {
 
 const postIdSchema = z.string().uuid();
 const postSchema = z.string().trim().min(1, 'Escreva alguma coisa.').max(180, 'Use no máximo 180 caracteres.');
+const commentSchema = z.string().trim().min(1, 'Escreva uma resposta.').max(500, 'Use no máximo 500 caracteres.');
 
 async function socialContext() {
   const user = await getCurrentUser();
@@ -136,6 +139,69 @@ export async function toggleSocialPostRepost(postId: string): Promise<SocialActi
       });
   if (error) return { ok: false, error: 'Não foi possível atualizar o repost.' };
 
+  revalidatePath('/rede');
+  return { ok: true };
+}
+
+export async function fetchSocialPostComments(
+  postId: string,
+): Promise<{ ok: boolean; error?: string; comments?: SocialPostComment[] }> {
+  if (!postIdSchema.safeParse(postId).success) return { ok: false, error: 'Post inválido.' };
+  const ctx = await socialContext();
+  if (!ctx) return { ok: false, error: 'Entre na sua conta para ver as respostas.' };
+  try {
+    const comments = await getSocialPostComments(postId, ctx.user.profile!.id);
+    return { ok: true, comments };
+  } catch {
+    return { ok: false, error: 'Não foi possível carregar as respostas.' };
+  }
+}
+
+export async function createSocialPostComment(
+  postId: string,
+  content: string,
+): Promise<{ ok: boolean; error?: string; comment?: SocialPostComment }> {
+  if (!postIdSchema.safeParse(postId).success) return { ok: false, error: 'Post inválido.' };
+  const parsed = commentSchema.safeParse(content);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
+
+  const ctx = await socialContext();
+  if (!ctx) return { ok: false, error: 'Entre na sua conta para responder.' };
+  const profile = ctx.user.profile!;
+
+  const { data: comment, error } = await ctx.supabase
+    .from('social_post_comments')
+    .insert({ post_id: postId, author_id: profile.id, content: parsed.data })
+    .select('id, created_at')
+    .maybeSingle();
+  if (error || !comment) return { ok: false, error: 'Não foi possível responder agora.' };
+
+  revalidatePath('/rede');
+  return {
+    ok: true,
+    comment: {
+      id: comment.id,
+      content: parsed.data,
+      createdAt: comment.created_at,
+      author: {
+        id: profile.id,
+        full_name: profile.full_name ?? null,
+        slug: profile.slug ?? null,
+        avatar_url: profile.avatar_url ?? null,
+        nickname: null,
+      },
+      canDelete: true,
+    },
+  };
+}
+
+export async function deleteSocialPostComment(commentId: string): Promise<SocialActionResult> {
+  if (!postIdSchema.safeParse(commentId).success) return { ok: false, error: 'Resposta inválida.' };
+  const ctx = await socialContext();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+
+  const { error } = await ctx.supabase.from('social_post_comments').delete().eq('id', commentId);
+  if (error) return { ok: false, error: 'Não foi possível excluir a resposta.' };
   revalidatePath('/rede');
   return { ok: true };
 }

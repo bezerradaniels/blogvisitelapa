@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createClient } from '@/lib/supabase/server';
-import type { MentionOption, SocialFeedPost } from '@/types/socialFeed';
+import type { MentionOption, SocialFeedPost, SocialPostComment } from '@/types/socialFeed';
 
 interface RawProfile {
   id: string;
@@ -18,6 +18,7 @@ interface RawPost {
   repost_of: string | null;
   like_count: number;
   repost_count: number;
+  comment_count: number;
   created_at: string;
   author: RawProfile | null;
 }
@@ -77,7 +78,7 @@ export async function getSocialFeed(
   let query = supabase
     .from('social_posts')
     .select(`
-      id, author_id, content, repost_of, like_count, repost_count, created_at,
+      id, author_id, content, repost_of, like_count, repost_count, comment_count, created_at,
       author:profiles!social_posts_author_id_fkey(
         id, full_name, slug, avatar_url,
         details:profile_details(nickname)
@@ -99,7 +100,7 @@ export async function getSocialFeed(
     ? await supabase
         .from('social_posts')
         .select(`
-          id, author_id, content, repost_of, like_count, repost_count, created_at,
+          id, author_id, content, repost_of, like_count, repost_count, comment_count, created_at,
           author:profiles!social_posts_author_id_fkey(
             id, full_name, slug, avatar_url,
             details:profile_details(nickname)
@@ -154,6 +155,7 @@ export async function getSocialFeed(
       createdAt: row.created_at,
       likeCount: target.like_count,
       repostCount: target.repost_count,
+      commentCount: target.comment_count,
       author: {
         id: target.author.id,
         full_name: target.author.full_name,
@@ -192,7 +194,7 @@ export async function getProfileSocialPosts(
   const { data, error } = await supabase
     .from('social_posts')
     .select(`
-      id, author_id, content, repost_of, like_count, repost_count, created_at,
+      id, author_id, content, repost_of, like_count, repost_count, comment_count, created_at,
       author:profiles!social_posts_author_id_fkey(
         id, full_name, slug, avatar_url,
         details:profile_details(nickname)
@@ -235,6 +237,7 @@ export async function getProfileSocialPosts(
       createdAt: row.created_at,
       likeCount: row.like_count,
       repostCount: row.repost_count,
+      commentCount: row.comment_count,
       author: {
         id: row.author.id,
         full_name: row.author.full_name,
@@ -247,6 +250,52 @@ export async function getProfileSocialPosts(
       repostedByMe: repostedIds.has(row.id),
       canDelete: viewerProfileId === row.author_id,
     } satisfies SocialFeedPost];
+  });
+}
+
+interface RawComment {
+  id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  author: RawProfile | null;
+}
+
+export async function getSocialPostComments(
+  postId: string,
+  viewerProfileId: string | null,
+): Promise<SocialPostComment[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('social_post_comments')
+    .select(`
+      id, author_id, content, created_at,
+      author:profiles!social_post_comments_author_id_fkey(
+        id, full_name, slug, avatar_url,
+        details:profile_details(nickname)
+      )
+    `)
+    .eq('post_id', postId)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  if (error) throw new Error(`Não foi possível carregar as respostas: ${error.message}`);
+
+  const rows = (data ?? []) as unknown as RawComment[];
+  return rows.flatMap((row) => {
+    if (!row.author) return [];
+    return [{
+      id: row.id,
+      content: row.content,
+      createdAt: row.created_at,
+      author: {
+        id: row.author.id,
+        full_name: row.author.full_name,
+        slug: row.author.slug,
+        avatar_url: row.author.avatar_url,
+        nickname: row.author.details?.nickname ?? null,
+      },
+      canDelete: viewerProfileId === row.author_id,
+    } satisfies SocialPostComment];
   });
 }
 

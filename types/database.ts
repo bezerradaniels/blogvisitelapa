@@ -1351,6 +1351,7 @@ export interface Database {
           repost_of: string | null;
           like_count: number;
           repost_count: number;
+          comment_count: number;
         } & WithTimestamps;
         Insert: {
           id?: string;
@@ -1359,10 +1360,29 @@ export interface Database {
           repost_of?: string | null;
           like_count?: number;
           repost_count?: number;
+          comment_count?: number;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['social_posts']['Insert']>;
+        Relationships: [];
+      };
+      social_post_comments: {
+        Row: {
+          id: string;
+          post_id: string;
+          author_id: string;
+          content: string;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          post_id: string;
+          author_id: string;
+          content: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['social_post_comments']['Insert']>;
         Relationships: [];
       };
       social_post_likes: {

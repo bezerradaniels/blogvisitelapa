@@ -12,10 +12,19 @@ export interface SocialFeedPost {
   createdAt: string;
   likeCount: number;
   repostCount: number;
+  commentCount: number;
   author: FeedProfile;
   repostedBy: FeedProfile | null;
   likedByMe: boolean;
   repostedByMe: boolean;
+  canDelete: boolean;
+}
+
+export interface SocialPostComment {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: FeedProfile;
   canDelete: boolean;
 }
 

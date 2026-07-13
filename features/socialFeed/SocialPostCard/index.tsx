@@ -2,29 +2,16 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import {
   deleteSocialPost,
   toggleSocialPostLike,
   toggleSocialPostRepost,
 } from '@/features/socialFeed/actions';
+import { LinkedContent } from '@/features/socialFeed/LinkedContent';
+import SocialPostModal from '@/features/socialFeed/SocialPostModal';
 import { timeAgo } from '@/lib/utils/format';
 import type { SocialFeedPost } from '@/types/socialFeed';
-
-function LinkedContent({ content }: { content: string }) {
-  const pieces = content.split(/(@[a-z0-9][a-z0-9-]{1,59}|#[\p{L}\p{N}_]{1,50})/giu);
-  return pieces.map((piece, index) => {
-    if (piece.startsWith('@')) {
-      const handle = piece.slice(1);
-      return <Link key={`${piece}-${index}`} href={`/u/${handle}`} className="font-semibold text-brand hover:underline">{piece}</Link>;
-    }
-    if (piece.startsWith('#')) {
-      const tag = piece.slice(1);
-      return <Link key={`${piece}-${index}`} href={`/rede?hashtag=${encodeURIComponent(tag)}`} className="font-semibold text-brand hover:underline">{piece}</Link>;
-    }
-    return <Fragment key={index}>{piece}</Fragment>;
-  });
-}
 
 interface SocialPostCardProps {
   post: SocialFeedPost;
@@ -39,7 +26,17 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
   const [reposted, setReposted] = useState(post.repostedByMe);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [repostCount, setRepostCount] = useState(post.repostCount);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
+  const [modalOpen, setModalOpen] = useState(false);
   const authorName = post.author.nickname ?? post.author.full_name ?? 'Usuário';
+
+  function openComments() {
+    if (!isLogged) {
+      router.push(`/login-rede-social?redirect=${encodeURIComponent(loginRedirect)}`);
+      return;
+    }
+    setModalOpen(true);
+  }
 
   function toggleLike() {
     if (!isLogged) {
@@ -103,12 +100,28 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
             {post.author.slug && <span className="text-xs text-muted">@{post.author.slug}</span>}
             <time className="text-xs text-muted" dateTime={post.createdAt}>· {timeAgo(post.createdAt)}</time>
           </div>
-          <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-body">
-            <LinkedContent content={post.content} />
-          </p>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={openComments}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openComments();
+              }
+            }}
+            className="mt-2 cursor-pointer"
+          >
+            <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-body">
+              <LinkedContent content={post.content} />
+            </p>
+          </div>
           <div className="mt-3 flex flex-wrap items-center gap-5 text-xs font-semibold">
             <button type="button" disabled={pending} onClick={toggleLike} className={liked ? 'text-danger' : 'text-muted hover:text-danger'}>
               {liked ? '♥' : '♡'} {likeCount || 'Curtir'}
+            </button>
+            <button type="button" onClick={openComments} className="text-muted hover:text-brand">
+              💬 {commentCount || 'Responder'}
             </button>
             <button type="button" disabled={pending} onClick={toggleRepost} className={reposted ? 'text-brand' : 'text-muted hover:text-brand'}>
               ↻ {repostCount || 'Repostar'}
@@ -121,6 +134,17 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
           </div>
         </div>
       </div>
+      {modalOpen && (
+        <SocialPostModal
+          post={post}
+          postOwnedByMe={post.canDelete}
+          liked={liked}
+          likeCount={likeCount}
+          onToggleLike={toggleLike}
+          onClose={() => setModalOpen(false)}
+          onCommentCountChange={(delta) => setCommentCount((current) => Math.max(0, current + delta))}
+        />
+      )}
     </article>
   );
 }
