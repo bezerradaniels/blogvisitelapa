@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
+import Icon from '@/components/Icon';
 import {
   createSocialPostComment,
   deleteSocialPostComment,
@@ -129,7 +130,7 @@ export default function SocialPostModal({
             aria-label="Fechar"
             className="flex h-8 w-8 items-center justify-center rounded-full text-title hover:bg-surface"
           >
-            ✕
+            <Icon icon="Cancel01Icon" size={18} />
           </button>
         </div>
 
@@ -155,8 +156,8 @@ export default function SocialPostModal({
                 <LinkedContent content={post.content} />
               </p>
               <div className="mt-2 flex items-center gap-5 text-xs font-semibold">
-                <button type="button" onClick={onToggleLike} className={liked ? 'text-danger' : 'text-muted hover:text-danger'}>
-                  {liked ? '♥' : '♡'} {likeCount || 'Curtir'}
+                <button type="button" onClick={onToggleLike} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
+                  <Icon icon="FavouriteIcon" size={16} /> {likeCount || 'Curtir'}
                 </button>
               </div>
             </div>

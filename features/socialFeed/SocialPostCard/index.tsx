@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import Icon from '@/components/Icon';
 import {
   deleteSocialPost,
   toggleSocialPostLike,
@@ -117,18 +118,18 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
             </p>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-5 text-xs font-semibold">
-            <button type="button" disabled={pending} onClick={toggleLike} className={liked ? 'text-danger' : 'text-muted hover:text-danger'}>
-              {liked ? '♥' : '♡'} {likeCount || 'Curtir'}
+            <button type="button" disabled={pending} onClick={toggleLike} className={`inline-flex items-center gap-1.5 ${liked ? 'text-danger' : 'text-muted hover:text-danger'}`}>
+              <Icon icon="FavouriteIcon" size={16} /> {likeCount || 'Curtir'}
             </button>
-            <button type="button" onClick={openComments} className="text-muted hover:text-brand">
-              💬 {commentCount || 'Responder'}
+            <button type="button" onClick={openComments} className="inline-flex items-center gap-1.5 text-muted hover:text-brand">
+              <Icon icon="BubbleChatIcon" size={16} /> {commentCount || 'Responder'}
             </button>
-            <button type="button" disabled={pending} onClick={toggleRepost} className={reposted ? 'text-brand' : 'text-muted hover:text-brand'}>
-              ↻ {repostCount || 'Repostar'}
+            <button type="button" disabled={pending} onClick={toggleRepost} className={`inline-flex items-center gap-1.5 ${reposted ? 'text-brand' : 'text-muted hover:text-brand'}`}>
+              <Icon icon="ArrowReloadHorizontalIcon" size={16} /> {repostCount || 'Repostar'}
             </button>
             {post.canDelete && (
-              <button type="button" disabled={pending} onClick={remove} className="ml-auto text-muted hover:text-danger">
-                Excluir
+              <button type="button" disabled={pending} onClick={remove} className="ml-auto inline-flex items-center gap-1.5 text-muted hover:text-danger">
+                <Icon icon="Delete02Icon" size={16} /> Excluir
               </button>
             )}
           </div>

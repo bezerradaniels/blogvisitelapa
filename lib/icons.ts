@@ -9,6 +9,8 @@ import {
   ArrowRight01Icon,
   ArrowTurnBackwardIcon,
   ArrowTurnForwardIcon,
+  ArrowReloadHorizontalIcon,
+  BubbleChatIcon,
   BookOpen01Icon,
   Hotel01Icon,
   Calendar03Icon,
@@ -119,6 +121,8 @@ export const icons = {
   PencilEdit02Icon,
   Tick02Icon,
   Delete02Icon,
+  ArrowReloadHorizontalIcon,
+  BubbleChatIcon,
 } as const;
 
 export type IconName = keyof typeof icons;
