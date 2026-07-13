@@ -10,7 +10,7 @@ import {
   fetchSocialPostComments,
 } from '@/features/socialFeed/actions';
 import { LinkedContent } from '@/features/socialFeed/LinkedContent';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 import type { SocialFeedPost, SocialPostComment } from '@/types/socialFeed';
 
 interface SocialPostModalProps {
@@ -57,7 +57,7 @@ export default function SocialPostModal({
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const authorName = post.author.nickname ?? post.author.full_name ?? 'Usuário';
+  const authorName = post.author.nickname ?? (titleCase(post.author.full_name) || 'Usuário');
 
   // Carrega respostas ao abrir; trava scroll do body e fecha no Esc.
   useEffect(() => {
@@ -172,7 +172,7 @@ export default function SocialPostModal({
             ) : (
               <ul className="space-y-4">
                 {comments.map((comment) => {
-                  const name = comment.author.nickname ?? comment.author.full_name ?? 'Usuário';
+                  const name = comment.author.nickname ?? (titleCase(comment.author.full_name) || 'Usuário');
                   return (
                     <li key={comment.id} className="flex gap-3">
                       <Link href={comment.author.slug ? `/u/${comment.author.slug}` : '#'} onClick={onClose}>

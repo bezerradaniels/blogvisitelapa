@@ -25,7 +25,7 @@ import {
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDate, timeAgo } from '@/lib/utils/format';
+import { formatDate, timeAgo, titleCase } from '@/lib/utils/format';
 import type { CommunityProfile } from '@/types/communities';
 
 interface Props {
@@ -46,8 +46,8 @@ export async function generateMetadata({ params }: Props) {
     allowsIndexing = data !== false;
   }
   return buildMetadata({
-    title: profile.full_name ?? 'Perfil',
-    description: profile.details?.about ?? profile.bio ?? `Perfil de ${profile.full_name} no Conecta Lapa.`,
+    title: titleCase(profile.full_name) || 'Perfil',
+    description: profile.details?.about ?? profile.bio ?? `Perfil de ${titleCase(profile.full_name) || 'usuário'} no Conecta Lapa.`,
     path: `/u/${slug}`,
     image: profile.avatar_url,
     noindex: !isPublic || !allowsIndexing,
@@ -90,7 +90,7 @@ function FriendTile({ p }: { p: CommunityProfile }) {
       title={p.full_name ?? ''}
     >
       <ProfileAvatar url={p.avatar_url} name={p.full_name} size={56} />
-      <span className="line-clamp-1 w-full text-xs font-semibold text-title">{p.full_name ?? 'Usuário'}</span>
+      <span className="line-clamp-1 w-full text-xs font-semibold text-title">{titleCase(p.full_name) || 'Usuário'}</span>
     </Link>
   );
 }
@@ -127,7 +127,7 @@ function ProfileSummary({ profile, details }: { profile: { full_name: string | n
       <span className="inline-block rounded-full border-4 border-brand-soft p-1">
         <ProfileAvatar url={profile.avatar_url} name={profile.full_name} size={104} />
       </span>
-      <h1 className="mt-3 text-lg font-extrabold leading-tight text-title">{profile.full_name}</h1>
+      <h1 className="mt-3 text-lg font-extrabold leading-tight text-title">{titleCase(profile.full_name)}</h1>
       {details?.nickname && <p className="mt-0.5 text-sm font-semibold text-brand">{details.nickname}</p>}
       {profile.bio && <p className="mt-2 line-clamp-3 text-sm text-muted">{profile.bio}</p>}
       <div className="mt-2 space-y-0.5 text-xs text-muted">
@@ -207,7 +207,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
         <span aria-hidden>›</span>
         <span>Perfis</span>
         <span aria-hidden>›</span>
-        <span className="text-title">{profile.full_name}</span>
+        <span className="text-title">{titleCase(profile.full_name)}</span>
       </nav>
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr_300px]">
@@ -316,7 +316,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                         <Link href={`/u/${s.author?.slug}`} className="font-bold text-title hover:underline">
-                          {s.author?.full_name ?? 'Usuário'}
+                          {titleCase(s.author?.full_name) || 'Usuário'}
                         </Link>
                         <span>{timeAgo(s.created_at)}</span>
                         {(isOwner || s.author?.id === viewerId) && <DeleteScrapButton scrapId={s.id} />}
@@ -366,7 +366,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
                         <Link href={`/u/${t.author?.slug}`} className="font-bold text-title hover:underline">
-                          {t.author?.full_name ?? 'Usuário'}
+                          {titleCase(t.author?.full_name) || 'Usuário'}
                         </Link>
                         <span>{timeAgo(t.created_at)}</span>
                       </div>

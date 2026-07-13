@@ -10,7 +10,7 @@ import {
 } from '@/features/socialFeed/actions';
 import { LinkedContent } from '@/features/socialFeed/LinkedContent';
 import SocialPostModal from '@/features/socialFeed/SocialPostModal';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 import type { SocialFeedPost } from '@/types/socialFeed';
 
 interface SocialPostCardProps {
@@ -28,7 +28,7 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
   const [repostCount, setRepostCount] = useState(post.repostCount);
   const [commentCount, setCommentCount] = useState(post.commentCount);
   const [modalOpen, setModalOpen] = useState(false);
-  const authorName = post.author.nickname ?? post.author.full_name ?? 'Usuário';
+  const authorName = post.author.nickname ?? (titleCase(post.author.full_name) || 'Usuário');
 
   function openComments() {
     if (!isLogged) {
