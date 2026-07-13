@@ -1,6 +1,7 @@
 'use client';
 
 // Ações de moderação e edição rápida em cada linha da tabela admin.
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useTransition } from 'react';
 import Icon from '@/components/Icon';
@@ -83,7 +84,8 @@ export default function PostRowActions({
         <button type="button" title="Arquivar" aria-label="Arquivar" disabled={pending} onClick={() => run('arquivar')} className={`${btn} text-muted hover:bg-surface`}><Icon icon="Archive02Icon" size={16} /><span>Arquivar</span></button>
       )}
       <button type="button" title="Remover" aria-label="Remover" disabled={pending} onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')} className={`${btn} text-danger hover:bg-surface`}><Icon icon="Delete02Icon" size={16} /><span>Remover</span></button>
-      <button type="button" title="Edição rápida" aria-label="Edição rápida" disabled={pending} onClick={openQuickEdit} className={`${btn} text-body hover:bg-surface`}><Icon icon="PencilEdit02Icon" size={16} /><span>Editar</span></button>
+      <button type="button" title="Edição rápida" aria-label="Edição rápida" disabled={pending} onClick={openQuickEdit} className={`${btn} text-body hover:bg-surface`}><Icon icon="FlashIcon" size={16} /><span>Edição rápida</span></button>
+      <Link href={`/admin/posts/${postId}/editar`} title="Edição completa" aria-label="Edição completa" className={`${btn} text-body hover:bg-surface`}><Icon icon="PencilEdit02Icon" size={16} /><span>Editar</span></Link>
 
       <dialog ref={dialogRef} aria-labelledby={`quick-edit-title-${postId}`} className="w-[calc(100%-2rem)] max-w-lg rounded-[10px] border border-line bg-card p-0 text-body shadow-xl backdrop:bg-title/35">
         <form action={submitQuickEdit} className="p-5">

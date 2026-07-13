@@ -3,6 +3,8 @@
 // Navegação lateral do painel (tema "Jardim": fundo verde-escuro, item ativo menta).
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Icon from '@/components/Icon';
 import LogoutButton from '@/components/LogoutButton';
 import { cn } from '@/lib/utils/cn';
 
@@ -81,6 +83,23 @@ export default function AdminSidebar({
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
+  // Seções recolhidas por padrão, exceto a que contém a página atual.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+    const activeGroup = groups.find(
+      (group) => group.title && group.items.some((item) => isActive(item.href)),
+    );
+    return new Set(activeGroup?.title ? [activeGroup.title] : []);
+  });
+
+  function toggleGroup(title: string) {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  }
+
   const currentMobileHref = groups
     .flatMap((group) => group.items)
     .find((item) => isActive(item.href))?.href ?? '/admin';
@@ -94,7 +113,7 @@ export default function AdminSidebar({
         <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white">admin</span>
       </div>
 
-      <nav aria-label="Menu do painel" className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+      <nav aria-label="Menu do painel" className="flex-1 space-y-4 overflow-y-auto px-3 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="lg:hidden">
           <label htmlFor="admin-mobile-navigation" className="sr-only">Navegação do painel</label>
           <select
@@ -111,40 +130,61 @@ export default function AdminSidebar({
           </select>
         </div>
         <div className="hidden space-y-4 lg:block">
-        {groups.map((group, gi) => (
-          <div key={gi} className="space-y-0.5">
-            {group.title && (
-              <p className="px-2 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-mint2">
-                {group.title}
-              </p>
-            )}
-            {group.items.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={cn(
-                    'flex items-center gap-2 rounded-[14px] px-3 py-2 text-sm font-semibold transition-colors',
-                    active ? 'bg-brand font-extrabold text-white' : 'text-white hover:bg-white/10',
-                  )}
+        {groups.map((group, gi) => {
+          const collapsible = Boolean(group.title);
+          const open = !collapsible || openGroups.has(group.title as string);
+          const groupBadge = group.items.reduce((sum, item) => sum + (item.badge ?? 0), 0);
+          return (
+            <div key={gi} className="space-y-0.5">
+              {group.title && (
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.title as string)}
+                  aria-expanded={open}
+                  className="flex w-full items-center gap-1.5 rounded-[10px] px-2 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-mint2 transition-colors hover:bg-white/5"
                 >
-                  <span
-                    className={cn('h-2 w-2 shrink-0 rounded-full', active ? 'bg-white' : 'bg-mint2/60')}
-                    aria-hidden
+                  <Icon
+                    icon="ArrowRight01Icon"
+                    size={14}
+                    className={cn('shrink-0 transition-transform', open && 'rotate-90')}
                   />
-                  <span className="flex-1">{item.label}</span>
-                  {item.badge ? (
+                  <span className="flex-1 text-left">{group.title}</span>
+                  {!open && groupBadge > 0 ? (
                     <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      {item.badge}
+                      {groupBadge}
                     </span>
                   ) : null}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+                </button>
+              )}
+              {open &&
+                group.items.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      aria-current={active ? 'page' : undefined}
+                      className={cn(
+                        'flex items-center gap-2 rounded-[14px] px-3 py-2 text-sm font-semibold transition-colors',
+                        active ? 'bg-brand font-extrabold text-white' : 'text-white hover:bg-white/10',
+                      )}
+                    >
+                      <span
+                        className={cn('h-2 w-2 shrink-0 rounded-full', active ? 'bg-white' : 'bg-mint2/60')}
+                        aria-hidden
+                      />
+                      <span className="flex-1">{item.label}</span>
+                      {item.badge ? (
+                        <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          {item.badge}
+                        </span>
+                      ) : null}
+                    </Link>
+                  );
+                })}
+            </div>
+          );
+        })}
         </div>
       </nav>
 
