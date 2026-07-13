@@ -5,7 +5,7 @@ import FilterTabs from '@/components/FilterTabs';
 import StatusBadge from '@/components/StatusBadge';
 import PostRowActions from '@/features/admin/PostRowActions';
 import { listAdminPosts, listPostAuthors } from '@/features/admin/queries';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +71,7 @@ export default async function AdminPostsPage({ searchParams }: Props) {
                     </Link>
                     {p.category && <span className="block text-xs text-muted">{p.category.name}</span>}
                   </td>
-                  <td className="p-3 text-muted uppercase">{p.author?.full_name ?? '—'}</td>
+                  <td className="p-3 text-muted">{p.author?.full_name ? titleCase(p.author.full_name) : '—'}</td>
                   <td className="p-3"><StatusBadge status={p.status} /></td>
                   <td className="p-3"><StatusBadge status={p.moderation_status} /></td>
                   <td className="p-3 text-muted">{formatDate(p.updated_at)}</td>

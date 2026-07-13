@@ -33,7 +33,7 @@ export default function PostRowActions({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const btn = 'inline-flex h-8 w-8 items-center justify-center rounded-[10px] text-xs font-medium transition-colors disabled:opacity-50';
+  const btn = 'inline-flex min-w-[3rem] flex-col items-center justify-start gap-0.5 rounded-[10px] px-1.5 py-1 text-[10px] font-medium leading-tight transition-colors disabled:opacity-50';
 
   function run(action: PostModerationAction, confirmMsg?: string) {
     if (confirmMsg && !confirm(confirmMsg)) return;
@@ -70,20 +70,20 @@ export default function PostRowActions({
   return (
     <div className="flex flex-wrap items-center justify-end gap-1">
       {status !== 'publicado' && (
-        <button type="button" title="Publicar" aria-label="Publicar" disabled={pending} onClick={() => run('publicar')} className={`${btn} bg-success/10 text-success hover:bg-success/20`}><Icon icon="Tick02Icon" size={16} /></button>
+        <button type="button" title="Publicar" aria-label="Publicar" disabled={pending} onClick={() => run('publicar')} className={`${btn} bg-success/10 text-success hover:bg-success/20`}><Icon icon="Tick02Icon" size={16} /><span>Publicar</span></button>
       )}
       {moderationStatus !== 'aprovado' && status !== 'publicado' && (
-        <button type="button" title="Aprovar" aria-label="Aprovar" disabled={pending} onClick={() => run('aprovar')} className={`${btn} text-success hover:bg-surface`}><Icon icon="Tick02Icon" size={16} /></button>
+        <button type="button" title="Aprovar" aria-label="Aprovar" disabled={pending} onClick={() => run('aprovar')} className={`${btn} text-success hover:bg-surface`}><Icon icon="Tick02Icon" size={16} /><span>Aprovar</span></button>
       )}
       {moderationStatus !== 'rejeitado' && (
-        <button type="button" title="Rejeitar" aria-label="Rejeitar" disabled={pending} onClick={() => run('rejeitar')} className={`${btn} text-warning hover:bg-surface`}><Icon icon="Cancel01Icon" size={16} /></button>
+        <button type="button" title="Rejeitar" aria-label="Rejeitar" disabled={pending} onClick={() => run('rejeitar')} className={`${btn} text-warning hover:bg-surface`}><Icon icon="Cancel01Icon" size={16} /><span>Rejeitar</span></button>
       )}
-      <button type="button" title={isFeatured ? 'Remover destaque' : 'Destacar'} aria-label={isFeatured ? 'Remover destaque' : 'Destacar'} disabled={pending} onClick={() => run(isFeatured ? 'destaque_off' : 'destaque_on')} className={`${btn} text-brand hover:bg-surface`}><Icon icon="StarIcon" size={16} /></button>
+      <button type="button" title={isFeatured ? 'Remover destaque' : 'Destacar'} aria-label={isFeatured ? 'Remover destaque' : 'Destacar'} disabled={pending} onClick={() => run(isFeatured ? 'destaque_off' : 'destaque_on')} className={`${btn} text-brand hover:bg-surface`}><Icon icon="StarIcon" size={16} /><span>{isFeatured ? 'Tirar destaque' : 'Destacar'}</span></button>
       {status !== 'arquivado' && (
-        <button type="button" title="Arquivar" aria-label="Arquivar" disabled={pending} onClick={() => run('arquivar')} className={`${btn} text-muted hover:bg-surface`}><Icon icon="Archive02Icon" size={16} /></button>
+        <button type="button" title="Arquivar" aria-label="Arquivar" disabled={pending} onClick={() => run('arquivar')} className={`${btn} text-muted hover:bg-surface`}><Icon icon="Archive02Icon" size={16} /><span>Arquivar</span></button>
       )}
-      <button type="button" title="Remover" aria-label="Remover" disabled={pending} onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')} className={`${btn} text-danger hover:bg-surface`}><Icon icon="Delete02Icon" size={16} /></button>
-      <button type="button" title="Edição rápida" aria-label="Edição rápida" disabled={pending} onClick={openQuickEdit} className={`${btn} text-body hover:bg-surface`}><Icon icon="PencilEdit02Icon" size={16} /></button>
+      <button type="button" title="Remover" aria-label="Remover" disabled={pending} onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')} className={`${btn} text-danger hover:bg-surface`}><Icon icon="Delete02Icon" size={16} /><span>Remover</span></button>
+      <button type="button" title="Edição rápida" aria-label="Edição rápida" disabled={pending} onClick={openQuickEdit} className={`${btn} text-body hover:bg-surface`}><Icon icon="PencilEdit02Icon" size={16} /><span>Editar</span></button>
 
       <dialog ref={dialogRef} aria-labelledby={`quick-edit-title-${postId}`} className="w-[calc(100%-2rem)] max-w-lg rounded-[10px] border border-line bg-card p-0 text-body shadow-xl backdrop:bg-title/35">
         <form action={submitQuickEdit} className="p-5">

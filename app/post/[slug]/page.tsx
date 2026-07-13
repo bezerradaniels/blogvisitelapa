@@ -146,7 +146,7 @@ export default async function PostPage({ params }: Props) {
               )}
               <p>
                 Publicado em <time dateTime={publishDate}>{formatDateTime(publishDate)}</time>
-                {post.updated_at !== publishDate && <> · Atualizado {formatDate(post.updated_at)}</>}
+                {new Date(post.updated_at).getTime() > new Date(publishDate).getTime() && <> · Atualizado {formatDate(post.updated_at)}</>}
               </p>
             </div>
           </div>
