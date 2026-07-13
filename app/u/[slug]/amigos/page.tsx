@@ -5,6 +5,7 @@ import EmptyState from '@/components/EmptyState';
 import PublicProfileShell from '@/components/PublicProfileShell';
 import { getPublicProfile, listFriends } from '@/features/social/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const profile = await getPublicProfile(slug);
   return buildMetadata({
-    title: profile ? `Amigos de ${profile.full_name}` : 'Amigos',
+    title: profile ? `Amigos de ${titleCase(profile.full_name)}` : 'Amigos',
     path: `/u/${slug}/amigos`,
     noindex: true,
   });
@@ -52,7 +53,7 @@ export default async function AmigosPage({ params }: Props) {
                       (p.full_name ?? 'U').charAt(0).toUpperCase()
                     )}
                   </span>
-                  <span className="line-clamp-2 text-xs font-semibold text-title">{p.full_name ?? 'Usuário'}</span>
+                  <span className="line-clamp-2 text-xs font-semibold text-title">{titleCase(p.full_name) || 'Usuário'}</span>
                 </Link>
               </li>
             ))}

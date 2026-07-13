@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import SocialSidebarNav, { type SocialNavItem } from '@/components/SocialSidebarNav';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { titleCase } from '@/lib/utils/format';
 import type { PublicProfile } from '@/types/social';
 
 interface PublicProfileShellProps {
@@ -22,7 +23,7 @@ export default async function PublicProfileShell({ profile, slug, children }: Pu
       supabase.from('community_members').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
     ]);
   const details = profile.details;
-  const displayName = profile.full_name ?? details?.nickname ?? 'Usuário';
+  const displayName = titleCase(profile.full_name) || details?.nickname || 'Usuário';
   const isOwner = viewer?.profile?.id === profile.id;
   const items: SocialNavItem[] = [
     { href: `/u/${slug}`, label: 'Perfil', exact: true },

@@ -5,7 +5,7 @@ import EmptyState from '@/components/EmptyState';
 import { listConversations } from '@/features/messages/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({ title: 'Mensagens', path: '/mensagens', noindex: true });
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ export default async function MensagensPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate font-bold text-title">{c.other?.full_name ?? 'Usuário'}</span>
+                    <span className="truncate font-bold text-title">{titleCase(c.other?.full_name) || 'Usuário'}</span>
                     <span className="shrink-0 text-xs text-muted">{timeAgo(c.lastMessageAt)}</span>
                   </div>
                   <p className="truncate text-sm text-muted">{c.lastMessage ?? 'Conversa iniciada'}</p>

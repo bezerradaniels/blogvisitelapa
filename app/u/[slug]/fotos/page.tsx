@@ -8,6 +8,7 @@ import { listAlbums } from '@/features/photos/queries';
 import { getPublicProfile } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const profile = await getPublicProfile(slug);
   return buildMetadata({
-    title: profile ? `Fotos de ${profile.full_name}` : 'Fotos',
+    title: profile ? `Fotos de ${titleCase(profile.full_name)}` : 'Fotos',
     path: `/u/${slug}/fotos`,
     noindex: true,
   });

@@ -1,6 +1,6 @@
 import EmptyState from '@/components/EmptyState';
 import { createClient } from '@/lib/supabase/server';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +42,7 @@ export default async function AdminAuditoriaPage() {
               {logs.map((l) => (
                 <tr key={l.id}>
                   <td className="p-3 text-muted">{formatDateTime(l.created_at)}</td>
-                  <td className="p-3 text-body">{l.actor?.full_name ?? '—'}</td>
+                  <td className="p-3 text-body">{titleCase(l.actor?.full_name) || '—'}</td>
                   <td className="p-3 font-medium text-title">{l.action}</td>
                   <td className="p-3 text-muted">{l.entity ?? '—'}</td>
                 </tr>

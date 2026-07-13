@@ -5,7 +5,7 @@ import DeleteScrapButton from '@/features/social/DeleteScrapButton';
 import { listScraps } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({ title: 'Meus recados', path: '/rede/recados', noindex: true });
 
@@ -29,7 +29,7 @@ export default async function RecadosPage() {
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-                  <Link href={`/u/${scrap.author?.slug}`} className="font-bold text-brand hover:underline">{scrap.author?.full_name ?? 'Usuário'}</Link>
+                  <Link href={`/u/${scrap.author?.slug}`} className="font-bold text-brand hover:underline">{titleCase(scrap.author?.full_name) || 'Usuário'}</Link>
                   <span>{timeAgo(scrap.created_at)}</span>
                   <span className="ml-auto"><DeleteScrapButton scrapId={scrap.id} /></span>
                 </div>

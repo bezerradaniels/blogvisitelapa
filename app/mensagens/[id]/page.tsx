@@ -6,7 +6,7 @@ import { markConversationRead } from '@/features/messages/actions';
 import { getConversation, listMessages } from '@/features/messages/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 
 export const metadata = buildMetadata({ title: 'Conversa', noindex: true });
@@ -44,7 +44,7 @@ export default async function ConversaPage({ params }: Props) {
               (conversation.other?.full_name ?? 'U').charAt(0).toUpperCase()
             )}
           </span>
-          <span className="font-bold text-title">{conversation.other?.full_name ?? 'Usuário'}</span>
+          <span className="font-bold text-title">{titleCase(conversation.other?.full_name) || 'Usuário'}</span>
         </Link>
       </div>
 

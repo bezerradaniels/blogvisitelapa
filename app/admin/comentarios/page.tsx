@@ -4,7 +4,7 @@ import FilterTabs from '@/components/FilterTabs';
 import StatusBadge from '@/components/StatusBadge';
 import CommentRowActions from '@/features/admin/CommentRowActions';
 import { listAdminComments } from '@/features/admin/queries';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +40,7 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
           {comments.map((c) => (
             <li key={c.id} className="card-base p-3">
               <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted">
-                <span className="font-medium text-title">{c.author?.full_name ?? 'Leitor'}</span>
+                <span className="font-medium text-title">{titleCase(c.author?.full_name) || 'Leitor'}</span>
                 <span aria-hidden>·</span>
                 <time dateTime={c.created_at}>{formatDateTime(c.created_at)}</time>
                 <StatusBadge status={c.status} />

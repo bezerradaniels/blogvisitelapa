@@ -87,7 +87,7 @@ function FriendTile({ p }: { p: CommunityProfile }) {
     <Link
       href={`/u/${p.slug}`}
       className="card-hover flex flex-col items-center gap-1.5 text-center"
-      title={p.full_name ?? ''}
+      title={titleCase(p.full_name)}
     >
       <ProfileAvatar url={p.avatar_url} name={p.full_name} size={56} />
       <span className="line-clamp-1 w-full text-xs font-semibold text-title">{titleCase(p.full_name) || 'Usuário'}</span>
@@ -304,7 +304,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
                   friendState={friendState}
                   targetProfileId={profile.id}
                   targetSlug={slug}
-                  targetName={d?.nickname ?? profile.full_name ?? 'este usuário'}
+                  targetName={d?.nickname ?? (titleCase(profile.full_name) || 'este usuário')}
                 />
               </div>
             )}
@@ -354,7 +354,7 @@ export default async function PerfilPublicoPage({ params }: Props) {
                   friendState={friendState}
                   targetProfileId={profile.id}
                   targetSlug={slug}
-                  targetName={d?.nickname ?? profile.full_name ?? 'este usuário'}
+                  targetName={d?.nickname ?? (titleCase(profile.full_name) || 'este usuário')}
                 />
               </div>
             )}

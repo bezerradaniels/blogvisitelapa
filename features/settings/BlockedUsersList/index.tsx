@@ -8,7 +8,7 @@ import Icon from '@/components/Icon';
 import Input from '@/components/Input';
 import { unblockUser } from '@/features/social/actions';
 import { useRouter } from 'next/navigation';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 import type { BlockedUser } from '@/features/settings/queries';
 
 function Avatar({ url, name }: { url: string | null; name: string | null }) {
@@ -87,10 +87,10 @@ export default function BlockedUsersList({ initial }: { initial: BlockedUser[] }
             <div className="min-w-0 flex-1">
               {u.slug ? (
                 <Link href={`/u/${u.slug}`} className="block truncate text-sm font-bold text-title hover:underline">
-                  {u.fullName ?? 'Usuário'}
+                  {titleCase(u.fullName) || 'Usuário'}
                 </Link>
               ) : (
-                <span className="block truncate text-sm font-bold text-title">{u.fullName ?? 'Usuário'}</span>
+                <span className="block truncate text-sm font-bold text-title">{titleCase(u.fullName) || 'Usuário'}</span>
               )}
               <span className="block truncate text-xs text-muted">
                 {u.slug ? `@${u.slug}` : ''} · desde {formatDate(u.since, 'd MMM yyyy')}

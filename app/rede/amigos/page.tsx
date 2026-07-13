@@ -5,6 +5,7 @@ import FriendButton from '@/features/social/FriendButton';
 import { listFriendRequests, listFriends } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({ title: 'Meus amigos', path: '/rede/amigos', noindex: true });
 
@@ -23,7 +24,7 @@ export default async function RedeAmigosPage() {
           <div className="space-y-3">
             {requests.map((request) => (
               <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3 last:border-0 last:pb-0">
-                <Link href={`/u/${request.slug}`} className="font-bold text-title hover:text-brand hover:underline">{request.full_name ?? 'Usuário'}</Link>
+                <Link href={`/u/${request.slug}`} className="font-bold text-title hover:text-brand hover:underline">{titleCase(request.full_name) || 'Usuário'}</Link>
                 <FriendButton targetProfileId={request.id} state="request_received" isLogged targetSlug={request.slug ?? ''} />
               </div>
             ))}
@@ -42,7 +43,7 @@ export default async function RedeAmigosPage() {
               ) : (
                 <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-xl font-bold text-brand-dark">{(friend.full_name ?? 'U').charAt(0)}</span>
               )}
-              <span className="mt-2 block truncate text-xs font-semibold text-title">{friend.full_name ?? 'Usuário'}</span>
+              <span className="mt-2 block truncate text-xs font-semibold text-title">{titleCase(friend.full_name) || 'Usuário'}</span>
             </Link>
           ))}
         </div>

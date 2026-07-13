@@ -7,6 +7,7 @@ import { listFriendRequests, listPendingTestimonials } from '@/features/social/q
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 import type { ProfileDetails } from '@/types/social';
 
 export const metadata = buildMetadata({ title: 'Meu perfil', path: '/perfil', noindex: true });
@@ -74,7 +75,7 @@ export default async function PerfilPage() {
             {requests.map((r) => (
               <li key={r.id} className="flex items-center justify-between gap-2">
                 <Link href={`/u/${r.slug}`} className="text-sm font-bold text-title hover:underline">
-                  {r.full_name ?? 'Usuário'}
+                  {titleCase(r.full_name) || 'Usuário'}
                 </Link>
                 <FriendButton
                   targetProfileId={r.id}
@@ -100,7 +101,7 @@ export default async function PerfilPage() {
                 <div className="mb-1 text-xs text-muted">
                   de{' '}
                   <Link href={`/u/${t.author?.slug}`} className="font-bold text-title hover:underline">
-                    {t.author?.full_name ?? 'Usuário'}
+                    {titleCase(t.author?.full_name) || 'Usuário'}
                   </Link>
                 </div>
                 <p className="mb-2 whitespace-pre-wrap text-sm text-body">{t.content}</p>

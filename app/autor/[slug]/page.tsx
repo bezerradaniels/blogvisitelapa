@@ -5,6 +5,7 @@ import PostCard from '@/components/PostCard';
 import EmptyState from '@/components/EmptyState';
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 import type { PostWithRelations } from '@/types/posts';
 
 interface Props {
@@ -29,8 +30,8 @@ export async function generateMetadata({ params }: Props) {
   const author = await getAuthor(slug);
   if (!author) return buildMetadata({ title: 'Autor', noindex: true });
   return buildMetadata({
-    title: author.full_name ?? 'Autor',
-    description: author.bio ?? `Conteúdos publicados por ${author.full_name}.`,
+    title: titleCase(author.full_name) || 'Autor',
+    description: author.bio ?? `Conteúdos publicados por ${titleCase(author.full_name) || 'este autor'}.`,
     path: `/autor/${slug}`,
   });
 }
@@ -61,14 +62,14 @@ export default async function AutorPage({ params }: Props) {
         {author.avatar_url && (
           <Image
             src={author.avatar_url}
-            alt={author.full_name ?? 'Autor'}
+            alt={titleCase(author.full_name) || 'Autor'}
             width={72}
             height={72}
             className="rounded-full object-cover"
           />
         )}
         <div>
-          <h1 className="text-xl font-extrabold text-title md:text-2xl">{author.full_name}</h1>
+          <h1 className="text-xl font-extrabold text-title md:text-2xl">{titleCase(author.full_name)}</h1>
           <p className="text-xs uppercase tracking-wide text-muted">
             {author.role === 'admin' ? 'Editor' : 'Colaborador'}
           </p>

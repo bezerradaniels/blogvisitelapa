@@ -7,7 +7,7 @@ import TestimonialForm from '@/features/social/TestimonialForm';
 import { getFriendState, getPublicProfile, listApprovedTestimonials } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -38,7 +38,7 @@ export default async function ProfileTestimonialsPage({ params }: Props) {
               friendState={friendState}
               targetProfileId={profile.id}
               targetSlug={slug}
-              targetName={profile.details?.nickname ?? profile.full_name ?? 'este usuário'}
+              targetName={profile.details?.nickname ?? (titleCase(profile.full_name) || 'este usuário')}
             />
           </div>
         )}
@@ -50,7 +50,7 @@ export default async function ProfileTestimonialsPage({ params }: Props) {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={testimonial.author.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                 ) : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft font-bold text-brand-dark">{(testimonial.author?.full_name ?? 'U').charAt(0)}</span>}
-                <div className="min-w-0 flex-1"><div className="flex gap-2 text-xs text-muted"><Link href={`/u/${testimonial.author?.slug}`} className="font-bold text-brand hover:underline">{testimonial.author?.full_name ?? 'Usuário'}</Link><span>{timeAgo(testimonial.created_at)}</span></div><p className="mt-1 whitespace-pre-wrap text-sm text-body">{testimonial.content}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex gap-2 text-xs text-muted"><Link href={`/u/${testimonial.author?.slug}`} className="font-bold text-brand hover:underline">{titleCase(testimonial.author?.full_name) || 'Usuário'}</Link><span>{timeAgo(testimonial.created_at)}</span></div><p className="mt-1 whitespace-pre-wrap text-sm text-body">{testimonial.content}</p></div>
               </li>
             ))}
           </ul>

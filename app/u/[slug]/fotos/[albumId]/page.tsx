@@ -9,6 +9,7 @@ import { getAlbum, listPhotos } from '@/features/photos/queries';
 import { getPublicProfile } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string; albumId: string }>;
@@ -41,7 +42,7 @@ export default async function AlbumPage({ params }: Props) {
     <PublicProfileShell profile={profile} slug={slug}>
       <section className="card-base p-4 sm:p-6">
         <Link href={`/u/${slug}/fotos`} className="text-sm font-bold text-brand hover:underline">
-          ← Álbuns de {profile.full_name}
+          ← Álbuns de {titleCase(profile.full_name)}
         </Link>
 
         <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-2">

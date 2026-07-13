@@ -5,7 +5,7 @@ import UserAdminActions from '@/features/admin/UserAdminActions';
 import UserRowControl from '@/features/admin/UserRowControl';
 import { getAdminUserDetails } from '@/features/admin/userDetails';
 import { getCurrentUser } from '@/lib/auth/session';
-import { formatDate, formatDateTime } from '@/lib/utils/format';
+import { formatDate, formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +23,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
   if (!details) notFound();
 
   const { profile, auth, social, usage, attention } = details;
-  const fullName = profile.fullName ?? auth.email ?? 'Usuário sem nome';
+  const fullName = titleCase(profile.fullName) || auth.email || 'Usuário sem nome';
   const isSelf = current?.profile?.id === profile.id;
   const metrics = [
     ['Posts', usage.posts],
@@ -78,7 +78,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
         <section className="card-base p-4 sm:p-5">
           <h3 className="mb-4 font-bold text-title">Informações e contatos</h3>
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <div><dt className="text-xs font-semibold text-muted">Nome</dt><dd className="mt-1 text-title">{display(profile.fullName)}</dd></div>
+            <div><dt className="text-xs font-semibold text-muted">Nome</dt><dd className="mt-1 text-title">{display(titleCase(profile.fullName))}</dd></div>
             <div><dt className="text-xs font-semibold text-muted">Apelido</dt><dd className="mt-1 text-title">{display(social.nickname)}</dd></div>
             <div><dt className="text-xs font-semibold text-muted">E-mail</dt><dd className="mt-1 break-all text-title">{display(auth.email)}</dd></div>
             <div><dt className="text-xs font-semibold text-muted">Telefone</dt><dd className="mt-1 text-title">{display(profile.phone ?? auth.phone)}</dd></div>

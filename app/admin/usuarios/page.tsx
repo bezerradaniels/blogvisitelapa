@@ -5,7 +5,7 @@ import EmptyState from '@/components/EmptyState';
 import UserRowControl from '@/features/admin/UserRowControl';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +64,7 @@ export default async function AdminUsuariosPage() {
                   <td className="p-3 font-medium text-title">
                     <div className="flex items-center gap-2">
                       <Link href={`/admin/usuarios/${u.id}`} className="hover:text-brand hover:underline">
-                        {u.full_name ?? '—'}
+                        {titleCase(u.full_name) || '—'}
                       </Link>
                       {attentionIds.has(u.id) && <Badge tone="warning">Atenção</Badge>}
                     </div>

@@ -6,7 +6,7 @@ import MarkAllReadButton from '@/features/notifications/MarkAllReadButton';
 import { listNotifications } from '@/features/notifications/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 import type { NotificationWithActor } from '@/types/notifications';
 
@@ -14,7 +14,7 @@ export const metadata = buildMetadata({ title: 'Notificações', path: '/notific
 export const dynamic = 'force-dynamic';
 
 function describe(n: NotificationWithActor): { text: string; href: string } {
-  const actor = n.actor?.full_name ?? 'Alguém';
+  const actor = titleCase(n.actor?.full_name) || 'Alguém';
   const actorHref = n.actor?.slug ? `/u/${n.actor.slug}` : '/notificacoes';
   switch (n.type) {
     case 'amizade_pedido':

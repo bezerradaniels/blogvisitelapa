@@ -5,7 +5,7 @@ import TestimonialModActions from '@/features/social/TestimonialModActions';
 import { listApprovedTestimonials, listPendingTestimonials } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { timeAgo } from '@/lib/utils/format';
+import { timeAgo, titleCase } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({ title: 'Meus depoimentos', path: '/rede/depoimentos', noindex: true });
 
@@ -30,7 +30,7 @@ export default async function RedeDepoimentosPage() {
               ) : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft font-bold text-brand-dark">{(testimonial.author?.full_name ?? 'U').charAt(0)}</span>}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-                  <Link href={`/u/${testimonial.author?.slug}`} className="font-bold text-brand hover:underline">{testimonial.author?.full_name ?? 'Usuário'}</Link>
+                  <Link href={`/u/${testimonial.author?.slug}`} className="font-bold text-brand hover:underline">{titleCase(testimonial.author?.full_name) || 'Usuário'}</Link>
                   <span>{timeAgo(testimonial.created_at)}</span>
                 </div>
                 <p className="my-2 whitespace-pre-wrap text-sm text-body">{testimonial.content}</p>

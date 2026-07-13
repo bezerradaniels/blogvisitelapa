@@ -3,7 +3,7 @@ import FilterTabs from '@/components/FilterTabs';
 import ReportRowActions from '@/features/admin/ReportRowActions';
 import { listReports } from '@/features/admin/communityQueries';
 import { reportReasonLabel } from '@/lib/config/communities';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +48,7 @@ export default async function AdminReportsPage({ searchParams }: Props) {
                     <span aria-hidden>·</span>
                     <span>{reportReasonLabel(r.reason)}</span>
                     <span aria-hidden>·</span>
-                    <span>por {r.reporter?.full_name ?? 'Usuário'}</span>
+                    <span>por {titleCase(r.reporter?.full_name) || 'Usuário'}</span>
                     <span aria-hidden>·</span>
                     <time dateTime={r.created_at}>{formatDateTime(r.created_at)}</time>
                     <span aria-hidden>·</span>

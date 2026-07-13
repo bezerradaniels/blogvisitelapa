@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import SocialSidebarNav, { type SocialNavItem } from '@/components/SocialSidebarNav';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { titleCase } from '@/lib/utils/format';
 
 export default async function SocialShell({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
@@ -27,7 +28,7 @@ export default async function SocialShell({ children }: { children: ReactNode })
     supabase.from('community_members').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
   ]);
 
-  const displayName = profile.full_name ?? details?.nickname ?? 'Meu perfil';
+  const displayName = titleCase(profile.full_name) || details?.nickname || 'Meu perfil';
   const items: SocialNavItem[] = [
     { href: '/rede', label: 'Feed' },
     { href: '/rede/perfil', label: 'Perfil' },

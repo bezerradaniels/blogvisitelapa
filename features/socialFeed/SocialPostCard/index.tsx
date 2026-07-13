@@ -78,7 +78,7 @@ export default function SocialPostCard({ post, isLogged = true, loginRedirect = 
     <article className="card-base p-4">
       {post.repostedBy && (
         <p className="mb-2 text-xs font-semibold text-muted">
-          ↻ {post.repostedBy.nickname ?? post.repostedBy.full_name ?? 'Um amigo'} repostou
+          ↻ {post.repostedBy.nickname ?? (titleCase(post.repostedBy.full_name) || 'Um amigo')} repostou
         </p>
       )}
       <div className="flex gap-3">

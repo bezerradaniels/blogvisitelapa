@@ -6,7 +6,7 @@ import { getAdminCommunityDetails } from '@/features/admin/communityQueries';
 import CommunityForm from '@/features/communities/CommunityForm';
 import { getCurrentUser } from '@/lib/auth/session';
 import { communityCategoryLabel } from '@/lib/config/communities';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +75,7 @@ export default async function AdminCommunityDetailPage({ params }: Props) {
         <section className="card-base p-4 sm:p-5">
           <h3 className="mb-4 font-bold text-title">Informações</h3>
           <dl className="space-y-3 text-sm">
-            <div className="flex justify-between gap-4"><dt className="text-muted">Dono</dt><dd className="text-right text-title">{community.owner?.full_name ?? '—'}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-muted">Dono</dt><dd className="text-right text-title">{titleCase(community.owner?.full_name) || '—'}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-muted">Categoria</dt><dd className="text-right text-title">{communityCategoryLabel(community.category)}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-muted">Endereço público</dt><dd className="text-right text-title">/comunidades/{community.slug}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-muted">Atualizada em</dt><dd className="text-right text-title">{formatDateTime(community.updated_at)}</dd></div>
@@ -134,7 +134,7 @@ export default async function AdminCommunityDetailPage({ params }: Props) {
               {members.map((member) => (
                 <div key={member.id} className="flex items-center justify-between gap-3 p-3 text-sm">
                   <div>
-                    <p className="font-semibold text-title">{member.profile?.full_name ?? 'Usuário removido'}</p>
+                    <p className="font-semibold text-title">{titleCase(member.profile?.full_name) || 'Usuário removido'}</p>
                     <p className="text-xs text-muted">Entrou em {formatDateTime(member.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default async function AdminCommunityDetailPage({ params }: Props) {
                     {topic.status === 'removido' && <Badge tone="danger">Removido</Badge>}
                   </div>
                   <p className="mt-1 text-xs text-muted">
-                    {topic.author?.full_name ?? 'Autor removido'} · {topic.reply_count} respostas · atividade em {formatDateTime(topic.last_activity_at)}
+                    {titleCase(topic.author?.full_name) || 'Autor removido'} · {topic.reply_count} respostas · atividade em {formatDateTime(topic.last_activity_at)}
                   </p>
                 </div>
               ))}

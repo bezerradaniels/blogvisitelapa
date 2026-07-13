@@ -14,7 +14,7 @@ import {
 } from '@/features/communities/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDateTime, timeAgo } from '@/lib/utils/format';
+import { formatDateTime, timeAgo, titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string; topicSlug: string }>;
@@ -75,7 +75,7 @@ export default async function TopicoPage({ params }: Props) {
         <div className="mb-3 flex items-center gap-2">
           <Avatar url={topic.author?.avatar_url ?? null} name={topic.author?.full_name ?? null} />
           <div className="text-xs text-muted">
-            <span className="font-bold text-title">{topic.author?.full_name ?? 'Membro'}</span>
+            <span className="font-bold text-title">{titleCase(topic.author?.full_name) || 'Membro'}</span>
             <span className="block">{formatDateTime(topic.created_at)}</span>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default async function TopicoPage({ params }: Props) {
               <Avatar url={r.author?.avatar_url ?? null} name={r.author?.full_name ?? null} />
               <div className="min-w-0 flex-1">
                 <div className="mb-0.5 flex items-center gap-2 text-xs text-muted">
-                  <span className="font-bold text-title">{r.author?.full_name ?? 'Membro'}</span>
+                  <span className="font-bold text-title">{titleCase(r.author?.full_name) || 'Membro'}</span>
                   <span>{timeAgo(r.created_at)}</span>
                 </div>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-body">{r.content}</p>

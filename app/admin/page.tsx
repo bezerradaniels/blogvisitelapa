@@ -2,7 +2,7 @@ import Button from '@/components/Button';
 import DashboardMetricCard from '@/components/DashboardMetricCard';
 import { getAdminMetrics } from '@/features/admin/metrics';
 import { getCurrentUser } from '@/lib/auth/session';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 
 // Visão geral do admin com métricas consolidadas (função guardada por RLS/admin).
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ function greeting(): string {
 
 export default async function AdminHomePage() {
   const [m, user] = await Promise.all([getAdminMetrics(), getCurrentUser()]);
-  const firstName = (user?.profile?.full_name ?? 'Admin').split(' ')[0];
+  const firstName = titleCase(user?.profile?.full_name?.split(' ')[0]) || 'Admin';
 
   return (
     <div className="space-y-6">

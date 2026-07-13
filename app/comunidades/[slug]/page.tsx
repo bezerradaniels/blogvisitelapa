@@ -18,7 +18,7 @@ import { listFriends } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { communityCategoryLabel } from '@/lib/config/communities';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDate, timeAgo } from '@/lib/utils/format';
+import { formatDate, timeAgo, titleCase } from '@/lib/utils/format';
 import type { CommunityProfile } from '@/types/communities';
 
 interface Props {
@@ -184,7 +184,7 @@ export default async function ComunidadePage({ params }: Props) {
               {community.owner?.slug && (
                 <MetaRow label="Dono">
                   <Link href={`/u/${community.owner.slug}`} className="font-bold text-brand hover:underline">
-                    {community.owner.full_name ?? 'Membro'}
+                    {titleCase(community.owner.full_name) || 'Membro'}
                   </Link>
                 </MetaRow>
               )}
@@ -268,11 +268,11 @@ export default async function ComunidadePage({ params }: Props) {
                     key={m.id}
                     href={m.profile?.slug ? `/u/${m.profile.slug}` : '#'}
                     className="card-hover flex flex-col items-center gap-1.5 text-center"
-                    title={m.profile?.full_name ?? 'Membro'}
+                    title={titleCase(m.profile?.full_name) || 'Membro'}
                   >
                     <Avatar url={m.profile?.avatar_url ?? null} name={m.profile?.full_name ?? null} size={64} round />
                     <span className="w-full break-words text-xs font-semibold leading-tight text-title">
-                      {m.profile?.full_name ?? 'Membro'}
+                      {titleCase(m.profile?.full_name) || 'Membro'}
                     </span>
                   </Link>
                 ))}

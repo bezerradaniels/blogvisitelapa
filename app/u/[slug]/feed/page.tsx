@@ -6,6 +6,7 @@ import { getProfileSocialPosts } from '@/features/socialFeed/queries';
 import { getPublicProfile } from '@/features/social/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -36,7 +37,7 @@ export default async function PublicProfileFeedPage({ params }: Props) {
       <section className="space-y-4">
         <div className="card-base p-4 sm:p-6">
           <h1 className="text-2xl font-extrabold text-title">Feed</h1>
-          <p className="mt-1 text-sm text-muted">Atualizações publicadas por {profile.details?.nickname ?? profile.full_name ?? 'este usuário'}.</p>
+          <p className="mt-1 text-sm text-muted">Atualizações publicadas por {profile.details?.nickname ?? (titleCase(profile.full_name) || 'este usuário')}.</p>
         </div>
 
         {posts.length > 0 ? (

@@ -6,6 +6,7 @@ import MemberModActions from '@/features/communities/MemberModActions';
 import { getCommunityBySlug, getMembership, listMembers } from '@/features/communities/queries';
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { titleCase } from '@/lib/utils/format';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -58,10 +59,10 @@ export default async function MembrosPage({ params }: Props) {
             <div className="min-w-0 flex-1">
               {m.profile?.slug ? (
                 <Link href={`/u/${m.profile.slug}`} className="block truncate font-bold text-title hover:underline">
-                  {m.profile.full_name ?? 'Membro'}
+                  {titleCase(m.profile.full_name) || 'Membro'}
                 </Link>
               ) : (
-                <p className="truncate font-bold text-title">{m.profile?.full_name ?? 'Membro'}</p>
+                <p className="truncate font-bold text-title">{titleCase(m.profile?.full_name) || 'Membro'}</p>
               )}
               <Badge tone={m.role === 'dono' ? 'brand' : m.role === 'moderador' ? 'accent' : 'neutral'}>
                 {ROLE_LABEL[m.role] ?? m.role}

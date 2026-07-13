@@ -3,7 +3,7 @@ import Button from '@/components/Button';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, titleCase } from '@/lib/utils/format';
 
 export const metadata = buildMetadata({ title: 'Meu perfil social', path: '/rede/perfil', noindex: true });
 
@@ -13,7 +13,7 @@ export default async function RedePerfilPage() {
   const supabase = await createClient();
   const { data: details } = await supabase.from('profile_details').select('*').eq('profile_id', user.profile.id).maybeSingle();
   const rows = [
-    ['Nome', user.profile.full_name],
+    ['Nome', titleCase(user.profile.full_name)],
     ['Apelido', details?.nickname],
     ['Cidade', details?.city],
     ['Relacionamento', details?.relationship],

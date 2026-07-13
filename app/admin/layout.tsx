@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getCurrentUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { titleCase } from '@/lib/utils/format';
 
 // Layout do painel admin (shell próprio, sem header/rodapé públicos).
 // Dupla proteção: middleware + checagem no servidor.
@@ -26,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <AdminSidebar
           pendingComments={count ?? 0}
           openReports={reportsCount ?? 0}
-          userName={user.profile?.full_name ?? 'Administrador'}
+          userName={titleCase(user.profile?.full_name) || 'Administrador'}
           userRole="Administrador"
         />
       </aside>

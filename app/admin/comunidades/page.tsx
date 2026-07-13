@@ -5,7 +5,7 @@ import FilterTabs from '@/components/FilterTabs';
 import CommunityRowActions from '@/features/admin/CommunityRowActions';
 import { listAdminCommunities } from '@/features/admin/communityQueries';
 import { communityCategoryLabel } from '@/lib/config/communities';
-import { formatDateTime } from '@/lib/utils/format';
+import { formatDateTime, titleCase } from '@/lib/utils/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +53,7 @@ export default async function AdminCommunitiesPage({ searchParams }: Props) {
                     <span className="capitalize">{c.status}</span>
                   </div>
                   <p className="text-xs text-muted">
-                    Dono: {c.owner?.full_name ?? '—'} · criada em {formatDateTime(c.created_at)}
+                    Dono: {titleCase(c.owner?.full_name) || '—'} · criada em {formatDateTime(c.created_at)}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
