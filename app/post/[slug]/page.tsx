@@ -2,7 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import AdBanner from '@/components/AdBanner';
+import AdCardGrid from '@/components/AdCardGrid';
 import Badge from '@/components/Badge';
+import Icon from '@/components/Icon';
 import JsonLd from '@/components/JsonLd';
 import PostCard from '@/components/PostCard';
 import SectionTitle from '@/components/SectionTitle';
@@ -11,6 +13,8 @@ import { listApprovedComments } from '@/features/engagement/queries';
 import {
   getPostBySlug,
   getSponsorLabel,
+  listMostReadPosts,
+  listPublishedPosts,
   listRelatedPosts,
   registerPostView,
 } from '@/features/posts/queries';
@@ -53,11 +57,15 @@ export default async function PostPage({ params }: Props) {
   const user = await getCurrentUser();
   const profileId = user?.profile?.id ?? null;
 
-  const [related, sponsorLabel, comments] = await Promise.all([
+  const [related, sponsorLabel, comments, mostReadPosts, latestPosts] = await Promise.all([
     listRelatedPosts(post, 3),
     getSponsorLabel(post.id),
     listApprovedComments(post.id),
+    listMostReadPosts(5),
+    listPublishedPosts({ limit: 5 }),
   ]);
+  const mostRead = mostReadPosts.filter((item) => item.id !== post.id).slice(0, 4);
+  const latest = latestPosts.filter((item) => item.id !== post.id).slice(0, 4);
 
   void registerPostView(post.id);
 
@@ -80,7 +88,13 @@ export default async function PostPage({ params }: Props) {
     <article className="container-page py-8">
       <JsonLd data={schemas} />
 
-      <div className="mx-auto max-w-[760px]">
+      {/* Publicidade no topo do artigo: apenas mobile, antes da trilha. */}
+      <div className="mb-6 md:hidden">
+        <AdBanner placement="post_inline_mobile" ratio="aspect-[728/90]" />
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,760px)_280px] lg:items-start xl:gap-10">
+        <div className="min-w-0">
         {/* Breadcrumb */}
         <nav aria-label="Trilha" className="mb-4 text-xs font-semibold text-muted">
           <Link href="/" className="hover:text-brand">Início</Link>
@@ -96,9 +110,9 @@ export default async function PostPage({ params }: Props) {
           <span className="text-body">{post.title.slice(0, 40)}{post.title.length > 40 ? '…' : ''}</span>
         </nav>
 
-        {/* Cabeçalho centralizado */}
-        <header className="text-center">
-          <div className="flex flex-wrap justify-center gap-2">
+        {/* Cabeçalho */}
+        <header>
+          <div className="flex flex-wrap gap-2">
             {post.category && (
               <Link href={`/categorias/${post.category.slug}`}>
                 <Badge tone="brand">{post.category.name}</Badge>
@@ -108,15 +122,15 @@ export default async function PostPage({ params }: Props) {
             {post.content_type === 'publieditorial' && <Badge tone="warning">Publieditorial</Badge>}
           </div>
 
-          <h1 className="mx-auto mt-3 max-w-[16ch] font-headline text-[32px] font-extrabold leading-[1.18] text-title md:max-w-none md:text-[38px]">
+          <h1 className="mt-3 font-headline text-[32px] font-extrabold leading-[1.18] text-title md:text-[38px]">
             {post.title}
           </h1>
           {post.subtitle && (
-            <p className="mx-auto mt-3 max-w-[46ch] text-lg text-muted md:max-w-none">{post.subtitle}</p>
+            <p className="mt-3 text-lg text-muted">{post.subtitle}</p>
           )}
 
           {/* Assinatura: avatar-inicial + autor + datas */}
-          <div className="mt-5 flex items-center justify-center gap-3">
+          <div className="mt-5 flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft font-headline text-base font-extrabold text-brand-dark">
               {authorInitial}
             </span>
@@ -146,7 +160,7 @@ export default async function PostPage({ params }: Props) {
                 src={post.cover_image_url}
                 alt={post.cover_image_alt ?? post.title}
                 fill
-                sizes="(max-width:800px) 100vw, 760px"
+                sizes="(max-width:1024px) 100vw, 760px"
                 className="object-cover"
                 priority
               />
@@ -192,28 +206,108 @@ export default async function PostPage({ params }: Props) {
           </p>
         )}
 
-        {/* Banner inline */}
-        <div className="mt-8">
-          <AdBanner placement="post_inline_mobile" />
-        </div>
-
         {/* Comentários */}
         <div className="mt-8">
           <Comments postId={post.id} profileId={profileId} initialComments={comments} />
         </div>
-      </div>
 
-      {/* Leia também — largura total */}
-      {related.length > 0 && (
-        <section className="mx-auto mt-12 max-w-content">
-          <SectionTitle title="Leia também" />
-          <div className="grid gap-[18px] sm:grid-cols-3">
-            {related.map((p) => (
-              <PostCard key={p.id} post={p} variant="compact" />
-            ))}
-          </div>
-        </section>
-      )}
+          {related.length > 0 && (
+            <section className="mt-12">
+              <SectionTitle title="Leia também" />
+              <div className="grid gap-[18px] sm:grid-cols-2">
+                {related.map((p) => (
+                  <PostCard key={p.id} post={p} variant="compact" />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <aside className="space-y-5 lg:sticky lg:top-20">
+          <section className="card-base p-4">
+            <h2 className="mb-3 text-base font-extrabold text-title">Navegue</h2>
+            <nav aria-label="Navegação relacionada" className="space-y-1">
+              <Link
+                href="/noticias"
+                className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
+              >
+                <Icon icon="News01Icon" size={18} />
+                Mais notícias
+              </Link>
+              {post.category && (
+                <Link
+                  href={`/categorias/${post.category.slug}`}
+                  className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
+                >
+                  <Icon icon={post.category.icon_name ?? 'Tag01Icon'} size={18} />
+                  Mais em {post.category.name}
+                </Link>
+              )}
+              <Link
+                href="/eventos"
+                className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
+              >
+                <Icon icon="Calendar03Icon" size={18} />
+                Eventos
+              </Link>
+              <Link
+                href="/comunidades"
+                className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
+              >
+                <Icon icon="UserGroupIcon" size={18} />
+                Rede social
+              </Link>
+            </nav>
+          </section>
+
+          <section className="card-base p-4">
+            <h2 className="mb-3 text-base font-extrabold text-title">Mais lidos</h2>
+            {mostRead.length > 0 ? (
+              <ol className="space-y-1">
+                {mostRead.map((item, index) => (
+                  <li key={item.id}>
+                    <Link
+                      href={`/post/${item.slug}`}
+                      className="flex gap-3 rounded-[10px] p-2 hover:bg-surface"
+                    >
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-extrabold text-brand-dark">
+                        {index + 1}
+                      </span>
+                      <span className="line-clamp-2 text-sm font-bold leading-snug text-title hover:text-brand">
+                        {item.title}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-sm text-muted">Ainda não há outras notícias mais lidas.</p>
+            )}
+          </section>
+
+          <section className="card-base p-4">
+            <h2 className="mb-3 text-base font-extrabold text-title">Últimos posts</h2>
+            {latest.length > 0 ? (
+              <ul className="space-y-1">
+                {latest.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      href={`/post/${item.slug}`}
+                      className="block rounded-[10px] p-2 text-sm font-bold leading-snug text-title hover:bg-surface hover:text-brand"
+                    >
+                      <span className="line-clamp-2">{item.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted">Ainda não há outros posts publicados.</p>
+            )}
+          </section>
+
+          <AdCardGrid placement="post_sidebar" className="hidden lg:block" />
+        </aside>
+      </div>
     </article>
   );
 }

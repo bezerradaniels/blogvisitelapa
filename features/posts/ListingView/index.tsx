@@ -2,6 +2,7 @@
 import AdBanner from '@/components/AdBanner';
 import EmptyState from '@/components/EmptyState';
 import PostCard from '@/components/PostCard';
+import type { ReactNode } from 'react';
 import type { AdPlacement } from '@/types/ads';
 import type { PostWithRelations } from '@/types/posts';
 
@@ -11,6 +12,7 @@ interface ListingViewProps {
   posts: PostWithRelations[];
   adPlacement?: AdPlacement;
   emptyTitle?: string;
+  sidebar?: ReactNode;
 }
 
 export default function ListingView({
@@ -19,6 +21,7 @@ export default function ListingView({
   posts,
   adPlacement = 'category_top',
   emptyTitle = 'Nenhum conteúdo encontrado',
+  sidebar,
 }: ListingViewProps) {
   return (
     <div className="container-page space-y-6 py-6">
@@ -27,17 +30,22 @@ export default function ListingView({
         {description && <p className="max-w-2xl text-sm text-muted">{description}</p>}
       </header>
 
-      <AdBanner placement={adPlacement} />
+      <div className={sidebar ? 'grid gap-5 lg:grid-cols-[260px_1fr]' : undefined}>
+        {sidebar}
+        <div className="min-w-0 space-y-6">
+          <AdBanner placement={adPlacement} />
 
-      {posts.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {posts.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState title={emptyTitle} description="Novos conteúdos serão publicados em breve." />
+          )}
         </div>
-      ) : (
-        <EmptyState title={emptyTitle} description="Novos conteúdos serão publicados em breve." />
-      )}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import 'server-only';
 // Consultas de posts para o site público (Server Components).
 // RLS garante que só posts publicados/aprovados apareçam ao público.
 import { createClient } from '@/lib/supabase/server';
+import type { NewsFilterCategory } from '@/features/posts/NewsFilterSidebar';
 import type { PostWithRelations } from '@/types/posts';
 import type { ContentType } from '@/types/database';
 
@@ -185,13 +186,8 @@ export async function registerPostView(postId: string): Promise<void> {
 // Rótulo de patrocínio ativo do post (se houver).
 export async function getSponsorLabel(postId: string): Promise<string | null> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('sponsored_articles')
-    .select('label, is_active')
-    .eq('post_id', postId)
-    .eq('is_active', true)
-    .maybeSingle();
-  return data?.label ?? null;
+  const { data } = await supabase.rpc('get_sponsor_label', { p_post_id: postId });
+  return data ?? null;
 }
 
 // Categorias do carrossel fixo da home.
@@ -204,4 +200,15 @@ export async function listCarouselCategories() {
     .eq('status', 'active')
     .order('sort_order', { ascending: true });
   return data ?? [];
+}
+
+// Categorias exibidas como filtro da página de notícias.
+export async function listNewsFilterCategories(): Promise<NewsFilterCategory[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('categories')
+    .select('id, name, slug, icon_name')
+    .eq('status', 'active')
+    .order('sort_order', { ascending: true });
+  return (data ?? []) as NewsFilterCategory[];
 }

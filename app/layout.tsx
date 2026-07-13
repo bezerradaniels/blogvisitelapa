@@ -4,6 +4,7 @@ import CookieBanner from '@/components/CookieBanner';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import JsonLd from '@/components/JsonLd';
+import ScrollToTop from '@/components/ScrollToTop';
 import { fontBody, fontHeadline } from '@/lib/fonts';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { organizationSchema, websiteSchema } from '@/lib/seo/schema';
@@ -21,12 +22,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={cn(fontHeadline.variable, fontBody.variable)}>
-      <body className="min-h-screen bg-base font-body text-body antialiased">
+      <body className="flex min-h-dvh flex-col bg-base font-body text-body antialiased">
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <ScrollToTop />
         <ChromeGate>
           <Header />
         </ChromeGate>
-        <main className="min-h-[60vh]">{children}</main>
+        <main className="flex-1">{children}</main>
         <ChromeGate>
           <Footer />
         </ChromeGate>
