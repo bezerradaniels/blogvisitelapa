@@ -1,5 +1,6 @@
 // Rodapé com links institucionais e de confiança editorial.
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 import { footerNav, siteConfig } from '@/lib/config/site';
 
 export default function Footer() {
@@ -12,9 +13,7 @@ export default function Footer() {
     <footer className="mt-12 shrink-0 bg-title text-[#bfe8d3]">
       <div className="container-page grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
-          <span className="font-headline text-xl font-extrabold text-white">
-            Conecta<span className="text-mint2">Lapa</span>
-          </span>
+          <BrandLogo inverted />
           <p className="mt-2 text-xs text-white">
             {siteConfig.slogan}. Notícias, eventos e guia local de {siteConfig.geo.city},{' '}
             {siteConfig.geo.stateCode}.
