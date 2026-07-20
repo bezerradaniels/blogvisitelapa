@@ -251,7 +251,7 @@ export default async function PostPage({ params }: Props) {
                 Eventos
               </Link>
               <Link
-                href="/comunidades"
+                href="https://conectalapa.com.br/login-rede-social"
                 className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
               >
                 <Icon icon="UserGroupIcon" size={18} />

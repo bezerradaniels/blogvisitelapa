@@ -10,7 +10,7 @@ export default function Footer() {
   const headClass = 'mb-2 text-xs font-bold uppercase tracking-wide text-mint2';
 
   return (
-    <footer className="mt-12 shrink-0 bg-title text-[#bfe8d3]">
+    <footer className="shrink-0 bg-title text-[#bfe8d3]">
       <div className="container-page grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
           <BrandLogo inverted />

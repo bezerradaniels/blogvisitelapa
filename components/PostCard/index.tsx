@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/Badge';
-import { formatDate, titleCase } from '@/lib/utils/format';
 import type { PostWithRelations } from '@/types/posts';
 
 interface PostCardProps {
@@ -22,7 +21,6 @@ function categoryTone(slug?: string | null): BadgeTone {
 // Card de post reutilizável (listagens, home, relacionados).
 export default function PostCard({ post, variant = 'default' }: PostCardProps) {
   const href = `/post/${post.slug}`;
-  const date = post.published_at ?? post.created_at;
   const isFeatured = variant === 'featured';
   const isCompact = variant === 'compact';
 
@@ -64,11 +62,6 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
         {!isCompact && post.subtitle && (
           <p className="mt-1 line-clamp-2 text-xs text-muted md:text-sm">{post.subtitle}</p>
         )}
-        <div className="mt-2 flex items-center gap-2 text-xs text-muted">
-          {post.author?.full_name && <span>{titleCase(post.author.full_name)}</span>}
-          {post.author?.full_name && <span aria-hidden>·</span>}
-          <time dateTime={date}>{formatDate(date)}</time>
-        </div>
       </div>
     </article>
   );
