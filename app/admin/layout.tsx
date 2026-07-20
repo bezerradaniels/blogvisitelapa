@@ -19,8 +19,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div
-      // Painel usa o verde novo (#4de191) como cor de marca, sem afetar o site público.
-      style={{ '--color-brand': '#4de191' } as React.CSSProperties}
+      // Painel usa o verde novo (#22c55e) como cor de marca, sem afetar o site público.
+      style={{ '--color-brand': '#22c55e' } as React.CSSProperties}
       className="min-h-screen bg-base lg:grid lg:grid-cols-[250px_1fr]"
     >
       <aside className="lg:sticky lg:top-0 lg:h-screen">
