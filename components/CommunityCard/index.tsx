@@ -7,22 +7,21 @@ export default function CommunityCard({ community }: { community: CommunityWithO
   return (
     <Link
       href={`/comunidades/${community.slug}`}
-      className="card-hover card-base flex gap-3 p-3"
+      className="card-hover card-base flex w-full max-w-[320px] gap-3 p-3"
     >
-      <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-brand-soft font-headline text-xl font-extrabold text-brand-dark">
+      <span className="relative flex h-[78px] w-[78px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-brand-soft font-headline text-xl font-extrabold text-brand-dark">
         {community.avatar_url ? (
-          <Image src={community.avatar_url} alt="" fill sizes="56px" className="object-cover" />
+          <Image src={community.avatar_url} alt="" fill sizes="78px" className="object-cover" />
         ) : (
           community.name.charAt(0).toUpperCase()
         )}
       </span>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
-          <h3 className="truncate font-bold text-title">{community.name}</h3>
+          <h3 className="line-clamp-2 max-w-[200px] text-lg font-bold leading-tight text-title">
+            {community.name}
+          </h3>
         </div>
-        {community.description && (
-          <p className="mb-2 line-clamp-2 text-sm text-muted">{community.description}</p>
-        )}
         <div className="flex items-center gap-2 text-xs text-muted">
           <span>
             {community.member_count} {community.member_count === 1 ? 'membro' : 'membros'}

@@ -8,7 +8,7 @@ import { getSupabaseAnonKey, getSupabaseUrl } from './env';
 // Prefixos que exigem autenticação e/ou papel específico.
 const ADMIN_PREFIX = '/admin';
 const PUBLISHER_PREFIX = '/publisher';
-const AUTH_ONLY_PREFIXES = ['/perfil', '/favoritos'];
+const AUTH_ONLY_PREFIXES = ['/perfil', '/favoritos', '/comunidades'];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -43,8 +43,10 @@ export async function updateSession(request: NextRequest) {
   // Sem sessão em rota protegida → redireciona para login com retorno.
   if (needsAuth && !user) {
     const loginUrl = request.nextUrl.clone();
+    const requestedPath = `${pathname}${request.nextUrl.search}`;
     loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('redirect', pathname);
+    loginUrl.search = '';
+    loginUrl.searchParams.set('redirect', requestedPath);
     return NextResponse.redirect(loginUrl);
   }
 
