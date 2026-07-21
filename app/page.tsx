@@ -98,7 +98,7 @@ export default async function HomePage() {
                 <div className="grid gap-2 sm:grid-cols-3">
                   {latest.slice(0, 8).map((p) => (
                     <div key={p.id} className="w-full">
-                      <PostCard post={p} variant="mobile-horizontal" />
+                      <PostCard post={p} variant="mobile-horizontal" showSubtitle={false} />
                     </div>
                   ))}
                 </div>

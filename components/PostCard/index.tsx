@@ -6,6 +6,7 @@ import type { PostWithRelations } from '@/types/posts';
 interface PostCardProps {
   post: PostWithRelations;
   variant?: 'default' | 'compact' | 'featured' | 'hero-featured' | 'hero-side' | 'mobile-horizontal';
+  showSubtitle?: boolean;
 }
 
 // Cor do selo de categoria conforme o tema "Jardim".
@@ -19,7 +20,7 @@ function categoryTone(slug?: string | null): BadgeTone {
 }
 
 // Card de post reutilizável (listagens, home, relacionados).
-export default function PostCard({ post, variant = 'default' }: PostCardProps) {
+export default function PostCard({ post, variant = 'default', showSubtitle = true }: PostCardProps) {
   const href = `/post/${post.slug}`;
   const isFeatured = variant === 'featured' || variant === 'hero-featured';
   const isCompact = variant === 'compact';
@@ -62,7 +63,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
             {post.title}
           </h3>
         </Link>
-        {!isCompact && !isHeroSide && post.subtitle && (
+        {showSubtitle && !isCompact && !isHeroSide && post.subtitle && (
           <p className={`mt-1 line-clamp-2 text-xs text-muted md:text-sm ${isMobileHorizontal ? 'hidden sm:block' : ''}`}>{post.subtitle}</p>
         )}
       </div>
