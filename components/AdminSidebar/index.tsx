@@ -41,6 +41,7 @@ export default function AdminSidebar({
       items: [
         { href: '/admin', label: 'Visão geral' },
         { href: '/admin/posts', label: 'Posts' },
+        { href: '/admin/eventos-enviados', label: 'Eventos enviados' },
         { href: '/admin/categorias', label: 'Categorias' },
         { href: '/admin/tags', label: 'Tags' },
         { href: '/admin/secoes-home', label: 'Seções da homepage' },

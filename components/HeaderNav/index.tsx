@@ -3,11 +3,14 @@
 // Navegação desktop em pílulas, com destaque do item ativo.
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Icon from '@/components/Icon';
 import { cn } from '@/lib/utils/cn';
 
 interface NavItem {
   label: string;
   href: string;
+  icon?: string;
+  iconClassName?: string;
 }
 
 export default function HeaderNav({ items }: { items: readonly NavItem[] }) {
@@ -23,10 +26,11 @@ export default function HeaderNav({ items }: { items: readonly NavItem[] }) {
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'rounded-full px-3 py-2 text-sm font-bold transition-colors',
-              active ? 'bg-brand-soft text-title' : 'text-body hover:bg-surface hover:text-brand',
+              'flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-bold transition-colors',
+              active ? 'bg-slate-100 text-title' : 'text-body hover:bg-surface hover:text-brand',
             )}
           >
+            {item.icon && <Icon icon={item.icon} size={18} className={item.iconClassName} />}
             {item.label}
           </Link>
         );

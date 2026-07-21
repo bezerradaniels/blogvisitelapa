@@ -138,6 +138,91 @@ export async function moderatePost(
   return { ok: true };
 }
 
+export type EventSubmissionModerationAction = 'aprovar' | 'rejeitar';
+
+function eventDescriptionToHtml(description: string): string {
+  const escape = (value: string) => value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  return description
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${escape(paragraph).replace(/\n/g, '<br>')}</p>`)
+    .join('');
+}
+
+export async function moderateEventSubmission(
+  submissionId: string,
+  action: EventSubmissionModerationAction,
+): Promise<AdminActionResult> {
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito a administradores.' };
+  if (!z.string().uuid().safeParse(submissionId).success) return { ok: false, error: 'Envio inválido.' };
+
+  const { supabase, profileId } = ctx;
+  const { data: submission } = await supabase
+    .from('event_submissions')
+    .select('*')
+    .eq('id', submissionId)
+    .maybeSingle();
+
+  if (!submission) return { ok: false, error: 'Envio não encontrado.' };
+  if (submission.status !== 'pendente') return { ok: false, error: 'Este envio já foi analisado.' };
+
+  if (action === 'rejeitar') {
+    const { error } = await supabase.from('event_submissions').update({
+      status: 'rejeitado', reviewed_by: profileId, reviewed_at: new Date().toISOString(),
+    }).eq('id', submissionId);
+    if (error) return { ok: false, error: 'Não foi possível rejeitar o envio.' };
+    await logAudit(supabase, profileId, 'event_submission.reject', 'event_submissions', submissionId);
+    revalidatePath('/admin/eventos-enviados');
+    return { ok: true };
+  }
+
+  const { data: category } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', 'eventos')
+    .maybeSingle();
+  const slugBase = slugify(submission.title) || 'evento';
+  const slug = `${slugBase}-${submission.id.slice(0, 8)}`;
+  const { data: post, error: insertError } = await supabase.from('posts').insert({
+    title: submission.title,
+    slug,
+    excerpt: submission.description.slice(0, 280),
+    content_html: eventDescriptionToHtml(submission.description),
+    category_id: category?.id ?? null,
+    author_id: profileId,
+    reviewed_by: profileId,
+    status: 'publicado',
+    moderation_status: 'aprovado',
+    content_type: 'evento',
+    is_event: true,
+    event_start_date: submission.event_start_date,
+    event_end_date: submission.event_end_date,
+    event_location: submission.event_location,
+    event_address: submission.event_address,
+    event_ticket_price: submission.event_ticket_price,
+    event_organizer: submission.event_organizer,
+    event_is_free: submission.event_is_free,
+    published_at: new Date().toISOString(),
+  }).select('id').single();
+  if (insertError || !post) return { ok: false, error: 'Não foi possível publicar o evento.' };
+
+  const { error: updateError } = await supabase.from('event_submissions').update({
+    status: 'aprovado', reviewed_by: profileId, reviewed_at: new Date().toISOString(), published_post_id: post.id,
+  }).eq('id', submissionId);
+  if (updateError) return { ok: false, error: 'O evento foi publicado, mas não foi possível atualizar o envio.' };
+
+  await logAudit(supabase, profileId, 'event_submission.approve', 'event_submissions', submissionId);
+  revalidatePath('/admin/eventos-enviados');
+  revalidatePath('/eventos');
+  revalidatePath('/');
+  return { ok: true };
+}
+
 export type CommentModerationAction = 'aprovar' | 'rejeitar' | 'remover';
 
 export async function moderateComment(

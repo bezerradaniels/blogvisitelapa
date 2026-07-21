@@ -47,9 +47,10 @@ export function absoluteUrl(path = '/'): string {
 
 // Navegação principal (header e menu mobile).
 export const mainNav = [
-  { label: 'Notícias', href: '/noticias' },
-  { label: 'Eventos', href: '/eventos' },
-  { label: 'Rede Social', href: '/comunidades' },
+  { label: 'Notícias', href: '/noticias', icon: 'News01Icon', iconClassName: 'text-accent' },
+  { label: 'Eventos', href: '/eventos', icon: 'Calendar03Icon', iconClassName: 'text-info' },
+  { label: 'Rede Social', href: '/comunidades', icon: 'UserGroupIcon', iconClassName: 'text-brand' },
+  { label: 'Anuncie', href: '/anuncie', icon: 'Megaphone01Icon', iconClassName: 'text-highlight' },
 ] as const;
 
 // Rodapé — links institucionais e de confiança editorial.

@@ -23,10 +23,10 @@ export const sectionLandings: Record<string, LandingConfig> = {
   },
   eventos: {
     slug: 'eventos',
-    h1: `Eventos em ${city}`,
+    h1: `Eventos em ${city} e região`,
     seoTitle: `Eventos em ${city} (${uf}) — agenda cultural e religiosa`,
     seoDescription: `Agenda de eventos em ${city}: shows, festas, romarias, feiras e programação cultural da cidade.`,
-    intro: `Confira a agenda de eventos em ${city} — do religioso ao cultural, tudo o que vai acontecer na cidade.`,
+    intro: `Confira a agenda de eventos em ${city}, do religioso ao cultural, tudo o que vai acontecer na cidade.`,
   },
   'onde-comer': {
     slug: 'onde-comer',

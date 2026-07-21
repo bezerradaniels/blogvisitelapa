@@ -1,7 +1,6 @@
 // Cabeçalho responsivo do site.
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import Button from '@/components/Button';
 import HeaderNav from '@/components/HeaderNav';
 import Icon from '@/components/Icon';
 import MobileMenu from '@/components/MobileMenu';
@@ -39,12 +38,6 @@ export default async function Header() {
         {/* Ações */}
         <div className="flex items-center gap-2">
           <SearchModal />
-
-          <div className="hidden md:block">
-            <Button href="/anuncie" size="sm" variant="accent">
-              Anuncie
-            </Button>
-          </div>
 
           {user ? (
             <>

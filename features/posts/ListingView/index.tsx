@@ -13,6 +13,7 @@ interface ListingViewProps {
   adPlacement?: AdPlacement;
   emptyTitle?: string;
   sidebar?: ReactNode;
+  headerAction?: ReactNode;
 }
 
 export default function ListingView({
@@ -22,12 +23,16 @@ export default function ListingView({
   adPlacement = 'category_top',
   emptyTitle = 'Nenhum conteúdo encontrado',
   sidebar,
+  headerAction,
 }: ListingViewProps) {
   return (
     <div className="container-page space-y-6 py-6">
-      <header className="space-y-1">
-        <h1 className="text-xl font-extrabold text-title md:text-2xl">{title}</h1>
-        {description && <p className="max-w-2xl text-sm text-muted">{description}</p>}
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl font-extrabold text-title md:text-2xl">{title}</h1>
+          {description && <p className="max-w-2xl text-sm text-muted">{description}</p>}
+        </div>
+        {headerAction}
       </header>
 
       <div className={sidebar ? 'grid gap-5 lg:grid-cols-[260px_1fr]' : undefined}>

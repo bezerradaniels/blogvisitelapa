@@ -223,6 +223,7 @@ export interface Database {
           event_location: string | null;
           event_address: string | null;
           event_ticket_url: string | null;
+          event_ticket_price: string | null;
           event_organizer: string | null;
           event_map_url: string | null;
           event_is_free: boolean;
@@ -267,6 +268,7 @@ export interface Database {
           event_location?: string | null;
           event_address?: string | null;
           event_ticket_url?: string | null;
+          event_ticket_price?: string | null;
           event_organizer?: string | null;
           event_map_url?: string | null;
           event_is_free?: boolean;
@@ -290,6 +292,56 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['posts']['Insert']>;
+        Relationships: [];
+      };
+      event_submissions: {
+        Row: {
+          id: string;
+          submitter_profile_id: string | null;
+          submitter_name: string | null;
+          submitter_email: string | null;
+          submitter_whatsapp: string | null;
+          title: string;
+          description: string;
+          event_start_date: string;
+          event_end_date: string | null;
+          event_location: string;
+          event_address: string | null;
+          event_ticket_url: string | null;
+          event_ticket_price: string | null;
+          event_organizer: string;
+          event_is_free: boolean;
+          status: ModerationStatus;
+          reviewer_note: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          published_post_id: string | null;
+        } & WithTimestamps;
+        Insert: {
+          id?: string;
+          submitter_profile_id?: string | null;
+          submitter_name?: string | null;
+          submitter_email?: string | null;
+          submitter_whatsapp?: string | null;
+          title: string;
+          description: string;
+          event_start_date: string;
+          event_end_date?: string | null;
+          event_location: string;
+          event_address?: string | null;
+          event_ticket_url?: string | null;
+          event_ticket_price?: string | null;
+          event_organizer: string;
+          event_is_free?: boolean;
+          status?: ModerationStatus;
+          reviewer_note?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          published_post_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['event_submissions']['Insert']>;
         Relationships: [];
       };
       post_tags: {

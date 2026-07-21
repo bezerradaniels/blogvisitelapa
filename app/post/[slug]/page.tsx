@@ -181,6 +181,8 @@ export default async function PostPage({ params }: Props) {
             {post.event_organizer && <p><strong>Organização:</strong> {post.event_organizer}</p>}
             {post.event_is_free ? (
               <p><strong>Entrada:</strong> Gratuita</p>
+            ) : post.event_ticket_price ? (
+              <p><strong>Ingresso:</strong> {post.event_ticket_price}</p>
             ) : (
               post.event_ticket_url && (
                 <p><a className="text-brand underline" href={post.event_ticket_url} target="_blank" rel="noopener noreferrer">Ingressos</a></p>

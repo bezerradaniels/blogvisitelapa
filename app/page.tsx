@@ -105,11 +105,11 @@ export default async function HomePage() {
 
             <aside>
               <SectionTitle title="Mais lidas" />
-              <ol className="card-base divide-y divide-line">
+              <ol className="card-base divide-y divide-line overflow-hidden">
                 {mostRead.length > 0 ? (
                   mostRead.map((p, i) => (
-                    <li key={p.id}>
-                      <Link href={`/post/${p.slug}`} className="flex items-center gap-3 p-3 hover:bg-surface">
+                    <li key={p.id} className="transition-colors hover:bg-surface">
+                      <Link href={`/post/${p.slug}`} className="flex items-center gap-3 p-3">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft font-headline text-sm font-extrabold text-brand-dark">
                           {i + 1}
                         </span>

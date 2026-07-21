@@ -9,7 +9,7 @@ interface SectionTitleProps {
 // Título de seção da home/listagens, com link opcional "ver mais".
 export default function SectionTitle({ title, href, linkLabel = 'Ver tudo' }: SectionTitleProps) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="mb-4 flex items-center gap-3">
       <h2 className="flex items-center gap-2 text-xl font-extrabold text-title md:text-2xl">
         <span className="leaf-pill" aria-hidden />
         {title}

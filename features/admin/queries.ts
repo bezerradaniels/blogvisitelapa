@@ -61,6 +61,41 @@ export async function listPostAuthors(): Promise<PostAuthorOption[]> {
   return data ?? [];
 }
 
+export interface AdminEventSubmissionRow {
+  id: string;
+  title: string;
+  description: string;
+  event_start_date: string;
+  event_end_date: string | null;
+  event_location: string;
+  event_address: string | null;
+  event_ticket_url: string | null;
+  event_ticket_price: string | null;
+  event_organizer: string;
+  event_is_free: boolean;
+  submitter_name: string | null;
+  submitter_email: string | null;
+  submitter_whatsapp: string | null;
+  status: string;
+  created_at: string;
+}
+
+export async function listAdminEventSubmissions(filter = 'pendentes'): Promise<AdminEventSubmissionRow[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from('event_submissions')
+    .select('id, title, description, event_start_date, event_end_date, event_location, event_address, event_ticket_url, event_ticket_price, event_organizer, event_is_free, submitter_name, submitter_email, submitter_whatsapp, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const statuses: Record<string, 'pendente' | 'aprovado' | 'rejeitado'> = {
+    pendentes: 'pendente', aprovado: 'aprovado', rejeitado: 'rejeitado',
+  };
+  if (statuses[filter]) query = query.eq('status', statuses[filter]);
+  const { data } = await query;
+  return (data ?? []) as AdminEventSubmissionRow[];
+}
+
 export interface AdminCommentRow {
   id: string;
   content: string;

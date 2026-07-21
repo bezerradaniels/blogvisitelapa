@@ -10,6 +10,8 @@ import LogoutButton from '@/components/LogoutButton';
 interface NavItem {
   label: string;
   href: string;
+  icon?: string;
+  iconClassName?: string;
 }
 
 interface MobileMenuProps {
@@ -35,7 +37,7 @@ export default function MobileMenu({
     };
   }, [open]);
 
-  const linkClass = 'block rounded px-2 py-3 text-sm font-medium text-body hover:bg-surface';
+  const linkClass = 'flex items-center gap-2 rounded px-2 py-3 text-sm font-medium text-body hover:bg-surface';
 
   return (
     <div className="md:hidden">
@@ -75,6 +77,7 @@ export default function MobileMenu({
               {items.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} onClick={() => setOpen(false)} className={linkClass}>
+                    {item.icon && <Icon icon={item.icon} size={18} className={item.iconClassName} />}
                     {item.label}
                   </Link>
                 </li>
