@@ -50,10 +50,11 @@ export default async function HomePage() {
   ]);
 
   const hero = featuredList[0] ?? latest[0];
-  // Quando há só um destaque, os recentes completam a coluna lateral. Exclui o
-  // próprio hero para que um post destacado não apareça duas vezes na mesma faixa.
-  const secondarySource = featuredList.length > 1 ? featuredList.slice(1) : latest;
-  const secondary = secondarySource.filter((post) => post.id !== hero?.id).slice(0, 2);
+  // Os destaques seguintes preenchem a lateral; os mais recentes completam a
+  // faixa quando houver menos de três destaques. Nunca repete o post principal.
+  const secondary = [...featuredList, ...latest]
+    .filter((post, index, posts) => post.id !== hero?.id && posts.findIndex((item) => item.id === post.id) === index)
+    .slice(0, 2);
 
   return (
     <div className="bg-card">
@@ -61,13 +62,13 @@ export default async function HomePage() {
       <section aria-label="Destaques" className="bg-section">
         <div className="container-page py-8">
           {hero ? (
-            <div className="grid justify-start gap-4 md:grid-cols-[minmax(0,600px)_minmax(0,500px)]">
-              <div className="w-full max-w-[600px]">
-                <PostCard post={hero} variant="featured" />
+            <div className="grid gap-4 lg:h-[440px] lg:grid-cols-[minmax(0,1.67fr)_minmax(0,1fr)] lg:grid-rows-2 xl:h-[500px]">
+              <div className="lg:row-span-2">
+                <PostCard post={hero} variant="hero-featured" />
               </div>
-              <div className="grid w-full max-w-[500px] gap-4 md:grid-cols-1">
+              <div className="grid gap-4 lg:contents">
                 {secondary.map((p) => (
-                  <PostCard key={p.id} post={p} variant="compact" />
+                  <PostCard key={p.id} post={p} variant="hero-side" />
                 ))}
               </div>
             </div>
@@ -94,10 +95,10 @@ export default async function HomePage() {
             <div className="lg:col-span-2">
               <SectionTitle title="Últimas notícias" href="/noticias" linkLabel="ver todas" />
               {latest.length > 0 ? (
-                <div className="grid justify-start gap-[18px] sm:grid-cols-2">
+                <div className="grid gap-2 sm:grid-cols-3">
                   {latest.slice(0, 8).map((p) => (
-                    <div key={p.id} className="w-[250px]">
-                      <PostCard post={p} />
+                    <div key={p.id} className="w-full">
+                      <PostCard post={p} variant="mobile-horizontal" />
                     </div>
                   ))}
                 </div>

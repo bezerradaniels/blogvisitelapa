@@ -5,7 +5,7 @@ import type { PostWithRelations } from '@/types/posts';
 
 interface PostCardProps {
   post: PostWithRelations;
-  variant?: 'default' | 'compact' | 'featured';
+  variant?: 'default' | 'compact' | 'featured' | 'hero-featured' | 'hero-side' | 'mobile-horizontal';
 }
 
 // Cor do selo de categoria conforme o tema "Jardim".
@@ -21,13 +21,16 @@ function categoryTone(slug?: string | null): BadgeTone {
 // Card de post reutilizável (listagens, home, relacionados).
 export default function PostCard({ post, variant = 'default' }: PostCardProps) {
   const href = `/post/${post.slug}`;
-  const isFeatured = variant === 'featured';
+  const isFeatured = variant === 'featured' || variant === 'hero-featured';
   const isCompact = variant === 'compact';
+  const isHeroFeatured = variant === 'hero-featured';
+  const isHeroSide = variant === 'hero-side';
+  const isMobileHorizontal = variant === 'mobile-horizontal';
 
   return (
-    <article className="group card-base card-hover overflow-hidden">
-      <Link href={href} className="block">
-        <div className={`relative ${isCompact ? 'aspect-[16/10]' : 'aspect-[16/10]'} bg-surface`}>
+    <article className={`group card-base card-hover overflow-hidden ${isHeroFeatured || isHeroSide ? 'flex h-full flex-col' : ''} ${isMobileHorizontal ? 'flex sm:block' : ''}`}>
+      <Link href={href} className={`block ${isHeroFeatured || isHeroSide ? 'min-h-0 flex-1' : ''} ${isMobileHorizontal ? 'h-28 w-28 shrink-0 sm:h-auto sm:w-auto' : ''}`}>
+        <div className={`relative aspect-[16/10] bg-surface ${isHeroFeatured || isHeroSide ? 'h-full lg:aspect-auto' : ''} ${isMobileHorizontal ? 'h-full aspect-auto sm:h-auto sm:aspect-[16/10]' : ''}`}>
           {post.cover_image_url ? (
             <Image
               src={post.cover_image_url}
@@ -49,18 +52,18 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
         </div>
       </Link>
 
-      <div className={isCompact ? 'p-3' : 'p-4'}>
+      <div className={`${isCompact || isHeroSide ? 'p-3' : 'p-4'} ${isMobileHorizontal ? 'min-w-0 flex-1 p-3 sm:p-4' : ''}`}>
         <Link href={href}>
           <h3
             className={`font-bold text-title group-hover:text-brand md:!text-slate-800 ${
-              isFeatured ? 'text-lg md:text-2xl' : 'text-sm md:text-base'
+              isHeroFeatured ? 'text-lg md:text-2xl' : isFeatured ? 'text-lg md:text-2xl' : 'text-sm md:text-base'
             } line-clamp-3`}
           >
             {post.title}
           </h3>
         </Link>
-        {!isCompact && post.subtitle && (
-          <p className="mt-1 line-clamp-2 text-xs text-muted md:text-sm">{post.subtitle}</p>
+        {!isCompact && !isHeroSide && post.subtitle && (
+          <p className={`mt-1 line-clamp-2 text-xs text-muted md:text-sm ${isMobileHorizontal ? 'hidden sm:block' : ''}`}>{post.subtitle}</p>
         )}
       </div>
     </article>
