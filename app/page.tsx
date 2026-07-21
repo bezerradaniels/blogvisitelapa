@@ -50,7 +50,10 @@ export default async function HomePage() {
   ]);
 
   const hero = featuredList[0] ?? latest[0];
-  const secondary = (featuredList.length > 1 ? featuredList.slice(1) : latest.slice(1, 3)).slice(0, 2);
+  // Quando há só um destaque, os recentes completam a coluna lateral. Exclui o
+  // próprio hero para que um post destacado não apareça duas vezes na mesma faixa.
+  const secondarySource = featuredList.length > 1 ? featuredList.slice(1) : latest;
+  const secondary = secondarySource.filter((post) => post.id !== hero?.id).slice(0, 2);
 
   return (
     <div className="bg-card">
