@@ -1,4 +1,5 @@
 import ListingView from '@/features/posts/ListingView';
+import NewsExploreSidebar from '@/features/posts/NewsExploreSidebar';
 import NewsFilterSidebar from '@/features/posts/NewsFilterSidebar';
 import { listNewsFilterCategories, listPublishedPosts } from '@/features/posts/queries';
 import { sectionLandings } from '@/lib/config/landings';
@@ -30,7 +31,10 @@ export default async function NoticiasPage({ searchParams }: NoticiasPageProps) 
       description={cfg.intro}
       posts={posts}
       sidebar={<NewsFilterSidebar categories={newsCategories} activeCategory={activeCategory} />}
+      rightSidebar={<NewsExploreSidebar />}
       emptyTitle={activeCategory ? 'Nenhuma notícia nesta categoria' : undefined}
+      showSubtitles={false}
+      cardVariant="news-list"
     />
   );
 }

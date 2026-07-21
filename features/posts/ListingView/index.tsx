@@ -13,7 +13,10 @@ interface ListingViewProps {
   adPlacement?: AdPlacement;
   emptyTitle?: string;
   sidebar?: ReactNode;
+  rightSidebar?: ReactNode;
   headerAction?: ReactNode;
+  showSubtitles?: boolean;
+  cardVariant?: 'default' | 'news-list';
 }
 
 export default function ListingView({
@@ -23,7 +26,10 @@ export default function ListingView({
   adPlacement = 'category_top',
   emptyTitle = 'Nenhum conteúdo encontrado',
   sidebar,
+  rightSidebar,
   headerAction,
+  showSubtitles = true,
+  cardVariant = 'default',
 }: ListingViewProps) {
   return (
     <div className="container-page space-y-6 py-6">
@@ -35,21 +41,22 @@ export default function ListingView({
         {headerAction}
       </header>
 
-      <div className={sidebar ? 'grid gap-5 lg:grid-cols-[260px_1fr]' : undefined}>
+      <div className={sidebar || rightSidebar ? `grid min-w-0 gap-5 ${sidebar && rightSidebar ? 'lg:grid-cols-[260px_minmax(0,1fr)_280px]' : sidebar ? 'lg:grid-cols-[260px_1fr]' : 'lg:grid-cols-[minmax(0,1fr)_280px]'}` : undefined}>
         {sidebar}
         <div className="min-w-0 space-y-6">
           <AdBanner placement={adPlacement} />
 
           {posts.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={cardVariant === 'news-list' ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
               {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
+                <PostCard key={post.id} post={post} variant={cardVariant} showSubtitle={showSubtitles} />
               ))}
             </div>
           ) : (
             <EmptyState title={emptyTitle} description="Novos conteúdos serão publicados em breve." />
           )}
         </div>
+        {rightSidebar}
       </div>
     </div>
   );
