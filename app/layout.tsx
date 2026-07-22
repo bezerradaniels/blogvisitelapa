@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import ChromeGate from '@/components/ChromeGate';
 import CookieBanner from '@/components/CookieBanner';
 import Footer from '@/components/Footer';
+import GoogleTagManager from '@/components/GoogleTagManager';
 import Header from '@/components/Header';
 import JsonLd from '@/components/JsonLd';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={cn(fontHeadline.variable, fontBody.variable)}>
       <body className="flex min-h-dvh flex-col bg-base font-body text-body antialiased">
+        <GoogleTagManager />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <ScrollToTop />
         <ChromeGate>

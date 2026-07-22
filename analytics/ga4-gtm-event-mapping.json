@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "site": "Conecta Lapa",
+  "gtm_container_id": "GTM-T6SGJ6HB",
+  "ga4_measurement_id": "G-BBBES6KRCS",
+  "implementation": {
+    "data_layer": "window.dataLayer",
+    "trigger_type": "Custom Event",
+    "ga4_tag_template": "Google Analytics: GA4 Event",
+    "consent_requirement": "Disparar somente quando analytics_storage estiver granted.",
+    "required_gtm_variables": [
+      "DLV - content_type",
+      "DLV - item_id",
+      "DLV - item_name",
+      "DLV - content_category",
+      "DLV - item_list_id",
+      "DLV - item_list_name",
+      "DLV - search_term",
+      "DLV - method",
+      "DLV - form_name",
+      "DLV - placement",
+      "DLV - link_url"
+    ]
+  },
+  "events": [
+    {
+      "event": "view_item_list",
+      "ga4_classification": "recommended",
+      "trigger": "CE - view_item_list",
+      "source": "Listagens de notícias, categorias, busca e seções.",
+      "data_layer_example": {
+        "event": "view_item_list",
+        "item_list_id": "news_listing",
+        "item_list_name": "Notícias de Bom Jesus da Lapa",
+        "content_category": "cotidiano"
+      },
+      "ga4_parameters": ["item_list_id", "item_list_name", "content_category"]
+    },
+    {
+      "event": "select_item",
+      "ga4_classification": "recommended",
+      "trigger": "CE - select_item",
+      "source": "Clique em um card de notícia, evento ou conteúdo relacionado.",
+      "data_layer_example": {
+        "event": "select_item",
+        "content_type": "news_article",
+        "item_id": "post-id",
+        "item_name": "Título da notícia",
+        "content_category": "cotidiano",
+        "item_list_id": "news_listing",
+        "item_list_name": "Notícias de Bom Jesus da Lapa"
+      },
+      "ga4_parameters": ["content_type", "item_id", "item_name", "content_category", "item_list_id", "item_list_name"]
+    },
+    {
+      "event": "view_item",
+      "ga4_classification": "recommended",
+      "trigger": "CE - view_item",
+      "source": "Visualização da página de uma notícia ou evento.",
+      "data_layer_example": {
+        "event": "view_item",
+        "content_type": "news_article",
+        "item_id": "post-id",
+        "item_name": "Título da notícia",
+        "content_category": "cotidiano"
+      },
+      "ga4_parameters": ["content_type", "item_id", "item_name", "content_category"]
+    },
+    {
+      "event": "news_category_selected",
+      "ga4_classification": "custom",
+      "trigger": "CE - news_category_selected",
+      "source": "Escolha de categoria na área de notícias.",
+      "data_layer_example": {
+        "event": "news_category_selected",
+        "content_category": "cotidiano",
+        "item_list_id": "news_listing",
+        "item_list_name": "Notícias de Bom Jesus da Lapa"
+      },
+      "ga4_parameters": ["content_category", "item_list_id", "item_list_name"]
+    },
+    {
+      "event": "search",
+      "ga4_classification": "recommended",
+      "trigger": "CE - search",
+      "source": "Envio de busca pelo usuário.",
+      "data_layer_example": {
+        "event": "search",
+        "search_term": "romaria"
+      },
+      "ga4_parameters": ["search_term"]
+    },
+    {
+      "event": "login",
+      "ga4_classification": "recommended",
+      "trigger": "CE - login",
+      "source": "Login concluído com sucesso.",
+      "data_layer_example": {
+        "event": "login",
+        "method": "email"
+      },
+      "ga4_parameters": ["method"]
+    },
+    {
+      "event": "sign_up",
+      "ga4_classification": "recommended",
+      "trigger": "CE - sign_up",
+      "source": "Cadastro concluído com sucesso.",
+      "data_layer_example": {
+        "event": "sign_up",
+        "method": "email"
+      },
+      "ga4_parameters": ["method"]
+    },
+    {
+      "event": "generate_lead",
+      "ga4_classification": "recommended",
+      "trigger": "CE - generate_lead",
+      "source": "Envio de formulário de contato, anúncio ou evento.",
+      "data_layer_example": {
+        "event": "generate_lead",
+        "form_name": "anuncie"
+      },
+      "ga4_parameters": ["form_name"]
+    },
+    {
+      "event": "share",
+      "ga4_classification": "recommended",
+      "trigger": "CE - share",
+      "source": "Compartilhamento de notícia.",
+      "data_layer_example": {
+        "event": "share",
+        "content_type": "news_article",
+        "item_id": "post-id",
+        "item_name": "Título da notícia",
+        "method": "native_share"
+      },
+      "ga4_parameters": ["content_type", "item_id", "item_name", "method"]
+    },
+    {
+      "event": "ad_click",
+      "ga4_classification": "custom",
+      "trigger": "CE - ad_click",
+      "source": "Clique em publicidade comercial.",
+      "data_layer_example": {
+        "event": "ad_click",
+        "placement": "post_sidebar",
+        "link_url": "https://anunciante.exemplo"
+      },
+      "ga4_parameters": ["placement", "link_url"]
+    }
+  ],
+  "privacy": {
+    "do_not_send": ["email", "telefone", "nome", "endereço", "CPF", "IP", "qualquer dado pessoal identificável"],
+    "note": "Não envie PII ao GA4 ou ao GTM. Use apenas IDs internos não reversíveis e metadados editoriais."
+  }
+}
