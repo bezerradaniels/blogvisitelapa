@@ -1,157 +1,73 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "site": "Conecta Lapa",
+  "updated_at": "2026-08-01",
   "gtm_container_id": "GTM-T6SGJ6HB",
   "ga4_measurement_id": "G-BBBES6KRCS",
   "implementation": {
     "data_layer": "window.dataLayer",
+    "event_object": "event",
+    "parameters_object": "event_params",
     "trigger_type": "Custom Event",
-    "ga4_tag_template": "Google Analytics: GA4 Event",
-    "consent_requirement": "Disparar somente quando analytics_storage estiver granted.",
-    "required_gtm_variables": [
-      "DLV - content_type",
-      "DLV - item_id",
-      "DLV - item_name",
-      "DLV - content_category",
-      "DLV - item_list_id",
-      "DLV - item_list_name",
-      "DLV - search_term",
-      "DLV - method",
-      "DLV - form_name",
-      "DLV - placement",
-      "DLV - link_url"
-    ]
+    "success_only": true,
+    "note": "Limpe event_params com null antes de cada push. page_view e eventos de medição otimizada não entram no gatilho de eventos customizados."
+  },
+  "priorities": {
+    "P0": "Essencial para aquisição, conversão ou leitura principal",
+    "P1": "Importante para engajamento e otimização",
+    "P2": "Complementar para diagnóstico"
   },
   "events": [
-    {
-      "event": "view_item_list",
-      "ga4_classification": "recommended",
-      "trigger": "CE - view_item_list",
-      "source": "Listagens de notícias, categorias, busca e seções.",
-      "data_layer_example": {
-        "event": "view_item_list",
-        "item_list_id": "news_listing",
-        "item_list_name": "Notícias de Bom Jesus da Lapa",
-        "content_category": "cotidiano"
-      },
-      "ga4_parameters": ["item_list_id", "item_list_name", "content_category"]
-    },
-    {
-      "event": "select_item",
-      "ga4_classification": "recommended",
-      "trigger": "CE - select_item",
-      "source": "Clique em um card de notícia, evento ou conteúdo relacionado.",
-      "data_layer_example": {
-        "event": "select_item",
-        "content_type": "news_article",
-        "item_id": "post-id",
-        "item_name": "Título da notícia",
-        "content_category": "cotidiano",
-        "item_list_id": "news_listing",
-        "item_list_name": "Notícias de Bom Jesus da Lapa"
-      },
-      "ga4_parameters": ["content_type", "item_id", "item_name", "content_category", "item_list_id", "item_list_name"]
-    },
-    {
-      "event": "view_item",
-      "ga4_classification": "recommended",
-      "trigger": "CE - view_item",
-      "source": "Visualização da página de uma notícia ou evento.",
-      "data_layer_example": {
-        "event": "view_item",
-        "content_type": "news_article",
-        "item_id": "post-id",
-        "item_name": "Título da notícia",
-        "content_category": "cotidiano"
-      },
-      "ga4_parameters": ["content_type", "item_id", "item_name", "content_category"]
-    },
-    {
-      "event": "news_category_selected",
-      "ga4_classification": "custom",
-      "trigger": "CE - news_category_selected",
-      "source": "Escolha de categoria na área de notícias.",
-      "data_layer_example": {
-        "event": "news_category_selected",
-        "content_category": "cotidiano",
-        "item_list_id": "news_listing",
-        "item_list_name": "Notícias de Bom Jesus da Lapa"
-      },
-      "ga4_parameters": ["content_category", "item_list_id", "item_list_name"]
-    },
-    {
-      "event": "search",
-      "ga4_classification": "recommended",
-      "trigger": "CE - search",
-      "source": "Envio de busca pelo usuário.",
-      "data_layer_example": {
-        "event": "search",
-        "search_term": "romaria"
-      },
-      "ga4_parameters": ["search_term"]
-    },
-    {
-      "event": "login",
-      "ga4_classification": "recommended",
-      "trigger": "CE - login",
-      "source": "Login concluído com sucesso.",
-      "data_layer_example": {
-        "event": "login",
-        "method": "email"
-      },
-      "ga4_parameters": ["method"]
-    },
-    {
-      "event": "sign_up",
-      "ga4_classification": "recommended",
-      "trigger": "CE - sign_up",
-      "source": "Cadastro concluído com sucesso.",
-      "data_layer_example": {
-        "event": "sign_up",
-        "method": "email"
-      },
-      "ga4_parameters": ["method"]
-    },
-    {
-      "event": "generate_lead",
-      "ga4_classification": "recommended",
-      "trigger": "CE - generate_lead",
-      "source": "Envio de formulário de contato, anúncio ou evento.",
-      "data_layer_example": {
-        "event": "generate_lead",
-        "form_name": "anuncie"
-      },
-      "ga4_parameters": ["form_name"]
-    },
-    {
-      "event": "share",
-      "ga4_classification": "recommended",
-      "trigger": "CE - share",
-      "source": "Compartilhamento de notícia.",
-      "data_layer_example": {
-        "event": "share",
-        "content_type": "news_article",
-        "item_id": "post-id",
-        "item_name": "Título da notícia",
-        "method": "native_share"
-      },
-      "ga4_parameters": ["content_type", "item_id", "item_name", "method"]
-    },
-    {
-      "event": "ad_click",
-      "ga4_classification": "custom",
-      "trigger": "CE - ad_click",
-      "source": "Clique em publicidade comercial.",
-      "data_layer_example": {
-        "event": "ad_click",
-        "placement": "post_sidebar",
-        "link_url": "https://anunciante.exemplo"
-      },
-      "ga4_parameters": ["placement", "link_url"]
-    }
+    { "event": "page_view", "friendly_name": "Página visualizada", "area": "navegacao", "classification": "automatic", "priority": "P0", "key_event": false, "when": "Carregamento e mudança real de rota", "parameters": [] },
+    { "event": "content_list_view", "friendly_name": "Lista de conteúdos visualizada", "area": "conteudo", "classification": "custom", "priority": "P1", "key_event": false, "when": "Lista relevante fica visível", "parameters": ["item_list_id", "item_list_name", "content_category", "result_count"] },
+    { "event": "content_select", "friendly_name": "Conteúdo selecionado", "area": "conteudo", "classification": "custom", "priority": "P1", "key_event": false, "when": "Clique em card ou link editorial", "parameters": ["content_type", "item_id", "item_name", "item_list_id", "placement"] },
+    { "event": "content_view", "friendly_name": "Conteúdo visualizado", "area": "conteudo", "classification": "custom", "priority": "P0", "key_event": false, "when": "Abertura de conteúdo editorial", "parameters": ["content_type", "item_id", "item_name", "content_category"] },
+    { "event": "search", "friendly_name": "Busca realizada", "area": "busca", "classification": "recommended", "priority": "P0", "key_event": false, "when": "Busca enviada com termo não vazio", "parameters": ["search_term", "result_count"] },
+    { "event": "share", "friendly_name": "Conteúdo compartilhado", "area": "conteudo", "classification": "recommended", "priority": "P1", "key_event": false, "when": "Compartilhamento acionado", "parameters": ["content_type", "item_id", "method"] },
+    { "event": "favorite_add", "friendly_name": "Conteúdo favoritado", "area": "conteudo", "classification": "custom", "priority": "P1", "key_event": false, "when": "Favorito salvo com sucesso", "parameters": ["content_type", "item_id"] },
+    { "event": "favorite_remove", "friendly_name": "Conteúdo removido dos favoritos", "area": "conteudo", "classification": "custom", "priority": "P2", "key_event": false, "when": "Favorito removido com sucesso", "parameters": ["content_type", "item_id"] },
+    { "event": "content_rate", "friendly_name": "Conteúdo avaliado", "area": "conteudo", "classification": "custom", "priority": "P1", "key_event": false, "when": "Nota registrada com sucesso", "parameters": ["content_type", "item_id", "rating_value"] },
+    { "event": "comment_submit", "friendly_name": "Comentário enviado", "area": "conteudo", "classification": "custom", "priority": "P1", "key_event": false, "when": "Comentário enviado para moderação", "parameters": ["content_type", "item_id"] },
+    { "event": "event_ticket_click", "friendly_name": "Clique em ingressos", "area": "evento", "classification": "custom", "priority": "P1", "key_event": false, "when": "Clique no link de ingressos", "parameters": ["item_id", "link_url", "is_free"] },
+    { "event": "event_map_click", "friendly_name": "Clique em como chegar", "area": "evento", "classification": "custom", "priority": "P2", "key_event": false, "when": "Clique no mapa do evento", "parameters": ["item_id", "link_url"] },
+    { "event": "outbound_click", "friendly_name": "Link externo acessado", "area": "navegacao", "classification": "custom", "priority": "P1", "key_event": false, "when": "Clique externo relevante não coberto por outro evento", "parameters": ["link_url", "placement"] },
+    { "event": "sign_up", "friendly_name": "Cadastro concluído", "area": "conta", "classification": "recommended", "priority": "P0", "key_event": true, "when": "Conta aceita pelo provedor", "parameters": ["method", "user_state"] },
+    { "event": "login", "friendly_name": "Login concluído", "area": "conta", "classification": "recommended", "priority": "P0", "key_event": false, "when": "Autenticação concluída", "parameters": ["method", "user_state"] },
+    { "event": "logout", "friendly_name": "Logout concluído", "area": "conta", "classification": "custom", "priority": "P2", "key_event": false, "when": "Sessão encerrada", "parameters": ["method"] },
+    { "event": "password_reset_requested", "friendly_name": "Recuperação de senha solicitada", "area": "conta", "classification": "custom", "priority": "P2", "key_event": false, "when": "Solicitação aceita", "parameters": ["method"] },
+    { "event": "contact_submit", "friendly_name": "Contato enviado", "area": "relacionamento", "classification": "custom", "priority": "P0", "key_event": true, "when": "Contato salvo com sucesso", "parameters": ["form_name", "user_state"] },
+    { "event": "generate_lead", "friendly_name": "Interesse em anunciar enviado", "area": "comercial", "classification": "recommended", "priority": "P0", "key_event": true, "when": "Lead comercial salvo com sucesso", "parameters": ["form_name", "content_category", "user_state"] },
+    { "event": "event_submit", "friendly_name": "Evento enviado para aprovação", "area": "evento", "classification": "custom", "priority": "P0", "key_event": true, "when": "Sugestão de evento salva com sucesso", "parameters": ["form_name", "user_state", "is_free"] },
+    { "event": "ad_impression", "friendly_name": "Anúncio visualizado", "area": "publicidade", "classification": "custom", "priority": "P1", "key_event": false, "when": "50% visível por 1 segundo", "parameters": ["ad_campaign_id", "placement"] },
+    { "event": "ad_click", "friendly_name": "Anúncio clicado", "area": "publicidade", "classification": "custom", "priority": "P0", "key_event": false, "when": "Clique na peça publicitária", "parameters": ["ad_campaign_id", "placement", "link_url"] },
+    { "event": "profile_view", "friendly_name": "Perfil público visualizado", "area": "perfil", "classification": "custom", "priority": "P1", "key_event": false, "when": "Perfil público permitido é aberto", "parameters": ["item_id", "user_state"] },
+    { "event": "profile_update", "friendly_name": "Perfil atualizado", "area": "perfil", "classification": "custom", "priority": "P1", "key_event": false, "when": "Perfil próprio salvo com sucesso", "parameters": ["form_name"] },
+    { "event": "friend_request_sent", "friendly_name": "Pedido de amizade enviado", "area": "amizade", "classification": "custom", "priority": "P1", "key_event": false, "when": "Pedido criado com sucesso", "parameters": ["user_state"] },
+    { "event": "friend_request_accepted", "friendly_name": "Pedido de amizade aceito", "area": "amizade", "classification": "custom", "priority": "P1", "key_event": false, "when": "Pedido aceito com sucesso", "parameters": ["user_state"] },
+    { "event": "message_sent", "friendly_name": "Mensagem enviada", "area": "mensagens", "classification": "custom", "priority": "P1", "key_event": false, "when": "Mensagem privada salva com sucesso", "parameters": ["interaction_type"] },
+    { "event": "community_view", "friendly_name": "Comunidade visualizada", "area": "comunidades", "classification": "custom", "priority": "P1", "key_event": false, "when": "Página da comunidade é aberta", "parameters": ["group_id", "item_name", "user_state"] },
+    { "event": "join_group", "friendly_name": "Entrou em comunidade", "area": "comunidades", "classification": "recommended", "priority": "P1", "key_event": false, "key_event_optional": true, "when": "Entrada concluída com sucesso", "parameters": ["group_id"] },
+    { "event": "leave_group", "friendly_name": "Saiu de comunidade", "area": "comunidades", "classification": "custom", "priority": "P2", "key_event": false, "when": "Saída concluída com sucesso", "parameters": ["group_id"] },
+    { "event": "community_create", "friendly_name": "Comunidade criada", "area": "comunidades", "classification": "custom", "priority": "P0", "key_event": false, "key_event_optional": true, "when": "Comunidade criada com sucesso", "parameters": ["group_id", "content_category"] },
+    { "event": "topic_create", "friendly_name": "Tópico criado", "area": "comunidades", "classification": "custom", "priority": "P1", "key_event": false, "when": "Tópico criado com sucesso", "parameters": ["group_id", "item_id"] },
+    { "event": "topic_reply", "friendly_name": "Resposta em tópico enviada", "area": "comunidades", "classification": "custom", "priority": "P1", "key_event": false, "when": "Resposta publicada com sucesso", "parameters": ["group_id", "item_id"] },
+    { "event": "social_post_create", "friendly_name": "Publicação criada", "area": "rede_social", "classification": "custom", "priority": "P0", "key_event": false, "key_event_optional": true, "when": "Publicação criada com sucesso", "parameters": ["content_type", "item_id"] },
+    { "event": "social_post_interaction", "friendly_name": "Interação com publicação", "area": "rede_social", "classification": "custom", "priority": "P1", "key_event": false, "when": "Interação social concluída com sucesso", "parameters": ["item_id", "interaction_type"] },
+    { "event": "photo_upload", "friendly_name": "Fotos adicionadas", "area": "fotos", "classification": "custom", "priority": "P1", "key_event": false, "when": "Upload e vínculo ao álbum concluídos", "parameters": ["item_id", "photo_count"] },
+    { "event": "notification_open", "friendly_name": "Notificação aberta", "area": "notificacoes", "classification": "custom", "priority": "P2", "key_event": false, "when": "Notificação leva ao destino", "parameters": ["content_type", "item_id"] }
+  ],
+  "allowed_parameters": [
+    "content_type", "item_id", "item_name", "content_category", "item_list_id", "item_list_name",
+    "search_term", "method", "form_name", "placement", "link_url", "ad_campaign_id", "rating_value",
+    "group_id", "interaction_type", "user_state", "result_count", "is_free", "photo_count"
   ],
   "privacy": {
-    "do_not_send": ["email", "telefone", "nome", "endereço", "CPF", "IP", "qualquer dado pessoal identificável"],
-    "note": "Não envie PII ao GA4 ou ao GTM. Use apenas IDs internos não reversíveis e metadados editoriais."
+    "do_not_send": [
+      "email", "telefone", "whatsapp", "nome de pessoa", "endereco", "cpf", "ip",
+      "data de nascimento", "texto de mensagem", "texto de comentario", "qualquer PII"
+    ],
+    "search_term": "Sanear e limitar a 100 caracteres; descartar se aparentar conter PII.",
+    "link_url": "Remover query string e fragmento quando puderem carregar identificadores.",
+    "note": "Use apenas IDs internos não reversíveis e metadados editoriais não pessoais."
   }
 }
