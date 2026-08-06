@@ -27,7 +27,9 @@ export default function ContactForm() {
       <Input name="subject" label="Assunto" placeholder="Sugestão, correção, pauta, dúvida..." />
       <Textarea name="message" label="Mensagem" rows={5} required />
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
-      <Button variant="primary">{pending ? 'Enviando...' : 'Enviar mensagem'}</Button>
+      <Button variant="primary" disabled={pending}>
+        {pending ? 'Enviando...' : 'Enviar mensagem'}
+      </Button>
     </form>
   );
 }

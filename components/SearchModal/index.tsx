@@ -77,6 +77,13 @@ export default function SearchModal() {
                 className="h-11 w-full bg-transparent text-sm outline-none"
               />
               <button
+                type="submit"
+                aria-label="Pesquisar"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-brand text-white hover:bg-brand-dark"
+              >
+                <Icon icon="Search01Icon" size={18} />
+              </button>
+              <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Fechar busca"

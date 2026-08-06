@@ -24,8 +24,14 @@ export default function NewsFilterSidebar({ categories, activeCategory }: NewsFi
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
     return () => {
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', closeOnEscape);
     };
   }, [open]);
 

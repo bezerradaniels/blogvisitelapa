@@ -50,7 +50,9 @@ export default function AdvertiserForm() {
       </div>
       <Textarea name="message" label="Mensagem" rows={4} />
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
-      <Button variant="primary">{pending ? 'Enviando...' : 'Quero anunciar'}</Button>
+      <Button variant="primary" disabled={pending}>
+        {pending ? 'Enviando...' : 'Quero anunciar'}
+      </Button>
     </form>
   );
 }

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { createClient } from '@/lib/supabase/client';
+import { safeInternalRedirect } from '@/lib/auth/redirect';
 import { absoluteUrl } from '@/lib/config/site';
 
 interface AuthFormProps {
@@ -17,7 +18,7 @@ interface AuthFormProps {
 export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps) {
   const router = useRouter();
   const params = useSearchParams();
-  const redirect = params.get('redirect') ?? defaultRedirect;
+  const redirect = safeInternalRedirect(params.get('redirect'), defaultRedirect);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,6 +31,7 @@ export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps)
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setError(null);
     setNotice(null);
 
@@ -64,13 +66,18 @@ export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps)
   }
 
   async function handleGoogle() {
+    if (loading) return;
     setError(null);
+    setLoading(true);
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: absoluteUrl(`/auth/callback?redirect=${encodeURIComponent(redirect)}`) },
     });
-    if (err) setError('Não foi possível conectar com o Google.');
+    if (err) {
+      setLoading(false);
+      setError('Não foi possível conectar com o Google.');
+    }
   }
 
   return (
@@ -78,9 +85,10 @@ export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps)
       <button
         type="button"
         onClick={handleGoogle}
+        disabled={loading}
         className="flex h-10 w-full items-center justify-center gap-2 rounded border border-line bg-card text-sm font-medium hover:bg-surface"
       >
-        Continuar com o Google
+        {loading ? 'Aguarde...' : 'Continuar com o Google'}
       </button>
 
       <div className="flex items-center gap-3 text-xs text-muted">
@@ -149,7 +157,7 @@ export default function AuthForm({ mode, defaultRedirect = '/' }: AuthFormProps)
 
         {error && <p className="text-sm text-danger">{error}</p>}
         {notice && <p className="text-sm text-brand-dark">{notice}</p>}
-        <Button variant="primary" className="w-full">
+        <Button variant="primary" className="w-full" disabled={loading}>
           {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
         </Button>
       </form>

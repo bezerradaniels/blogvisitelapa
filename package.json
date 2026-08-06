@@ -21,21 +21,21 @@
     "@hugeicons/react": "^1.0.5",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
-    "@types/node": "^24.0.0",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
-    "@types/sanitize-html": "^2.13.0",
     "@tiptap/extension-image": "^2.11.5",
     "@tiptap/extension-link": "^2.11.5",
     "@tiptap/extension-placeholder": "^2.11.5",
     "@tiptap/pm": "^2.11.5",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@types/sanitize-html": "^2.13.0",
+    "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "next": "^16.2.10",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.1",
+    "next": "^16.3.0",
+    "postcss": "^8.5.26",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "sanitize-html": "^2.14.0",
@@ -46,6 +46,6 @@
   },
   "devDependencies": {
     "eslint": "^9.18.0",
-    "eslint-config-next": "^16.2.10"
+    "eslint-config-next": "^16.3.0"
   }
 }

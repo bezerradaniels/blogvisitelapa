@@ -8,7 +8,7 @@ import { getSupabaseAnonKey, getSupabaseUrl } from './env';
 // Prefixos que exigem autenticação e/ou papel específico.
 const ADMIN_PREFIX = '/admin';
 const PUBLISHER_PREFIX = '/publisher';
-const AUTH_ONLY_PREFIXES = ['/perfil', '/favoritos', '/comunidades'];
+const AUTH_ONLY_PREFIXES = ['/perfil', '/favoritos'];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

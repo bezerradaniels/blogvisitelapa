@@ -1,9 +1,9 @@
-// Middleware raiz do Next.js.
+// Proxy raiz do Next.js.
 // Renova a sessão do Supabase e aplica a proteção de rotas por papel.
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return updateSession(request);
 }
 
