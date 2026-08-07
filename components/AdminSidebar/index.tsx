@@ -41,6 +41,8 @@ export default function AdminSidebar({
         { href: '/admin', label: 'Painel' },
         { href: '/admin/posts', label: 'Posts' },
         { href: '/admin/posts/novo', label: 'Adicionar novo' },
+        { href: '/admin/eventos', label: 'Eventos' },
+        { href: '/admin/eventos/novo', label: 'Adicionar evento' },
         { href: '/admin/eventos-enviados', label: 'Eventos enviados' },
         { href: '/admin/categorias', label: 'Categorias' },
         { href: '/admin/tags', label: 'Tags' },
@@ -85,6 +87,8 @@ export default function AdminSidebar({
     if (href === '/admin' || href === '/admin/comercial') return pathname === href;
     if (href === '/admin/posts/novo') return pathname === href;
     if (href === '/admin/posts' && pathname === '/admin/posts/novo') return false;
+    if (href === '/admin/eventos/novo') return pathname === href;
+    if (href === '/admin/eventos' && pathname === '/admin/eventos/novo') return false;
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 

@@ -44,10 +44,10 @@ export default async function AdminPostsPage({ searchParams }: Props) {
   const month = params.mes ?? '';
   const requestedPage = Math.max(1, Number.parseInt(params.pagina ?? '1', 10) || 1);
   const [{ posts, count, page, pageSize }, authors, categories, counts] = await Promise.all([
-    listAdminPosts({ filter: filtro, term: q, authorId, categoryId, month, page: requestedPage }),
+    listAdminPosts({ filter: filtro, term: q, authorId, categoryId, month, page: requestedPage, isEvent: false }),
     listPostAuthors(),
     listPostCategories(),
-    countAdminPosts(),
+    countAdminPosts(false),
   ]);
   const totalPages = Math.max(1, Math.ceil(count / pageSize));
   const currentParams = Object.fromEntries(Object.entries({ filtro, q, autor: authorId, categoria: categoryId, mes: month }).filter(([, value]) => value));

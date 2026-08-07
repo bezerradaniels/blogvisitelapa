@@ -27,6 +27,7 @@ interface PostFormProps {
   initial?: PostFormInitial;
   canPublish: boolean;
   adminMode?: boolean;
+  eventMode?: boolean;
 }
 
 const contentTypes = [
@@ -40,7 +41,9 @@ const contentTypes = [
   { value: 'religiosidade', label: 'Religiosidade' },
 ];
 
-export default function PostForm({ categories, initial, canPublish, adminMode = false }: PostFormProps) {
+const adminPostContentTypes = contentTypes.filter((type) => type.value !== 'evento');
+
+export default function PostForm({ categories, initial, canPublish, adminMode = false, eventMode = false }: PostFormProps) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -65,14 +68,14 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
   // Categorias em estado local para refletir criações inline no dropdown.
   const [cats, setCats] = useState<CategoryOption[]>(categories);
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? '');
+  const [isEvent, setIsEvent] = useState(eventMode || Boolean(initial?.is_event));
   const [contentType, setContentType] = useState<PostInput['content_type']>(
-    (initial?.content_type as PostInput['content_type']) ?? 'noticia',
+    isEvent ? 'evento' : (initial?.content_type as PostInput['content_type']) ?? 'noticia',
   );
   const [tags, setTags] = useState(initial?.tags ?? '');
 
   const [isFeatured, setIsFeatured] = useState(initial?.is_featured ?? false);
   const [isSponsored, setIsSponsored] = useState(initial?.is_sponsored ?? false);
-  const [isEvent, setIsEvent] = useState(initial?.is_event ?? false);
 
   const [eventStart, setEventStart] = useState(initial?.event_start_date ?? '');
   const [eventEnd, setEventEnd] = useState(initial?.event_end_date ?? '');
@@ -150,7 +153,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
         setError(result.error ?? 'Erro ao salvar.');
         return;
       }
-      router.push(adminMode ? '/admin/posts' : '/publisher');
+      router.push(adminMode && isEvent ? '/admin/eventos' : adminMode ? '/admin/posts' : '/publisher');
       router.refresh();
     });
   }
@@ -180,7 +183,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
       {/* Coluna principal */}
       <div className="space-y-4">
         <div className={`${section} ${adminMode ? 'admin-editor-main-title' : ''}`}>
-          <Input label="Título do post" value={title} onChange={(e) => onTitleChange(e.target.value)} required />
+          <Input label={isEvent ? 'Título do evento' : 'Título do post'} value={title} onChange={(e) => onTitleChange(e.target.value)} required />
           <Input label="Subtítulo" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
           <Input
             label="Slug (URL)"
@@ -290,12 +293,16 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
               setCategoryId(c.id);
             }}
           />
-          <Select
-            label="Tipo de conteúdo"
-            value={contentType}
-            onChange={(e) => setContentType(e.target.value as PostInput['content_type'])}
-            options={contentTypes}
-          />
+          {isEvent ? (
+            <p className="text-xs text-muted">Tipo de conteúdo: <strong className="font-semibold text-title">Evento</strong></p>
+          ) : (
+            <Select
+              label="Tipo de conteúdo"
+              value={contentType}
+              onChange={(e) => setContentType(e.target.value as PostInput['content_type'])}
+              options={adminMode ? adminPostContentTypes : contentTypes}
+            />
+          )}
           <Input label="Tags (separadas por vírgula)" value={tags} onChange={(e) => setTags(e.target.value)} />
         </div>
 
@@ -303,7 +310,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
           <span className={sectionTitle}>Opções</span>
           <Checkbox label="Marcar como destaque" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} />
           <Checkbox label="Marcar como patrocinado" checked={isSponsored} onChange={(e) => setIsSponsored(e.target.checked)} />
-          <Checkbox label="É um evento" checked={isEvent} onChange={(e) => setIsEvent(e.target.checked)} />
+          {!adminMode && <Checkbox label="É um evento" checked={isEvent} onChange={(e) => setIsEvent(e.target.checked)} />}
           <hr className="border-line" />
           <Checkbox label="Permitir indexação" checked={allowIndexing} onChange={(e) => setAllowIndexing(e.target.checked)} />
           <Checkbox label="Incluir no sitemap" checked={includeSitemap} onChange={(e) => setIncludeSitemap(e.target.checked)} />

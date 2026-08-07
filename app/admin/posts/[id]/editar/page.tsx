@@ -18,7 +18,10 @@ export default async function AdminEditarPostPage({ params }: Props) {
 
   return (
     <div className="space-y-4">
-      <AdminPageHeader title="Editar post" description="Atualize o conteúdo, a classificação e as opções editoriais." />
+      <AdminPageHeader
+        title={initial.is_event ? 'Editar evento' : 'Editar post'}
+        description={initial.is_event ? 'Atualize os dados, o conteúdo e as opções de publicação do evento.' : 'Atualize o conteúdo, a classificação e as opções editoriais.'}
+      />
       <PostForm categories={categories} initial={initial} canPublish adminMode />
     </div>
   );

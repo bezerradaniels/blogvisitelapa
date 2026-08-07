@@ -35,6 +35,7 @@ export interface AdminPostFilters {
   month?: string;
   page?: number;
   pageSize?: number;
+  isEvent?: boolean;
 }
 
 export interface AdminPostListResult {
@@ -45,7 +46,7 @@ export interface AdminPostListResult {
 }
 
 export async function listAdminPosts({
-  filter = 'todos', term = '', authorId = '', categoryId = '', month = '', page = 1, pageSize = 20,
+  filter = 'todos', term = '', authorId = '', categoryId = '', month = '', page = 1, pageSize = 20, isEvent,
 }: AdminPostFilters = {}): Promise<AdminPostListResult> {
   const supabase = await createClient();
   let query = supabase
@@ -57,6 +58,7 @@ export async function listAdminPosts({
     .order('updated_at', { ascending: false });
 
   const status = POST_STATUS_FILTER[filter];
+  if (typeof isEvent === 'boolean') query = query.eq('is_event', isEvent);
   if (status) query = query.eq('status', status as 'publicado');
   if (filter === 'aprovacao') query = query.eq('moderation_status', 'pendente');
   if (term.trim()) query = query.ilike('title', `%${term.trim()}%`);
@@ -76,10 +78,11 @@ export async function listAdminPosts({
   return { posts: (data ?? []) as unknown as AdminPostRow[], count: count ?? 0, page: safePage, pageSize };
 }
 
-export async function countAdminPosts(): Promise<Record<string, number>> {
+export async function countAdminPosts(isEvent?: boolean): Promise<Record<string, number>> {
   const supabase = await createClient();
   const count = async (column?: 'status' | 'moderation_status', value?: string) => {
     let query = supabase.from('posts').select('id', { count: 'exact', head: true });
+    if (typeof isEvent === 'boolean') query = query.eq('is_event', isEvent);
     if (column === 'status' && value) query = query.eq('status', value as PostStatus);
     if (column === 'moderation_status' && value) query = query.eq('moderation_status', value as ModerationStatus);
     const { count: total } = await query;
