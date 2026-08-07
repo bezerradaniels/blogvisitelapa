@@ -49,6 +49,7 @@ const config: Config = {
       fontFamily: {
         headline: 'var(--font-headline)',
         body: 'var(--font-body)',
+        logo: 'var(--font-logo)',
       },
       fontSize: {
         // Escala mobile-first (o desktop aumenta via utilitários md:).

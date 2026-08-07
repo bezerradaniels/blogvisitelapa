@@ -6,8 +6,8 @@
   Design tokens do Conecta Lapa.
   Tudo aqui em variáveis CSS para manter o tema em um único lugar.
 
-  Fontes: usamos next/font (Baloo 2 p/ títulos, Figtree p/ corpo) e injetamos
-  as famílias nas variáveis --font-headline / --font-body a partir do <html>.
+  Fontes: usamos next/font (Figtree em toda a interface e Baloo 2 apenas na logo)
+  e injetamos as famílias pelas variáveis a partir do <html>.
   Para adotar a "Stack Sans" licenciada no futuro, declare os @font-face e
   sobrescreva as duas variáveis abaixo — nenhum componente precisa mudar.
 */
@@ -54,8 +54,9 @@
   --shadow-card: 0 2px 0 rgba(20, 56, 42, 0.08);
 
   /* Fontes (fallback antes do next/font hidratar) */
-  --font-headline: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-headline: var(--font-body);
   --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-logo: 'Baloo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 @layer base {

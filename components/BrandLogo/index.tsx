@@ -11,7 +11,7 @@ export default function BrandLogo({ inverted = false, className }: BrandLogoProp
   return (
     <span
       className={cn(
-        'font-headline text-xl font-extrabold',
+        'font-logo text-xl font-extrabold',
         inverted ? 'text-white' : 'text-title',
         className,
       )}

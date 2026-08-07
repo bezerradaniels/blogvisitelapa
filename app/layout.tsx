@@ -6,7 +6,7 @@ import GoogleTagManager from '@/components/GoogleTagManager';
 import Header from '@/components/Header';
 import JsonLd from '@/components/JsonLd';
 import ScrollToTop from '@/components/ScrollToTop';
-import { fontBody, fontHeadline } from '@/lib/fonts';
+import { fontBody, fontLogo } from '@/lib/fonts';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { organizationSchema, websiteSchema } from '@/lib/seo/schema';
 import { cn } from '@/lib/utils/cn';
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={cn(fontHeadline.variable, fontBody.variable)}>
+    <html lang="pt-BR" className={cn(fontBody.variable, fontLogo.variable)}>
       <body className="flex min-h-dvh flex-col bg-base font-body text-body antialiased">
         <GoogleTagManager />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
