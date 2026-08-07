@@ -16,7 +16,7 @@ interface ListingViewProps {
   rightSidebar?: ReactNode;
   headerAction?: ReactNode;
   showSubtitles?: boolean;
-  cardVariant?: 'default' | 'news-list';
+  cardVariant?: 'default' | 'news-list' | 'editorial-grid';
 }
 
 export default function ListingView({
@@ -47,7 +47,7 @@ export default function ListingView({
           <AdBanner placement={adPlacement} />
 
           {posts.length > 0 ? (
-            <div className={cardVariant === 'news-list' ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
+            <div className={cardVariant === 'news-list' ? 'grid gap-3' : cardVariant === 'editorial-grid' ? 'grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'}>
               {posts.map((post) => (
                 <PostCard key={post.id} post={post} variant={cardVariant} showSubtitle={showSubtitles} />
               ))}

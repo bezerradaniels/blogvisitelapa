@@ -2,10 +2,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/Badge';
 import type { PostWithRelations } from '@/types/posts';
+import { formatDate } from '@/lib/utils/format';
 
 interface PostCardProps {
   post: PostWithRelations;
-  variant?: 'default' | 'compact' | 'featured' | 'hero-featured' | 'hero-side' | 'mobile-horizontal' | 'news-list';
+  variant?: 'default' | 'compact' | 'featured' | 'hero-featured' | 'hero-side' | 'mobile-horizontal' | 'news-list' | 'editorial-grid';
   showSubtitle?: boolean;
 }
 
@@ -28,6 +29,21 @@ export default function PostCard({ post, variant = 'default', showSubtitle = tru
   const isHeroSide = variant === 'hero-side';
   const isMobileHorizontal = variant === 'mobile-horizontal';
   const isNewsList = variant === 'news-list';
+  const isEditorialGrid = variant === 'editorial-grid';
+
+  if (isEditorialGrid) {
+    return <article className="group min-w-0">
+      <Link href={href} className="block">
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface">
+          {post.cover_image_url ? <Image src={post.cover_image_url} alt={post.cover_image_alt ?? post.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 28vw" className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" /> : <div className="flex h-full items-center justify-center text-muted">Sem imagem</div>}
+        </div>
+        <span className="mt-3 block text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand">{post.category?.name ?? 'Artigo'}</span>
+        <h3 className="mt-2 line-clamp-3 text-lg font-extrabold leading-tight text-title transition-colors group-hover:text-brand">{post.title}</h3>
+        {showSubtitle && (post.subtitle || post.excerpt) ? <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{post.subtitle || post.excerpt}</p> : null}
+        <time className="mt-4 block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted" dateTime={post.published_at ?? post.created_at}>{formatDate(post.published_at ?? post.created_at, "d 'de' MMM 'de' yyyy")}</time>
+      </Link>
+    </article>;
+  }
 
   return (
     <article className={`group card-base card-hover min-w-0 overflow-hidden ${isHeroFeatured || isHeroSide ? 'flex h-full flex-col' : ''} ${isMobileHorizontal ? 'flex sm:block' : ''} ${isNewsList ? 'flex' : ''}`}>

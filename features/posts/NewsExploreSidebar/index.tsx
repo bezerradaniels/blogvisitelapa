@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import AdCardGrid from '@/components/AdCardGrid';
 import Icon from '@/components/Icon';
+import type { ReactNode } from 'react';
 
 const links = [
   { href: '/noticias', label: 'Mais artigos', icon: 'News01Icon' },
@@ -10,9 +11,10 @@ const links = [
 ];
 
 // Coluna de descoberta da área de notícias.
-export default async function NewsExploreSidebar() {
+export default async function NewsExploreSidebar({ filter }: { filter?: ReactNode }) {
   return (
     <aside className="space-y-5 lg:sticky lg:top-20">
+      {filter}
       <section className="card-base p-4 sm:p-5">
         <h2 className="text-xl font-extrabold text-title">Navegue</h2>
         <nav aria-label="Navegação complementar" className="mt-4 space-y-1">
