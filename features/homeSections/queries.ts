@@ -4,11 +4,18 @@ import { createClient } from '@/lib/supabase/server';
 import type { HomeSection, HomeSectionPlacementZone, HomeSectionWithPosts } from '@/types/homeSections';
 import type { PostWithRelations } from '@/types/posts';
 import { systemHomeSectionSlugs } from '@/lib/config/homeEditorial';
+import { homeSectionColors, type HomeSectionColor } from '@/lib/config/homeSectionColors';
 
 const POST_SELECT = '*, category:categories(id, name, slug, icon_name), author:profiles!posts_author_id_fkey(id, full_name, slug, avatar_url, role, bio)';
 const SECTION_SELECT = 'id, title, subtitle, description, slug, status, display_order, placement_zone, selection_mode, show_view_all, view_all_mode, custom_view_all_url, cover_image_url, cover_image_alt, automatic_rules, created_by, updated_by, created_at, updated_at, deleted_at';
 
-function mapSection(row: unknown): HomeSection { return row as HomeSection; }
+function mapSection(row: unknown): HomeSection {
+  const section = row as Omit<HomeSection, 'background_color'>;
+  const rules = section.automatic_rules && typeof section.automatic_rules === 'object' && !Array.isArray(section.automatic_rules) ? section.automatic_rules : {};
+  const candidate = 'background_color' in rules ? rules.background_color : 'transparent';
+  const backgroundColor = homeSectionColors.some((color) => color.value === candidate) ? candidate as HomeSectionColor : 'transparent';
+  return { ...section, background_color: backgroundColor };
+}
 function mapPost(row: unknown): PostWithRelations { return row as PostWithRelations; }
 
 export async function listAdminHomeSections(): Promise<HomeSection[]> {

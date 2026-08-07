@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { homeSectionColors } from '@/lib/config/homeSectionColors';
+
+const homeSectionColorValues = homeSectionColors.map((color) => color.value) as [string, ...string[]];
 
 const safeUrl = z.string().trim().max(2048).refine(
   (value) => value.startsWith('/') || /^https?:\/\//i.test(value),
@@ -20,6 +23,7 @@ export const homeSectionSchema = z.object({
   custom_view_all_url: safeUrl.optional().or(z.literal('')).default(''),
   cover_image_url: safeUrl.optional().or(z.literal('')).default(''),
   cover_image_alt: z.string().trim().max(180).optional().default(''),
+  background_color: z.enum(homeSectionColorValues).default('transparent'),
   post_ids: z.array(z.string().uuid()).max(100).refine((ids) => new Set(ids).size === ids.length, 'Há posts repetidos.'),
 }).superRefine((value, ctx) => {
   if (value.view_all_mode === 'custom' && !value.custom_view_all_url) ctx.addIssue({ code: 'custom', path: ['custom_view_all_url'], message: 'Informe a URL personalizada.' });

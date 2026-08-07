@@ -23,6 +23,7 @@ export async function saveHomeSection(input: HomeSectionInput) {
     selection_mode: d.selection_mode, show_view_all: d.show_view_all && d.view_all_mode !== 'hidden',
     view_all_mode: d.view_all_mode, custom_view_all_url: d.view_all_mode === 'custom' ? d.custom_view_all_url || null : null,
     cover_image_url: d.cover_image_url || null, cover_image_alt: d.cover_image_alt || null, updated_by: ctx.profileId,
+    automatic_rules: { background_color: d.background_color },
   };
   const result = d.id
     ? await ctx.supabase.from('home_sections').update(payload).eq('id', d.id).select('id, slug').single()

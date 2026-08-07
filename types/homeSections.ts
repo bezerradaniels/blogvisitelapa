@@ -1,5 +1,6 @@
 import type { Json } from './database';
 import type { PostWithRelations } from './posts';
+import type { HomeSectionColor } from '@/lib/config/homeSectionColors';
 
 export type HomeSectionStatus = 'active' | 'inactive';
 export type HomeSectionSelectionMode = 'manual' | 'automatic';
@@ -11,6 +12,7 @@ export interface HomeSection {
   status: HomeSectionStatus; display_order: number; placement_zone: HomeSectionPlacementZone;
   selection_mode: HomeSectionSelectionMode; show_view_all: boolean; view_all_mode: HomeSectionViewAllMode;
   custom_view_all_url: string | null; cover_image_url: string | null; cover_image_alt: string | null;
+  background_color: HomeSectionColor;
   automatic_rules: Json | null; created_by: string | null; updated_by: string | null;
   created_at: string; updated_at: string; deleted_at: string | null;
 }

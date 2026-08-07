@@ -9,6 +9,7 @@ import SectionTitle from '@/components/SectionTitle';
 import HomeSectionCarousel from '@/components/HomeSectionCarousel';
 import Icon from '@/components/Icon';
 import { listPublicHomeSections } from '@/features/homeSections/queries';
+import { homeSectionColorClass } from '@/lib/config/homeSectionColors';
 import {
   listMostReadPosts,
   listPublishedPosts,
@@ -280,5 +281,5 @@ function DynamicSection({ section }: { section: Awaited<ReturnType<typeof listPu
   const href = section.show_view_all && section.view_all_mode !== 'hidden'
     ? section.view_all_mode === 'custom' ? section.custom_view_all_url ?? undefined : `/secoes/${section.slug}`
     : undefined;
-  return <section aria-label={section.title}><SectionTitle title={section.title} href={href} linkLabel="ver tudo" />{section.subtitle && <p className="-mt-2 mb-4 text-sm text-muted">{section.subtitle}</p>}<HomeSectionCarousel posts={section.posts} /></section>;
+  return <section aria-label={section.title} className={`${homeSectionColorClass(section.background_color)} -mx-4 px-4 py-6 sm:-mx-6 sm:px-6`}><SectionTitle title={section.title} href={href} linkLabel="ver tudo" />{section.subtitle && <p className="-mt-2 mb-4 text-sm text-muted">{section.subtitle}</p>}<HomeSectionCarousel posts={section.posts} /></section>;
 }
