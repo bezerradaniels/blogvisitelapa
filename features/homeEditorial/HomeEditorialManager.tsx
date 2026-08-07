@@ -7,6 +7,10 @@ import { saveHomeEditorialSlots } from './actions';
 
 interface Candidate { id: string; title: string; }
 
+function normalizeSearch(value: string) {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+}
+
 export default function HomeEditorialManager({ candidates, initial }: { candidates: Candidate[]; initial: Record<HomeEditorialAreaKey, string[]> }) {
   const [slots, setSlots] = useState(initial);
   const [message, setMessage] = useState('');
@@ -46,8 +50,8 @@ function SearchableArticleSelect({ candidates, value, onChange }: { candidates: 
   const listId = useId();
 
   const results = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase('pt-BR');
-    return candidates.filter((post) => !normalized || post.title.toLocaleLowerCase('pt-BR').includes(normalized)).slice(0, 10);
+    const normalized = normalizeSearch(query);
+    return candidates.filter((post) => !normalized || normalizeSearch(post.title).includes(normalized)).slice(0, 10);
   }, [candidates, query]);
 
   return <div className="relative min-w-0">
