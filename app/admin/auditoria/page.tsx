@@ -1,4 +1,5 @@
 import EmptyState from '@/components/EmptyState';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import { createClient } from '@/lib/supabase/server';
 import { formatDateTime, titleCase } from '@/lib/utils/format';
 
@@ -23,8 +24,8 @@ export default async function AdminAuditoriaPage() {
   const logs = (data ?? []) as unknown as AuditRow[];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Auditoria</h2>
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Auditoria" description="Histórico das ações administrativas relevantes registradas pelo CMS." />
       {logs.length === 0 ? (
         <EmptyState title="Nenhum registro de auditoria ainda" />
       ) : (

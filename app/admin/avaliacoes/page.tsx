@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import EmptyState from '@/components/EmptyState';
 import { createClient } from '@/lib/supabase/server';
 
@@ -16,8 +17,8 @@ export default async function AdminAvaliacoesPage() {
   const posts = data ?? [];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Avaliações</h2>
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Avaliações" description="Acompanhe a média e o volume de avaliações recebidas por conteúdo." />
       {posts.length === 0 ? (
         <EmptyState title="Nenhuma avaliação registrada ainda" />
       ) : (

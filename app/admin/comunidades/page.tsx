@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import AdminPageHeader from '@/components/AdminPageHeader';
+import AdminStatusNav from '@/components/AdminStatusNav';
 import Button from '@/components/Button';
 import EmptyState from '@/components/EmptyState';
-import FilterTabs from '@/components/FilterTabs';
 import CommunityRowActions from '@/features/admin/CommunityRowActions';
 import { listAdminCommunities } from '@/features/admin/communityQueries';
 import { communityCategoryLabel } from '@/lib/config/communities';
@@ -25,13 +26,9 @@ export default async function AdminCommunitiesPage({ searchParams }: Props) {
   const communities = await listAdminCommunities(filtro);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Comunidades</h2>
-      <p className="text-xs text-muted">
-        Comunidades são criadas livremente pelos usuários. A moderação aqui é reativa (suspender/remover).
-      </p>
-
-      <FilterTabs tabs={tabs} current={filtro} basePath="/admin/comunidades" />
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Comunidades" description="Comunidades são criadas pelos usuários e moderadas de forma reativa." />
+      <AdminStatusNav items={tabs} current={filtro} basePath="/admin/comunidades" />
 
       {communities.length === 0 ? (
         <EmptyState title="Nenhuma comunidade nesta visão" />

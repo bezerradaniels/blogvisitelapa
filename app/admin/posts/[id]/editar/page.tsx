@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import PostForm from '@/features/publisher/PostForm';
 import { getPostForEdit, listActiveCategories } from '@/features/publisher/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -17,8 +18,8 @@ export default async function AdminEditarPostPage({ params }: Props) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Editar post</h2>
-      <PostForm categories={categories} initial={initial} canPublish />
+      <AdminPageHeader title="Editar post" description="Atualize o conteúdo, a classificação e as opções editoriais." />
+      <PostForm categories={categories} initial={initial} canPublish adminMode />
     </div>
   );
 }

@@ -38,8 +38,9 @@ export default function AdminSidebar({
   const groups: Group[] = [
     {
       items: [
-        { href: '/admin', label: 'Visão geral' },
+        { href: '/admin', label: 'Painel' },
         { href: '/admin/posts', label: 'Posts' },
+        { href: '/admin/posts/novo', label: 'Adicionar novo' },
         { href: '/admin/eventos-enviados', label: 'Eventos enviados' },
         { href: '/admin/categorias', label: 'Categorias' },
         { href: '/admin/tags', label: 'Tags' },
@@ -73,6 +74,7 @@ export default function AdminSidebar({
       title: 'Sistema',
       items: [
         { href: '/admin/usuarios', label: 'Usuários' },
+        { href: '/admin/ferramentas', label: 'Ferramentas' },
         { href: '/admin/configuracoes', label: 'Configurações' },
         { href: '/admin/auditoria', label: 'Auditoria' },
       ],
@@ -81,6 +83,8 @@ export default function AdminSidebar({
 
   function isActive(href: string) {
     if (href === '/admin' || href === '/admin/comercial') return pathname === href;
+    if (href === '/admin/posts/novo') return pathname === href;
+    if (href === '/admin/posts' && pathname === '/admin/posts/novo') return false;
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
@@ -109,7 +113,7 @@ export default function AdminSidebar({
     <div className="flex h-full flex-col bg-[#1d2327] text-[#f0f0f1]">
       <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2.5">
         <BrandLogo inverted className="text-base" />
-        <span className="rounded-sm bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white">admin</span>
+        <span className="rounded-sm bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white">CMS</span>
       </div>
 
       <nav aria-label="Menu do painel" className="flex-1 space-y-2 overflow-y-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

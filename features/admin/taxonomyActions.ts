@@ -52,9 +52,16 @@ export async function saveCategory(input: CategoryInput) {
 
 export async function deleteCategory(id: string) {
   const ctx = await adminGuard();
-  if (!ctx) return { ok: false };
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
   const { supabase } = ctx;
-  await supabase.from('categories').delete().eq('id', id);
+  const [{ count: postsCount }, { count: childrenCount }] = await Promise.all([
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('category_id', id),
+    supabase.from('categories').select('id', { count: 'exact', head: true }).eq('parent_id', id),
+  ]);
+  if ((postsCount ?? 0) > 0) return { ok: false, error: 'A categoria está vinculada a posts e não pode ser excluída.' };
+  if ((childrenCount ?? 0) > 0) return { ok: false, error: 'Remova ou reclassifique as subcategorias antes de excluir.' };
+  const { error } = await supabase.from('categories').delete().eq('id', id);
+  if (error) return { ok: false, error: 'Não foi possível excluir a categoria.' };
   revalidatePath('/admin/categorias');
   return { ok: true };
 }
@@ -77,9 +84,10 @@ export async function saveTag(input: { id?: string; name: string }) {
 
 export async function deleteTag(id: string) {
   const ctx = await adminGuard();
-  if (!ctx) return { ok: false };
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
   const { supabase } = ctx;
-  await supabase.from('tags').delete().eq('id', id);
+  const { error } = await supabase.from('tags').delete().eq('id', id);
+  if (error) return { ok: false, error: 'Não foi possível excluir a tag.' };
   revalidatePath('/admin/tags');
   return { ok: true };
 }

@@ -19,12 +19,14 @@ import { slugify } from '@/lib/utils/format';
 
 export interface PostFormInitial extends Partial<PostInput> {
   galleryItems?: GalleryItem[];
+  currentStatus?: string;
 }
 
 interface PostFormProps {
   categories: CategoryOption[];
   initial?: PostFormInitial;
   canPublish: boolean;
+  adminMode?: boolean;
 }
 
 const contentTypes = [
@@ -38,7 +40,7 @@ const contentTypes = [
   { value: 'religiosidade', label: 'Religiosidade' },
 ];
 
-export default function PostForm({ categories, initial, canPublish }: PostFormProps) {
+export default function PostForm({ categories, initial, canPublish, adminMode = false }: PostFormProps) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +150,7 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
         setError(result.error ?? 'Erro ao salvar.');
         return;
       }
-      router.push('/publisher');
+      router.push(adminMode ? '/admin/posts' : '/publisher');
       router.refresh();
     });
   }
@@ -173,11 +175,11 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
   return (
     <form
       onSubmit={(e) => e.preventDefault()}
-      className="grid gap-4 lg:grid-cols-[1fr_320px]"
+      className={adminMode ? 'admin-editor grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]' : 'grid gap-4 lg:grid-cols-[1fr_320px]'}
     >
       {/* Coluna principal */}
       <div className="space-y-4">
-        <div className={section}>
+        <div className={`${section} ${adminMode ? 'admin-editor-main-title' : ''}`}>
           <Input label="Título do post" value={title} onChange={(e) => onTitleChange(e.target.value)} required />
           <Input label="Subtítulo" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
           <Input
@@ -244,17 +246,19 @@ export default function PostForm({ categories, initial, canPublish }: PostFormPr
       <aside className="space-y-4">
         <div className={section}>
           <span className={sectionTitle}>Publicação</span>
-          {error && <p className="text-sm text-danger">{error}</p>}
+          {initial?.currentStatus && <p className="text-xs text-muted">Status: <strong className="font-semibold text-title">{initial.currentStatus === 'publicado' ? 'Publicado' : initial.currentStatus === 'rascunho' ? 'Rascunho' : initial.currentStatus === 'enviado_para_revisao' ? 'Em revisão' : initial.currentStatus}</strong></p>}
+          {error && <p className={adminMode ? 'admin-notice admin-notice-danger text-sm text-danger' : 'text-sm text-danger'}>{error}</p>}
           <div className="flex flex-col gap-2">
             <Button variant="primary" onClick={() => submit('rascunho')}>
               {pending ? 'Salvando...' : 'Salvar rascunho'}
             </Button>
+            {initial?.slug && <Button href={`/post/${initial.slug}`} variant="outline">Visualizar</Button>}
             <Button variant="outline" onClick={() => submit('enviar')}>
               Enviar para revisão
             </Button>
             {canPublish && (
               <Button variant="secondary" onClick={() => submit('publicar')}>
-                Publicar agora
+                {initial?.id ? 'Atualizar e publicar' : 'Publicar agora'}
               </Button>
             )}
           </div>

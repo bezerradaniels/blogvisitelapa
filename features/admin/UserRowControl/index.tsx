@@ -68,8 +68,8 @@ export default function UserRowControl({ profileId, role, status, isSelf }: User
         onChange={(e) => changeRole(e.target.value as UserRole)}
       >
         <option value="common_user">Usuário</option>
-        <option value="publisher">Publisher</option>
-        <option value="admin">Admin</option>
+        <option value="publisher">Editor</option>
+        <option value="admin">Administrador</option>
       </select>
       <select
         value={statusValue}

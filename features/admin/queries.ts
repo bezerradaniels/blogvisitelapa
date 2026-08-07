@@ -165,21 +165,36 @@ export interface AdminCommentRow {
   post: { title: string; slug: string } | null;
 }
 
-export async function listAdminComments(filter = 'pendentes'): Promise<AdminCommentRow[]> {
+export async function listAdminComments(filter = 'pendentes', term = '', page = 1, pageSize = 20): Promise<{ comments: AdminCommentRow[]; count: number; page: number; pageSize: number }> {
   const supabase = await createClient();
   let query = supabase
     .from('comments')
     .select(
       'id, content, status, created_at, author:profiles!comments_user_id_fkey(full_name), post:posts(title, slug)',
+      { count: 'exact' },
     )
-    .order('created_at', { ascending: false })
-    .limit(100);
+    .order('created_at', { ascending: false });
 
   if (filter !== 'todos') {
     const status = filter === 'pendentes' ? 'pendente' : filter;
     query = query.eq('status', status as 'pendente');
   }
+  if (term.trim()) query = query.ilike('content', `%${term.trim()}%`);
 
-  const { data } = await query;
-  return (data ?? []) as unknown as AdminCommentRow[];
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const { data, count } = await query.range(from, from + pageSize - 1);
+  return { comments: (data ?? []) as unknown as AdminCommentRow[], count: count ?? 0, page: safePage, pageSize };
+}
+
+export async function countAdminComments(): Promise<Record<string, number>> {
+  const supabase = await createClient();
+  const count = async (status?: string) => {
+    let query = supabase.from('comments').select('id', { count: 'exact', head: true });
+    if (status) query = query.eq('status', status as 'pendente');
+    const { count: total } = await query;
+    return total ?? 0;
+  };
+  const [todos, pendentes, aprovado, rejeitado, removido] = await Promise.all([count(), count('pendente'), count('aprovado'), count('rejeitado'), count('removido')]);
+  return { todos, pendentes, aprovado, rejeitado, removido };
 }

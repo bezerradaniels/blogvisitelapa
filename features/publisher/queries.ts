@@ -67,6 +67,7 @@ export async function getPostForEdit(id: string): Promise<PostFormInitial | null
     include_in_sitemap: post.include_in_sitemap,
     include_in_rss: post.include_in_rss,
     galleryItems: (gallery ?? []).map((g) => ({ url: g.url, alt: g.alt ?? '' })),
+    currentStatus: post.status,
   };
 }
 

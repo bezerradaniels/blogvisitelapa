@@ -1,4 +1,5 @@
 import TagManager from '@/features/admin/TagManager';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -8,8 +9,8 @@ export default async function AdminTagsPage() {
   const { data } = await supabase.from('tags').select('id, name, slug').order('name');
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Tags</h2>
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Tags" description="Gerencie os termos não hierárquicos usados para relacionar conteúdos." />
       <TagManager tags={data ?? []} />
     </div>
   );

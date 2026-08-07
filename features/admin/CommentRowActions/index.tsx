@@ -22,22 +22,22 @@ export default function CommentRowActions({ commentId, status }: CommentRowActio
     });
   }
 
-  const btn = 'rounded px-2 py-1 text-xs font-medium disabled:opacity-50';
+  const btn = 'admin-row-action disabled:opacity-50';
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-1">
+    <div className="admin-row-actions !visible">
       {status !== 'aprovado' && (
-        <button disabled={pending} onClick={() => run('aprovar')} className={`${btn} bg-success/10 text-success hover:bg-success/20`}>
+        <button disabled={pending} onClick={() => run('aprovar')} className={btn}>
           Aprovar
         </button>
       )}
       {status !== 'rejeitado' && (
-        <button disabled={pending} onClick={() => run('rejeitar')} className={`${btn} text-warning hover:bg-surface`}>
+        <button disabled={pending} onClick={() => run('rejeitar')} className={btn}>
           Rejeitar
         </button>
       )}
       {status !== 'removido' && (
-        <button disabled={pending} onClick={() => run('remover', 'Remover este comentário?')} className={`${btn} text-danger hover:bg-surface`}>
+        <button disabled={pending} onClick={() => run('remover', 'Mover este comentário para a lixeira?')} className={`${btn} admin-row-action-danger`}>
           Remover
         </button>
       )}

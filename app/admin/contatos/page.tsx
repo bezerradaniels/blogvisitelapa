@@ -1,4 +1,5 @@
 import EmptyState from '@/components/EmptyState';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import ContactStatusControl from '@/features/admin/ContactStatusControl';
 import { deleteContact, setContactStatus } from '@/features/admin/contactsActions';
@@ -17,8 +18,8 @@ export default async function AdminContatosPage() {
   const contacts = data ?? [];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Contatos</h2>
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Contatos" description="Acompanhe mensagens recebidas e o andamento de cada atendimento." />
       {contacts.length === 0 ? (
         <EmptyState title="Nenhum contato recebido" />
       ) : (

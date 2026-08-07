@@ -1,5 +1,6 @@
 import EmptyState from '@/components/EmptyState';
-import FilterTabs from '@/components/FilterTabs';
+import AdminPageHeader from '@/components/AdminPageHeader';
+import AdminStatusNav from '@/components/AdminStatusNav';
 import ReportRowActions from '@/features/admin/ReportRowActions';
 import { listReports } from '@/features/admin/communityQueries';
 import { reportReasonLabel } from '@/lib/config/communities';
@@ -27,13 +28,9 @@ export default async function AdminReportsPage({ searchParams }: Props) {
   const reports = await listReports(filtro);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Denúncias de comunidades</h2>
-      <p className="text-xs text-muted">
-        Conteúdo denunciado pelos usuários. Remover o conteúdo também resolve a denúncia.
-      </p>
-
-      <FilterTabs tabs={tabs} current={filtro} basePath="/admin/denuncias" />
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Denúncias de comunidades" description="Conteúdo denunciado pelos usuários. Remover o conteúdo também resolve a denúncia." />
+      <AdminStatusNav items={tabs} current={filtro} basePath="/admin/denuncias" />
 
       {reports.length === 0 ? (
         <EmptyState title="Nenhuma denúncia nesta visão" />

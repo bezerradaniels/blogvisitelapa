@@ -1,4 +1,5 @@
 import SettingsForm from '@/features/admin/SettingsForm';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -14,8 +15,8 @@ export default async function AdminConfiguracoesPage() {
   const newsletter = map.get('newsletter') ?? {};
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Configurações</h2>
+    <div className="admin-page space-y-4">
+      <AdminPageHeader title="Configurações" description="Preferências do portal armazenadas com segurança. Segredos permanecem nas variáveis de ambiente." />
       <SettingsForm
         adsenseEnabled={Boolean(adsense.enabled)}
         adsenseIntensity={String(adsense.intensity ?? 'conservadora')}

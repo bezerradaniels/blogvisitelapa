@@ -66,19 +66,22 @@ export default function CategoryManager({ categories }: { categories: CategoryRo
   }
 
   function remove(id: string) {
+    if (!confirm('Excluir esta categoria? Esta ação não poderá ser desfeita.')) return;
+    setError(null);
     start(async () => {
-      await deleteCategory(id);
+      const res = await deleteCategory(id);
+      if (!res.ok) return setError(res.error ?? 'Não foi possível excluir a categoria.');
       router.refresh();
     });
   }
 
   return (
-    <div className="space-y-4">
-      <div className="card-base space-y-3 p-4">
-        <span className="text-sm font-bold text-title">
-          {form.id ? 'Editar categoria' : 'Nova categoria'}
+    <div className="grid items-start gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="admin-form-panel space-y-3">
+        <span className="admin-section-title">
+          {form.id ? 'Editar categoria' : 'Adicionar nova categoria'}
         </span>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           <Input label="Nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <Input label="Slug (opcional)" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
           <Select
@@ -105,22 +108,22 @@ export default function CategoryManager({ categories }: { categories: CategoryRo
         </div>
         <Textarea label="Descrição" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         <Checkbox label="Item do carrossel fixo da home" checked={form.is_fixed_carousel_item} onChange={(e) => setForm({ ...form, is_fixed_carousel_item: e.target.checked })} />
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="admin-notice admin-notice-danger text-sm text-danger">{error}</p>}
         <div className="flex gap-2">
           <Button onClick={save}>{pending ? 'Salvando...' : form.id ? 'Salvar alterações' : 'Criar categoria'}</Button>
           {form.id && <Button variant="ghost" onClick={() => setForm(empty)}>Cancelar</Button>}
         </div>
       </div>
 
-      <div className="card-base overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-surface text-left text-xs text-muted">
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
             <tr>
               <th className="p-3">Nome</th>
               <th className="p-3">Tipo</th>
               <th className="p-3">Carrossel</th>
               <th className="p-3">Ordem</th>
-              <th className="p-3" />
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -133,9 +136,11 @@ export default function CategoryManager({ categories }: { categories: CategoryRo
                 <td className="p-3 text-muted">{c.type}</td>
                 <td className="p-3">{c.is_fixed_carousel_item ? <Badge tone="brand">Sim</Badge> : '—'}</td>
                 <td className="p-3 text-muted">{c.sort_order}</td>
-                <td className="p-3 text-right">
-                  <button onClick={() => edit(c)} className="text-xs text-brand hover:underline">Editar</button>
-                  <button onClick={() => remove(c.id)} className="ml-3 text-xs text-danger hover:underline">Excluir</button>
+                <td>
+                  <div className="admin-row-actions !visible">
+                    <button onClick={() => edit(c)} className="admin-row-action">Editar</button>
+                    <button onClick={() => remove(c.id)} className="admin-row-action admin-row-action-danger">Excluir</button>
+                  </div>
                 </td>
               </tr>
             ))}

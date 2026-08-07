@@ -1,4 +1,5 @@
 import PostForm from '@/features/publisher/PostForm';
+import AdminPageHeader from '@/components/AdminPageHeader';
 import { listActiveCategories } from '@/features/publisher/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
 
@@ -9,9 +10,9 @@ export default async function AdminNovoPostPage() {
   const categories = await listActiveCategories();
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-bold text-title">Novo post</h2>
+      <AdminPageHeader title="Adicionar novo post" description="Crie o conteúdo e defina as opções de publicação." />
       {/* Admin sempre pode publicar diretamente. */}
-      <PostForm categories={categories} canPublish />
+      <PostForm categories={categories} canPublish adminMode />
     </div>
   );
 }
