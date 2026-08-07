@@ -226,6 +226,8 @@ export default async function PostPage({ params }: Props) {
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-20">
+          <AdCardGrid placement="post_sidebar" className="hidden lg:block" />
+
           <section className="card-base p-4">
             <h2 className="mb-3 text-base font-extrabold text-title">Navegue</h2>
             <nav aria-label="Navegação relacionada" className="space-y-1">
@@ -306,8 +308,6 @@ export default async function PostPage({ params }: Props) {
               <p className="text-sm text-muted">Ainda não há outros posts publicados.</p>
             )}
           </section>
-
-          <AdCardGrid placement="post_sidebar" className="hidden lg:block" />
         </aside>
       </div>
     </article>
