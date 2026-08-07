@@ -17,6 +17,7 @@ import {
 import { siteConfig } from '@/lib/config/site';
 import { buildMetadata } from '@/lib/seo/metadata';
 import type { PostWithRelations } from '@/types/posts';
+import { getManualHomeEditorialPosts, resolveHomeEditorialPosts } from '@/features/homeEditorial/queries';
 
 export const metadata = buildMetadata({
   description:
@@ -40,21 +41,24 @@ function EventDateBox({ date }: { date: string }) {
 }
 
 export default async function HomePage() {
-  const [featuredList, latest, events, mostRead, afterHero, afterLatest, beforeEvents, beforeFooter] = await Promise.all([
+  const [featuredList, latest, events, mostRead, afterHero, afterLatest, beforeEvents, beforeFooter, manualEditorial] = await Promise.all([
     listPublishedPosts({ featured: true, isEvent: false, limit: 3 }),
-    listPublishedPosts({ isEvent: false, limit: 14 }),
+    listPublishedPosts({ isEvent: false, limit: 30 }),
     listUpcomingEvents(4),
     listMostReadPosts(5),
     listPublicHomeSections('after-hero'),
     listPublicHomeSections('after-latest-news'),
     listPublicHomeSections('before-events'),
     listPublicHomeSections('before-footer'),
+    getManualHomeEditorialPosts(),
   ]);
 
-  const hero = featuredList[0] ?? latest[0];
+  const editorial = resolveHomeEditorialPosts(manualEditorial, latest);
+  const heroArticles = editorial.hero.length ? editorial.hero : featuredList;
+  const hero = heroArticles[0] ?? latest[0];
   // Os destaques seguintes preenchem a lateral; os mais recentes completam a
   // faixa quando houver menos de três destaques. Nunca repete o post principal.
-  const secondary = [...featuredList, ...latest]
+  const secondary = [...heroArticles.slice(1), ...featuredList, ...latest]
     .filter((post, index, posts) => post.id !== hero?.id && posts.findIndex((item) => item.id === post.id) === index)
     .slice(0, 2);
 
@@ -84,7 +88,7 @@ export default async function HomePage() {
       </section>
 
       <div className="container-page space-y-10 pt-8">
-        <EditorialShowcase articles={latest} />
+        <EditorialShowcase featuredArticles={editorial.featured} secondaryArticles={editorial.secondary} />
         {afterHero.map((section) => <DynamicSection key={section.id} section={section} />)}
         {/* 2. Chips de categoria */}
         <CategoryCarousel />
@@ -187,16 +191,14 @@ export default async function HomePage() {
   );
 }
 
-function EditorialShowcase({ articles }: { articles: PostWithRelations[] }) {
-  if (articles.length === 0) return null;
-
-  const articleAt = (index: number) => articles[index % articles.length] as PostWithRelations;
-  const lead = articleAt(0);
-  const supporting = Array.from({ length: Math.min(4, Math.max(0, articles.length - 1)) }, (_, index) => articleAt(index + 1));
-  const visualPosts = Array.from({ length: Math.min(4, articles.length) }, (_, index) => ({
-    post: articleAt(index + 5),
-    related: articleAt(index + 8),
-  }));
+function EditorialShowcase({ featuredArticles, secondaryArticles }: { featuredArticles: PostWithRelations[]; secondaryArticles: PostWithRelations[] }) {
+  if (featuredArticles.length === 0) return null;
+  const lead = featuredArticles[0] as PostWithRelations;
+  const supporting = featuredArticles.slice(1, 5);
+  const visualPosts = [0, 2, 4, 6].flatMap((index) => {
+    const post = secondaryArticles[index];
+    return post ? [{ post, related: secondaryArticles[index + 1] ?? post }] : [];
+  });
 
   return (
     <section aria-label="Seleção de artigos" className="border-b border-line pb-10">

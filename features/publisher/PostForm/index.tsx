@@ -16,6 +16,7 @@ import { CategoryPicker, SubcategoryPicker, type CategoryOption } from '@/featur
 import PublishChecklist from '@/features/publisher/PublishChecklist';
 import { slugify } from '@/lib/utils/format';
 import { portalSections, type PortalSection } from '@/lib/config/portalSections';
+import { homeEditorialAreas } from '@/lib/config/homeEditorial';
 
 export interface PostFormInitial extends Partial<PostInput> {
   galleryItems?: GalleryItem[];
@@ -59,6 +60,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
   const contentType: PostInput['content_type'] = isEvent ? 'evento' : 'noticia';
   const [tags, setTags] = useState(initial?.tags ?? '');
   const [selectedPortalSections, setSelectedPortalSections] = useState<PortalSection[]>(initial?.portal_sections ?? []);
+  const [homeSlot, setHomeSlot] = useState(initial?.home_slot ?? '');
 
   const [isFeatured, setIsFeatured] = useState(initial?.is_featured ?? false);
   const [isSponsored, setIsSponsored] = useState(initial?.is_sponsored ?? false);
@@ -109,6 +111,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
       content_type: contentType,
       tags,
       portal_sections: selectedPortalSections,
+      home_slot: homeSlot,
       is_featured: isFeatured,
       is_sponsored: isSponsored,
       is_event: isEvent,
@@ -298,6 +301,24 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
                   : current.filter((value) => value !== portalSection.value))}
               />
             ))}
+          </div>
+        )}
+
+        {adminMode && !isEvent && (
+          <div className={section}>
+            <span className={sectionTitle}>Posição na home</span>
+            <p className="text-xs text-muted">Ao ocupar uma posição, os artigos seguintes descem e o último excedente sai da seleção manual.</p>
+            <label className="grid gap-1 text-xs font-semibold text-title">
+              Posição editorial
+              <select className="admin-control" value={homeSlot} onChange={(event) => setHomeSlot(event.target.value)}>
+                <option value="">Preenchimento automático</option>
+                {homeEditorialAreas.map((area) => (
+                  <optgroup key={area.key} label={area.title}>
+                    {area.labels.map((label, index) => <option key={`${area.key}:${index}`} value={`${area.key}:${index}`}>{label}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            </label>
           </div>
         )}
 

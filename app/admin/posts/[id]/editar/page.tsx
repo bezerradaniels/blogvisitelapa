@@ -3,6 +3,7 @@ import AdminPageHeader from '@/components/AdminPageHeader';
 import PostForm from '@/features/publisher/PostForm';
 import { getPostForEdit, listActiveCategories } from '@/features/publisher/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
+import { getPostHomeEditorialSlot } from '@/features/homeEditorial/queries';
 
 export const metadata = buildMetadata({ title: 'Editar artigo', noindex: true });
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ interface Props {
 
 export default async function AdminEditarPostPage({ params }: Props) {
   const { id } = await params;
-  const [initial, categories] = await Promise.all([getPostForEdit(id), listActiveCategories()]);
+  const [initial, categories, homeSlot] = await Promise.all([getPostForEdit(id), listActiveCategories(), getPostHomeEditorialSlot(id)]);
   if (!initial) notFound();
 
   return (
@@ -22,7 +23,7 @@ export default async function AdminEditarPostPage({ params }: Props) {
         title={initial.is_event ? 'Editar evento' : 'Editar artigo'}
         description={initial.is_event ? 'Atualize os dados, o conteúdo e as opções de publicação do evento.' : 'Atualize o conteúdo, a classificação e as opções editoriais.'}
       />
-      <PostForm categories={categories} initial={initial} canPublish adminMode />
+      <PostForm categories={categories} initial={{ ...initial, home_slot: homeSlot }} canPublish adminMode />
     </div>
   );
 }

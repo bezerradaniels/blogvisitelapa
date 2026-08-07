@@ -12,6 +12,7 @@ import { sanitizePostHtml } from '@/lib/utils/sanitize';
 import { slugify } from '@/lib/utils/format';
 import type { Json, TablesInsert, TablesUpdate } from '@/types/database';
 import { portalSectionTagName } from '@/lib/config/portalSections';
+import { assignPostToHomeSlot } from '@/features/homeEditorial/actions';
 
 const galleryItemSchema = z.object({ url: z.string().url(), alt: z.string().optional().default('') });
 
@@ -37,6 +38,7 @@ const postSchema = z.object({
   ]),
   tags: z.string().optional().default(''), // separadas por vírgula
   portal_sections: z.array(z.enum(['onde-comer', 'onde-malhar', 'hospedagem', 'religiosidade'])).optional().default([]),
+  home_slot: z.string().optional().default(''),
 
   is_featured: z.boolean().optional().default(false),
   is_sponsored: z.boolean().optional().default(false),
@@ -214,6 +216,10 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
 
   await syncTags(supabase, postId, d.tags, d.portal_sections);
   await syncGallery(supabase, postId, d.gallery);
+  if (user.isAdmin && !d.is_event) {
+    const placement = await assignPostToHomeSlot(postId, d.home_slot);
+    if (!placement.ok) return { ok: false, error: placement.error };
+  }
 
   // Remove do Storage a capa/galeria que deixaram de ser referenciadas.
   if (oldImageUrls.length > 0) {

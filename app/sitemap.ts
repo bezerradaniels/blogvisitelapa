@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { absoluteUrl } from '@/lib/config/site';
+import { systemHomeSectionSlugs } from '@/lib/config/homeEditorial';
 import { createClient } from '@/lib/supabase/server';
 
 // Sitemap dinâmico: rotas fixas + posts + categorias.
@@ -51,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'daily' as const,
     priority: 0.6,
   }));
-  const sectionRoutes = (sections ?? []).map((section) => ({
+  const sectionRoutes = (sections ?? []).filter((section) => !systemHomeSectionSlugs.includes(section.slug as (typeof systemHomeSectionSlugs)[number])).map((section) => ({
     url: absoluteUrl(`/secoes/${section.slug}`), lastModified: new Date(section.updated_at), changeFrequency: 'weekly' as const, priority: 0.6,
   }));
 

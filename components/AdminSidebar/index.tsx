@@ -46,6 +46,7 @@ export default function AdminSidebar({
         { href: '/admin/eventos-enviados', label: 'Eventos enviados' },
         { href: '/admin/categorias', label: 'Categorias' },
         { href: '/admin/tags', label: 'Tags' },
+        { href: '/admin/destaques-home', label: 'Destaques da home' },
         { href: '/admin/secoes-home', label: 'Seções da homepage' },
         { href: '/admin/comentarios', label: 'Comentários', badge: pendingComments || undefined },
         { href: '/admin/avaliacoes', label: 'Avaliações' },
