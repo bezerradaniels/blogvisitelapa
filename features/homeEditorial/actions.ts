@@ -45,6 +45,38 @@ export async function saveHomeEditorialSlots(input: Record<HomeEditorialAreaKey,
   }
 }
 
+export async function saveHomeEditorialArea(areaKey: HomeEditorialAreaKey, postIds: string[]) {
+  const ctx = await adminGuard();
+  if (!ctx) return { ok: false, error: 'Acesso restrito.' };
+  const targetArea = homeEditorialAreas.find((area) => area.key === areaKey);
+  if (!targetArea) return { ok: false, error: 'Área inválida.' };
+  const targetIds = postIds.filter(Boolean).slice(0, targetArea.limit);
+  if (new Set(targetIds).size !== targetIds.length) return { ok: false, error: 'Um artigo não pode ocupar duas posições.' };
+  try {
+    const sections = await ensureSections(ctx);
+    const { data: links } = await ctx.supabase.from('home_section_posts').select('section_id, post_id, display_order').in('section_id', [...sections.values()]).order('display_order');
+    const selected = new Set(targetIds);
+    const groups = Object.fromEntries(homeEditorialAreas.map((area) => [area.key, area.key === areaKey
+      ? targetIds
+      : (links ?? []).filter((link) => link.section_id === sections.get(area.slug) && !selected.has(link.post_id)).map((link) => link.post_id).slice(0, area.limit),
+    ])) as Record<HomeEditorialAreaKey, string[]>;
+    for (const area of homeEditorialAreas) {
+      const sectionId = sections.get(area.slug);
+      if (!sectionId) continue;
+      const { error: deleteError } = await ctx.supabase.from('home_section_posts').delete().eq('section_id', sectionId);
+      if (deleteError) throw new Error(deleteError.message);
+      if (groups[area.key].length) {
+        const { error: insertError } = await ctx.supabase.from('home_section_posts').insert(groups[area.key].map((post_id, display_order) => ({ section_id: sectionId, post_id, display_order })));
+        if (insertError) throw new Error(insertError.message);
+      }
+    }
+    revalidatePath('/'); revalidatePath('/admin/destaques-home');
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Não foi possível salvar esta área.' };
+  }
+}
+
 export async function assignPostToHomeSlot(postId: string, slot?: string | null) {
   const ctx = await adminGuard();
   if (!ctx) return { ok: false, error: 'Acesso restrito.' };

@@ -3,7 +3,7 @@
 import { useId, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { homeEditorialAreas, type HomeEditorialAreaKey } from '@/lib/config/homeEditorial';
-import { saveHomeEditorialSlots } from './actions';
+import { saveHomeEditorialArea } from './actions';
 
 interface Candidate { id: string; title: string; }
 
@@ -13,7 +13,8 @@ function normalizeSearch(value: string) {
 
 export default function HomeEditorialManager({ candidates, initial }: { candidates: Candidate[]; initial: Record<HomeEditorialAreaKey, string[]> }) {
   const [slots, setSlots] = useState(initial);
-  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<Partial<Record<HomeEditorialAreaKey, string>>>({});
+  const [savingArea, setSavingArea] = useState<HomeEditorialAreaKey | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -29,17 +30,23 @@ export default function HomeEditorialManager({ candidates, initial }: { candidat
     });
   }
 
-  return <div className="space-y-5">
-    {homeEditorialAreas.map((area) => <section key={area.key} className="admin-table-wrap p-4">
-      <div className="mb-3"><h2 className="admin-section-title">{area.title}</h2><p className="text-xs text-[#646970]">{area.limit} posições · o conteúdo atual desce ao inserir um novo artigo.</p></div>
-      <div className="divide-y divide-[#dcdcde] border border-[#dcdcde]">
+  return <div className="space-y-3">
+    {homeEditorialAreas.map((area) => <details key={area.key} className="admin-table-wrap group">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 marker:hidden [&::-webkit-details-marker]:hidden">
+        <span className="text-xs text-[#646970] transition-transform group-open:rotate-90" aria-hidden>▶</span>
+        <span className="min-w-0 flex-1"><strong className="admin-section-title block">{area.title}</strong><span className="text-xs text-[#646970]">{area.limit} posições · clique para abrir</span></span>
+      </summary>
+      <div className="border-t border-[#dcdcde] p-4">
+        <p className="mb-3 text-xs text-[#646970]">O conteúdo atual desce ao inserir um novo artigo.</p>
+        <div className="divide-y divide-[#dcdcde] border border-[#dcdcde]">
         {area.labels.map((label, index) => <div key={label} className="grid gap-2 bg-white px-3 py-3 md:grid-cols-[190px_minmax(0,1fr)] md:items-center">
           <span className="text-sm font-semibold text-[#1d2327]">{index + 1}. {label}</span>
           <SearchableArticleSelect key={slots[area.key][index] ?? 'automatic'} candidates={candidates} value={slots[area.key][index] ?? ''} onChange={(postId) => select(area.key, index, postId)} />
         </div>)}
+        </div>
+        <div className="mt-4 flex items-center gap-3"><button type="button" className="admin-button admin-button-primary" disabled={pending} onClick={() => { setSavingArea(area.key); start(async () => { const result = await saveHomeEditorialArea(area.key, slots[area.key]); setMessages((current) => ({ ...current, [area.key]: result.ok ? 'Alterações salvas.' : result.error ?? 'Erro ao salvar.' })); setSavingArea(null); if (result.ok) router.refresh(); }); }}>{pending && savingArea === area.key ? 'Salvando…' : 'Salvar alterações'}</button>{messages[area.key] && <p className="text-sm text-[#50575e]">{messages[area.key]}</p>}</div>
       </div>
-    </section>)}
-    <div className="flex items-center gap-3"><button type="button" className="admin-button admin-button-primary" disabled={pending} onClick={() => start(async () => { const result = await saveHomeEditorialSlots(slots); setMessage(result.ok ? 'Posições salvas.' : result.error ?? 'Erro ao salvar.'); if (result.ok) router.refresh(); })}>{pending ? 'Salvando…' : 'Salvar posições'}</button>{message && <p className="text-sm text-[#50575e]">{message}</p>}</div>
+    </details>)}
   </div>;
 }
 
