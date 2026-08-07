@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import AdBanner from '@/components/AdBanner';
 import Button from '@/components/Button';
@@ -6,6 +7,7 @@ import EmptyState from '@/components/EmptyState';
 import PostCard from '@/components/PostCard';
 import SectionTitle from '@/components/SectionTitle';
 import HomeSectionCarousel from '@/components/HomeSectionCarousel';
+import Icon from '@/components/Icon';
 import { listPublicHomeSections } from '@/features/homeSections/queries';
 import {
   listMostReadPosts,
@@ -14,6 +16,7 @@ import {
 } from '@/features/posts/queries';
 import { siteConfig } from '@/lib/config/site';
 import { buildMetadata } from '@/lib/seo/metadata';
+import type { PostWithRelations } from '@/types/posts';
 
 export const metadata = buildMetadata({
   description:
@@ -39,7 +42,7 @@ function EventDateBox({ date }: { date: string }) {
 export default async function HomePage() {
   const [featuredList, latest, events, mostRead, afterHero, afterLatest, beforeEvents, beforeFooter] = await Promise.all([
     listPublishedPosts({ featured: true, isEvent: false, limit: 3 }),
-    listPublishedPosts({ isEvent: false, limit: 8 }),
+    listPublishedPosts({ isEvent: false, limit: 14 }),
     listUpcomingEvents(4),
     listMostReadPosts(5),
     listPublicHomeSections('after-hero'),
@@ -81,6 +84,7 @@ export default async function HomePage() {
       </section>
 
       <div className="container-page space-y-10 pt-8">
+        <EditorialShowcase articles={latest} />
         {afterHero.map((section) => <DynamicSection key={section.id} section={section} />)}
         {/* 2. Chips de categoria */}
         <CategoryCarousel />
@@ -180,6 +184,91 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function EditorialShowcase({ articles }: { articles: PostWithRelations[] }) {
+  if (articles.length === 0) return null;
+
+  const articleAt = (index: number) => articles[index % articles.length] as PostWithRelations;
+  const lead = articleAt(0);
+  const supporting = Array.from({ length: Math.min(4, Math.max(0, articles.length - 1)) }, (_, index) => articleAt(index + 1));
+  const visualPosts = Array.from({ length: Math.min(3, articles.length) }, (_, index) => ({
+    post: articleAt(index + 5),
+    related: articleAt(index + 8),
+  }));
+
+  return (
+    <section aria-label="Seleção de artigos" className="grid gap-6 border-b border-line pb-10 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0">
+        <Link href={`/post/${lead.slug}`} className="group block max-w-5xl">
+          <h2 className="font-headline text-[clamp(1.75rem,3.6vw,3.5rem)] font-extrabold leading-[1.04] tracking-[-0.035em] text-title transition-colors group-hover:text-brand">
+            {lead.title}
+          </h2>
+        </Link>
+
+        {supporting.length > 0 && (
+          <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {supporting.map((article) => (
+              <li key={article.id}>
+                <ArticleHeadlineLink article={article} />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-8 grid gap-6 border-t border-line pt-8 md:grid-cols-3">
+          {visualPosts.map(({ post, related }, index) => (
+            <article key={`${post.id}-${index}`} className="min-w-0">
+              <Link href={`/post/${post.slug}`} className="group block">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-surface">
+                  {post.cover_image_url ? (
+                    <Image
+                      src={post.cover_image_url}
+                      alt={post.cover_image_alt ?? post.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 28vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-muted">Sem imagem</div>
+                  )}
+                </div>
+                <h3 className="mt-3 text-lg font-extrabold leading-snug text-title transition-colors group-hover:text-brand">
+                  {post.title}
+                </h3>
+              </Link>
+              {related.id !== post.id && (
+                <div className="mt-4 border-t border-line pt-3">
+                  <ArticleHeadlineLink article={related} compact />
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside aria-label="Publicidade" className="mx-auto w-full max-w-[360px] xl:max-w-none">
+        <div className="flex aspect-[4/5] flex-col items-center justify-center rounded-lg border border-dashed border-line bg-section text-center">
+          <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted">Publicidade</span>
+          <strong className="mt-2 text-lg text-title">1080 × 1350</strong>
+          <span className="mt-1 text-xs text-muted">Espaço reservado</span>
+        </div>
+      </aside>
+    </section>
+  );
+}
+
+function ArticleHeadlineLink({ article, compact = false }: { article: PostWithRelations; compact?: boolean }) {
+  return (
+    <Link href={`/post/${article.slug}`} className="group flex items-start gap-2.5">
+      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-brand text-white" aria-hidden>
+        <Icon icon="ArrowRight01Icon" size={12} strokeWidth={2.4} />
+      </span>
+      <span className={`${compact ? 'text-sm' : 'text-base'} font-bold leading-snug text-title transition-colors group-hover:text-brand`}>
+        {article.title}
+      </span>
+    </Link>
   );
 }
 
