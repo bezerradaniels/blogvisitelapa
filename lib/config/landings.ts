@@ -16,10 +16,10 @@ export interface LandingConfig {
 export const sectionLandings: Record<string, LandingConfig> = {
   noticias: {
     slug: 'noticias',
-    h1: `Notícias de ${city}`,
-    seoTitle: `Notícias de ${city} (${uf})`,
-    seoDescription: `As últimas notícias de ${city}, no Vale do São Francisco, oeste da Bahia. Política, comunidade, cultura e cotidiano da cidade.`,
-    intro: `Acompanhe as principais notícias de ${city} e região, com apuração local e atualização constante.`,
+    h1: `Artigos sobre ${city}`,
+    seoTitle: `Artigos sobre ${city} (${uf})`,
+    seoDescription: `Artigos sobre ${city}, no Vale do São Francisco, oeste da Bahia: comunidade, cultura, cotidiano, turismo e vida local.`,
+    intro: `Explore todos os artigos publicados sobre ${city} e região, organizados por categoria.`,
   },
   eventos: {
     slug: 'eventos',

@@ -3,6 +3,7 @@ import 'server-only';
 // Consultas de apoio ao painel do publisher.
 import { createClient } from '@/lib/supabase/server';
 import type { PostFormInitial } from '@/features/publisher/PostForm';
+import { isPortalSectionTag, portalSections, portalSectionTag } from '@/lib/config/portalSections';
 
 export async function listActiveCategories() {
   const supabase = await createClient();
@@ -22,13 +23,20 @@ export async function getPostForEdit(id: string): Promise<PostFormInitial | null
 
   const [{ data: gallery }, { data: tagLinks }] = await Promise.all([
     supabase.from('post_gallery').select('url, alt').eq('post_id', id).order('sort_order'),
-    supabase.from('post_tags').select('tags(name)').eq('post_id', id),
+    supabase.from('post_tags').select('tags(name, slug)').eq('post_id', id),
   ]);
 
-  const tags = (tagLinks ?? [])
-    .map((row) => (row as unknown as { tags: { name: string } | null }).tags?.name)
+  const linkedTags = (tagLinks ?? [])
+    .map((row) => (row as unknown as { tags: { name: string; slug: string } | null }).tags)
+    .filter((tag): tag is { name: string; slug: string } => Boolean(tag));
+  const tags = linkedTags
+    .filter((tag) => !isPortalSectionTag(tag.slug))
+    .map((tag) => tag.name)
     .filter(Boolean)
     .join(', ');
+  const selectedPortalSections = portalSections
+    .filter((section) => linkedTags.some((tag) => tag.slug === portalSectionTag(section.value)))
+    .map((section) => section.value);
 
   return {
     id: post.id,
@@ -43,6 +51,7 @@ export async function getPostForEdit(id: string): Promise<PostFormInitial | null
     category_id: post.category_id ?? '',
     content_type: post.content_type,
     tags,
+    portal_sections: selectedPortalSections,
     is_featured: post.is_featured,
     is_sponsored: post.is_sponsored,
     is_event: post.is_event,

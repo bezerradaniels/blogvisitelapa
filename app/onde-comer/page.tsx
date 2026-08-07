@@ -13,6 +13,6 @@ export const metadata = buildMetadata({
 });
 
 export default async function OndeComerPage() {
-  const posts = await listPublishedPosts({ categorySlug: 'onde-comer', limit: 24 });
+  const posts = await listPublishedPosts({ portalSection: 'onde-comer', isEvent: false, limit: 24 });
   return <ListingView title={cfg.h1} description={cfg.intro} posts={posts} />;
 }

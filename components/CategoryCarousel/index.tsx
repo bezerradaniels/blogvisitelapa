@@ -25,7 +25,7 @@ export default async function CategoryCarousel() {
         {categories.map((cat, i) => (
           <Link
             key={cat.id}
-            href={`/categorias/${cat.slug}`}
+            href={['eventos', 'religiosidade', 'onde-comer', 'onde-malhar', 'hospedagem'].includes(cat.slug) ? `/${cat.slug}` : `/categorias/${cat.slug}`}
             className="group relative aspect-[3/4] w-[150px] flex-none snap-start overflow-hidden rounded-xl md:w-auto"
           >
             {cat.image_url ? (

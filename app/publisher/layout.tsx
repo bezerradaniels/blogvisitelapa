@@ -12,10 +12,10 @@ export default async function PublisherLayout({ children }: { children: React.Re
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-headline text-lg font-extrabold text-title">Meu painel</h1>
         <nav className="flex flex-wrap items-center gap-3 text-sm">
-          <Link href="/publisher" className="text-body hover:text-brand">Posts</Link>
+          <Link href="/publisher" className="text-body hover:text-brand">Artigos</Link>
           <Link href="/publisher/rascunhos" className="text-body hover:text-brand">Rascunhos</Link>
           <Link href="/publisher/enviados" className="text-body hover:text-brand">Enviados</Link>
-          <Link href="/publisher/posts/novo" className="font-medium text-brand">Novo post</Link>
+          <Link href="/publisher/posts/novo" className="font-medium text-brand">Novo artigo</Link>
           <Link href="/conta/senha" className="text-body hover:text-brand">Alterar senha</Link>
           <LogoutButton className="font-medium text-danger hover:underline">Sair</LogoutButton>
         </nav>

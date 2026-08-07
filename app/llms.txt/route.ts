@@ -6,16 +6,16 @@ export const revalidate = 86400;
 export function GET() {
   const body = `# ${siteConfig.name}
 
-> ${siteConfig.slogan}. Portal independente de notícias, eventos e guia local de ${siteConfig.geo.city}, ${siteConfig.geo.state} (${siteConfig.geo.region}, ${siteConfig.geo.subregion}).
+> ${siteConfig.slogan}. Portal independente de artigos, eventos e conteúdo local sobre ${siteConfig.geo.city}, ${siteConfig.geo.state} (${siteConfig.geo.region}, ${siteConfig.geo.subregion}).
 
 ## Sobre
-${siteConfig.name} é um veículo de mídia local que cobre ${siteConfig.geo.city} e região: notícias, eventos, turismo, religiosidade e um guia da cidade (onde comer, onde malhar, hospedagem e serviços).
+${siteConfig.name} publica artigos e eventos sobre ${siteConfig.geo.city} e região, incluindo turismo, religiosidade, onde comer, onde malhar, hospedagem e serviços.
 
 ## Cidade coberta
 ${siteConfig.geo.city} — ${siteConfig.geo.state} — Brasil.
 
 ## Principais seções
-- Notícias: ${absoluteUrl('/noticias')}
+- Artigos: ${absoluteUrl('/noticias')}
 - Eventos: ${absoluteUrl('/eventos')}
 - Turismo: ${absoluteUrl('/categorias/turismo')}
 - Religiosidade: ${absoluteUrl('/religiosidade')}
@@ -33,7 +33,7 @@ Informar moradores, visitantes, romeiros e empresas com conteúdo local, origina
 - Contato: ${absoluteUrl('/contato')}
 - Anuncie: ${absoluteUrl('/anuncie')}
 - RSS: ${absoluteUrl('/rss.xml')}
-- RSS de notícias: ${absoluteUrl('/feed/noticias')}
+- RSS de artigos: ${absoluteUrl('/feed/noticias')}
 `;
 
   return new Response(body, {

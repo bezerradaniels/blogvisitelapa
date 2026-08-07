@@ -3,7 +3,7 @@ import AdCardGrid from '@/components/AdCardGrid';
 import Icon from '@/components/Icon';
 
 const links = [
-  { href: '/noticias', label: 'Mais notícias', icon: 'News01Icon' },
+  { href: '/noticias', label: 'Mais artigos', icon: 'News01Icon' },
   { href: '/noticias?categoria=cotidiano', label: 'Mais em Cotidiano', icon: 'Tag01Icon' },
   { href: '/eventos', label: 'Eventos', icon: 'Calendar03Icon' },
   { href: '/rede', label: 'Rede social', icon: 'UserGroupIcon' },

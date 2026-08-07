@@ -95,7 +95,7 @@ export default function NewsFilterSidebar({ categories, activeCategory }: NewsFi
 
       <div className="card-base hidden overflow-hidden lg:block">
         <nav
-          aria-label="Filtrar notícias por categoria"
+          aria-label="Filtrar artigos por categoria"
           className="space-y-1 p-3"
         >
           {categoryLinks()}
@@ -103,7 +103,7 @@ export default function NewsFilterSidebar({ categories, activeCategory }: NewsFi
       </div>
 
       {open && createPortal(
-        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Categorias de notícias">
+        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Categorias de artigos">
           <button type="button" aria-label="Fechar categorias" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <section id="news-categories-sidebar" className="absolute right-0 top-0 flex h-full w-80 max-w-[86vw] flex-col bg-card p-4 shadow-xl">
             <header className="mb-4 flex items-center justify-between">
@@ -112,7 +112,7 @@ export default function NewsFilterSidebar({ categories, activeCategory }: NewsFi
                 <Icon icon="Cancel01Icon" size={22} />
               </button>
             </header>
-            <nav aria-label="Filtrar notícias por categoria" className="flex flex-col gap-1 overflow-y-auto">
+            <nav aria-label="Filtrar artigos por categoria" className="flex flex-col gap-1 overflow-y-auto">
               {categoryLinks(true)}
             </nav>
           </section>

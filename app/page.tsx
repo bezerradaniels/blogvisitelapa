@@ -17,8 +17,8 @@ import { buildMetadata } from '@/lib/seo/metadata';
 
 export const metadata = buildMetadata({
   description:
-    `${siteConfig.slogan}. Acompanhe notícias, eventos, turismo, religiosidade e o guia local ` +
-    `de ${siteConfig.geo.city}, ${siteConfig.geo.stateCode}.`,
+    `${siteConfig.slogan}. Leia artigos, descubra eventos e explore conteúdos locais ` +
+    `sobre ${siteConfig.geo.city}, ${siteConfig.geo.stateCode}.`,
 });
 
 export const revalidate = 120;
@@ -37,12 +37,11 @@ function EventDateBox({ date }: { date: string }) {
 }
 
 export default async function HomePage() {
-  const [featuredList, latest, events, mostRead, guides, afterHero, afterLatest, beforeEvents, beforeFooter] = await Promise.all([
-    listPublishedPosts({ featured: true, limit: 3 }),
-    listPublishedPosts({ limit: 8 }),
+  const [featuredList, latest, events, mostRead, afterHero, afterLatest, beforeEvents, beforeFooter] = await Promise.all([
+    listPublishedPosts({ featured: true, isEvent: false, limit: 3 }),
+    listPublishedPosts({ isEvent: false, limit: 8 }),
     listUpcomingEvents(4),
     listMostReadPosts(5),
-    listPublishedPosts({ contentType: 'guia', limit: 3 }),
     listPublicHomeSections('after-hero'),
     listPublicHomeSections('after-latest-news'),
     listPublicHomeSections('before-events'),
@@ -89,11 +88,11 @@ export default async function HomePage() {
         {/* Banner (contrato manual) — topo da home */}
         <AdBanner placement="home_top" />
 
-        {/* 3. Últimas notícias */}
+        {/* 3. Últimos artigos */}
         <section>
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <SectionTitle title="Últimas notícias" href="/noticias" linkLabel="ver todas" />
+              <SectionTitle title="Últimos artigos" href="/noticias" linkLabel="ver todos" />
               {latest.length > 0 ? (
                 <div className="grid gap-2 sm:grid-cols-3">
                   {latest.slice(0, 8).map((p) => (
@@ -103,7 +102,7 @@ export default async function HomePage() {
                   ))}
                 </div>
               ) : (
-                <EmptyState title="Sem notícias por enquanto" />
+                <EmptyState title="Sem artigos por enquanto" />
               )}
             </div>
 
@@ -159,20 +158,6 @@ export default async function HomePage() {
             </div>
           ) : (
             <EmptyState title="Nenhum evento agendado" description="Fique de olho na nossa agenda." />
-          )}
-        </section>
-
-        {/* 5. Guia local */}
-        <section>
-          <SectionTitle title="Guia local" href="/categorias/guia-local" linkLabel="ver guia" />
-          {guides.length > 0 ? (
-            <div className="grid gap-[18px] sm:grid-cols-3">
-              {guides.map((p) => (
-                <PostCard key={p.id} post={p} variant="compact" />
-              ))}
-            </div>
-          ) : (
-            <EmptyState title="Guia em construção" />
           )}
         </section>
 

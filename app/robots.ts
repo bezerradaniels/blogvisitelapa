@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { absoluteUrl } from '@/lib/config/site';
 
-// robots.txt — não bloqueia conteúdo de notícias; aponta o sitemap.
+// robots.txt — permite o conteúdo público e aponta o sitemap principal.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin', '/publisher', '/perfil', '/favoritos', '/api/'],
       },
     ],
-    sitemap: [absoluteUrl('/sitemap.xml'), absoluteUrl('/news-sitemap.xml')],
+    sitemap: [absoluteUrl('/sitemap.xml')],
     host: absoluteUrl('/'),
   };
 }

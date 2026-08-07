@@ -6,8 +6,8 @@ export const siteConfig = {
   shortName: 'Conecta Lapa',
   slogan: 'Tudo sobre Bom Jesus da Lapa',
   description:
-    'Notícias, eventos, turismo, religiosidade e guia local de Bom Jesus da Lapa, na Bahia. ' +
-    'Cobertura da cidade do Senhor Bom Jesus, no Vale do São Francisco, oeste baiano.',
+    'Artigos, eventos e conteúdo local sobre Bom Jesus da Lapa, na Bahia. ' +
+    'Histórias e informações da cidade do Senhor Bom Jesus, no Vale do São Francisco, oeste baiano.',
   locale: 'pt-BR',
   // Geografia (base para GEO / local SEO / schema)
   geo: {
@@ -50,7 +50,7 @@ export function absoluteUrl(path = '/'): string {
 
 // Navegação principal (header e menu mobile).
 export const mainNav = [
-  { label: 'Notícias', href: '/noticias', icon: 'News01Icon', iconClassName: 'text-accent' },
+  { label: 'Artigos', href: '/noticias', icon: 'News01Icon', iconClassName: 'text-accent' },
   { label: 'Eventos', href: '/eventos', icon: 'Calendar03Icon', iconClassName: 'text-info' },
   { label: 'Rede Social', href: '/comunidades', icon: 'UserGroupIcon', iconClassName: 'text-brand' },
   { label: 'Anuncie', href: '/anuncie', icon: 'Megaphone01Icon', iconClassName: 'text-highlight' },
@@ -66,7 +66,7 @@ export const footerNav = {
     { label: 'Termos de uso', href: '/termos-de-uso' },
   ],
   secoes: [
-    { label: 'Notícias', href: '/noticias' },
+    { label: 'Artigos', href: '/noticias' },
     { label: 'Eventos', href: '/eventos' },
     { label: 'Turismo', href: '/categorias/turismo' },
     { label: 'Guia Local', href: '/categorias/guia-local' },

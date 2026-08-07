@@ -72,7 +72,7 @@ export default function SearchModal() {
                 type="search"
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
-                placeholder="Buscar notícias, eventos e guias..."
+                placeholder="Buscar artigos, eventos e temas locais..."
                 aria-label="Buscar"
                 className="h-11 w-full bg-transparent text-sm outline-none"
               />

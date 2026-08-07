@@ -13,6 +13,6 @@ export const metadata = buildMetadata({
 });
 
 export default async function HospedagemPage() {
-  const posts = await listPublishedPosts({ categorySlug: 'hospedagem', limit: 24 });
+  const posts = await listPublishedPosts({ portalSection: 'hospedagem', isEvent: false, limit: 24 });
   return <ListingView title={cfg.h1} description={cfg.intro} posts={posts} />;
 }

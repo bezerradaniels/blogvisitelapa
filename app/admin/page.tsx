@@ -22,7 +22,7 @@ export default async function AdminHomePage() {
 
   return (
     <div className="admin-page space-y-5">
-      <AdminPageHeader title="Painel" actionHref="/admin/posts/novo" actionLabel="Adicionar post" description={`${greeting()}, ${firstName}. ${formatDate(new Date(), "EEEE, d 'de' MMMM 'de' yyyy")}.`} />
+      <AdminPageHeader title="Painel" actionHref="/admin/posts/novo" actionLabel="Adicionar artigo" description={`${greeting()}, ${firstName}. ${formatDate(new Date(), "EEEE, d 'de' MMMM 'de' yyyy")}.`} />
 
       <section>
         <h2 className="mb-3 text-base font-bold text-title">Conteúdo</h2>

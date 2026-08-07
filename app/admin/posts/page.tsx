@@ -56,8 +56,8 @@ export default async function AdminPostsPage({ searchParams }: Props) {
     <div className="admin-page space-y-4">
       <header>
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="admin-page-title">Posts</h1>
-          <Link href="/admin/posts/novo" className="admin-button admin-button-primary">Adicionar post</Link>
+          <h1 className="admin-page-title">Artigos</h1>
+          <Link href="/admin/posts/novo" className="admin-button admin-button-primary">Adicionar artigo</Link>
         </div>
         <ul className="admin-status-links mt-3 text-[13px]" aria-label="Filtrar posts por status">
           {tabs.map((tab) => {
@@ -103,15 +103,15 @@ export default async function AdminPostsPage({ searchParams }: Props) {
           {categoryId && <input type="hidden" name="categoria" value={categoryId} />}
           {month && <input type="hidden" name="mes" value={month} />}
           <label className="flex-1 lg:flex-none">
-            <span className="sr-only">Buscar posts</span>
-            <input type="search" name="q" defaultValue={q} placeholder="Pesquisar posts…" className="admin-control w-full min-w-0 sm:w-64" />
+            <span className="sr-only">Buscar artigos</span>
+            <input type="search" name="q" defaultValue={q} placeholder="Pesquisar artigos…" className="admin-control w-full min-w-0 sm:w-64" />
           </label>
-          <button type="submit" className="admin-button">Pesquisar posts</button>
+          <button type="submit" className="admin-button">Pesquisar artigos</button>
         </form>
       </div>
 
       {posts.length === 0 ? (
-        <div className="border border-[#c3c4c7] bg-white px-4 py-8 text-center text-sm text-[#50575e]">Nenhum post encontrado.</div>
+        <div className="border border-[#c3c4c7] bg-white px-4 py-8 text-center text-sm text-[#50575e]">Nenhum artigo encontrado.</div>
       ) : (
         <PostManagementTable posts={posts} authors={authors} />
       )}

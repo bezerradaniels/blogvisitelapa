@@ -234,7 +234,7 @@ export default async function PostPage({ params }: Props) {
                 className="flex min-h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-bold text-body hover:bg-surface hover:text-brand"
               >
                 <Icon icon="News01Icon" size={18} />
-                Mais notícias
+                Mais artigos
               </Link>
               {post.category && (
                 <Link
@@ -283,7 +283,7 @@ export default async function PostPage({ params }: Props) {
                 ))}
               </ol>
             ) : (
-              <p className="text-sm text-muted">Ainda não há outras notícias mais lidas.</p>
+              <p className="text-sm text-muted">Ainda não há outros artigos mais lidos.</p>
             )}
           </section>
 

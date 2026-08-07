@@ -12,7 +12,7 @@ export default function NotFound() {
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Button href="/">Voltar ao início</Button>
-        <Button href="/noticias" variant="outline">Ver notícias</Button>
+        <Button href="/noticias" variant="outline">Ver artigos</Button>
       </div>
     </div>
   );

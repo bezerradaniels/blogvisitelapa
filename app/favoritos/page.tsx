@@ -39,7 +39,7 @@ export default async function FavoritosPage() {
         <EmptyState
           title="Você ainda não salvou nada"
           description="Toque em “Salvar nos favoritos” em qualquer matéria para guardá-la aqui."
-          action={<Button href="/noticias">Explorar notícias</Button>}
+          action={<Button href="/noticias">Explorar artigos</Button>}
         />
       )}
     </div>

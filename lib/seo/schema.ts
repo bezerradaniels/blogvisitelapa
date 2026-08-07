@@ -8,7 +8,7 @@ type JsonLd = Record<string, unknown>;
 export function organizationSchema(): JsonLd {
   return {
     '@context': 'https://schema.org',
-    '@type': 'NewsMediaOrganization',
+    '@type': 'Organization',
     name: siteConfig.name,
     url: absoluteUrl('/'),
     logo: absoluteUrl('/logo.png'),
@@ -55,14 +55,13 @@ export function breadcrumbSchema(items: { name: string; path: string }[]): JsonL
   };
 }
 
-// Article / NewsArticle conforme o tipo do post.
+// Todo conteúdo editorial do portal é tratado como artigo.
 export function articleSchema(post: PostWithRelations): JsonLd {
-  const isNews = post.content_type === 'noticia';
   const url = absoluteUrl(`/post/${post.slug}`);
 
   return {
     '@context': 'https://schema.org',
-    '@type': isNews ? 'NewsArticle' : 'Article',
+    '@type': 'Article',
     headline: post.seo_title ?? post.title,
     description: post.seo_description ?? post.excerpt ?? undefined,
     image: post.cover_image_url ? [post.cover_image_url] : undefined,

@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="col-span-2 md:col-span-1">
           <BrandLogo inverted />
           <p className="mt-2 text-xs text-white">
-            {siteConfig.slogan}. Notícias, eventos e guia local de {siteConfig.geo.city},{' '}
+            {siteConfig.slogan}. Artigos, eventos e conteúdo local de {siteConfig.geo.city},{' '}
             {siteConfig.geo.stateCode}.
           </p>
         </div>

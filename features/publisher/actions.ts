@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { sanitizePostHtml } from '@/lib/utils/sanitize';
 import { slugify } from '@/lib/utils/format';
 import type { Json, TablesInsert, TablesUpdate } from '@/types/database';
+import { portalSectionTagName } from '@/lib/config/portalSections';
 
 const galleryItemSchema = z.object({ url: z.string().url(), alt: z.string().optional().default('') });
 
@@ -35,6 +36,7 @@ const postSchema = z.object({
     'conteudo_patrocinado', 'comunidade', 'turismo', 'religiosidade',
   ]),
   tags: z.string().optional().default(''), // separadas por vírgula
+  portal_sections: z.array(z.enum(['onde-comer', 'onde-malhar', 'hospedagem', 'religiosidade'])).optional().default([]),
 
   is_featured: z.boolean().optional().default(false),
   is_sponsored: z.boolean().optional().default(false),
@@ -210,7 +212,7 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
 
   if (!postId) return { ok: false, error: 'Falha ao identificar o post.' };
 
-  await syncTags(supabase, postId, d.tags);
+  await syncTags(supabase, postId, d.tags, d.portal_sections);
   await syncGallery(supabase, postId, d.gallery);
 
   // Remove do Storage a capa/galeria que deixaram de ser referenciadas.
@@ -226,6 +228,11 @@ export async function savePost(input: PostInput): Promise<SaveResult> {
   }
 
   revalidatePath('/');
+  revalidatePath('/noticias');
+  revalidatePath('/onde-comer');
+  revalidatePath('/onde-malhar');
+  revalidatePath('/hospedagem');
+  revalidatePath('/religiosidade');
   revalidatePath('/publisher');
   revalidatePath(`/post/${slug}`);
 
@@ -325,13 +332,13 @@ async function ensureUniqueSlug(
   return `${base}-${Date.now()}`;
 }
 
-async function syncTags(supabase: ServerClient, postId: string, raw: string) {
+async function syncTags(supabase: ServerClient, postId: string, raw: string, sections: string[] = []) {
   const names = Array.from(
     new Set(
-      raw
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean),
+      [
+        ...raw.split(',').map((t) => t.trim()).filter(Boolean),
+        ...sections.map((section) => portalSectionTagName(section as Parameters<typeof portalSectionTagName>[0])),
+      ],
     ),
   );
 

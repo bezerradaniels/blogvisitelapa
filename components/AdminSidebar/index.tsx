@@ -39,8 +39,8 @@ export default function AdminSidebar({
     {
       items: [
         { href: '/admin', label: 'Painel' },
-        { href: '/admin/posts', label: 'Posts' },
-        { href: '/admin/posts/novo', label: 'Adicionar novo' },
+        { href: '/admin/posts', label: 'Artigos' },
+        { href: '/admin/posts/novo', label: 'Adicionar artigo' },
         { href: '/admin/eventos', label: 'Eventos' },
         { href: '/admin/eventos/novo', label: 'Adicionar evento' },
         { href: '/admin/eventos-enviados', label: 'Eventos enviados' },

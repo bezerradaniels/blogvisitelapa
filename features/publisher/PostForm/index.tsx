@@ -10,12 +10,12 @@ import type { GalleryItem } from '@/components/GalleryUploader';
 import ImageUploader from '@/components/ImageUploader';
 import Input from '@/components/Input';
 import RichTextEditor from '@/components/RichTextEditor';
-import Select from '@/components/Select';
 import Textarea from '@/components/Textarea';
 import { savePost, type PostInput } from '@/features/publisher/actions';
 import { CategoryPicker, SubcategoryPicker, type CategoryOption } from '@/features/publisher/CategorySelect';
 import PublishChecklist from '@/features/publisher/PublishChecklist';
 import { slugify } from '@/lib/utils/format';
+import { portalSections, type PortalSection } from '@/lib/config/portalSections';
 
 export interface PostFormInitial extends Partial<PostInput> {
   galleryItems?: GalleryItem[];
@@ -29,19 +29,6 @@ interface PostFormProps {
   adminMode?: boolean;
   eventMode?: boolean;
 }
-
-const contentTypes = [
-  { value: 'noticia', label: 'Notícia' },
-  { value: 'evento', label: 'Evento' },
-  { value: 'guia', label: 'Guia' },
-  { value: 'publieditorial', label: 'Publieditorial' },
-  { value: 'conteudo_patrocinado', label: 'Conteúdo patrocinado' },
-  { value: 'comunidade', label: 'Comunidade' },
-  { value: 'turismo', label: 'Turismo' },
-  { value: 'religiosidade', label: 'Religiosidade' },
-];
-
-const adminPostContentTypes = contentTypes.filter((type) => type.value !== 'evento');
 
 export default function PostForm({ categories, initial, canPublish, adminMode = false, eventMode = false }: PostFormProps) {
   const router = useRouter();
@@ -69,10 +56,9 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
   const [cats, setCats] = useState<CategoryOption[]>(categories);
   const [categoryId, setCategoryId] = useState(initial?.category_id ?? '');
   const [isEvent, setIsEvent] = useState(eventMode || Boolean(initial?.is_event));
-  const [contentType, setContentType] = useState<PostInput['content_type']>(
-    isEvent ? 'evento' : (initial?.content_type as PostInput['content_type']) ?? 'noticia',
-  );
+  const contentType: PostInput['content_type'] = isEvent ? 'evento' : 'noticia';
   const [tags, setTags] = useState(initial?.tags ?? '');
+  const [selectedPortalSections, setSelectedPortalSections] = useState<PortalSection[]>(initial?.portal_sections ?? []);
 
   const [isFeatured, setIsFeatured] = useState(initial?.is_featured ?? false);
   const [isSponsored, setIsSponsored] = useState(initial?.is_sponsored ?? false);
@@ -122,6 +108,7 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
       category_id: categoryId,
       content_type: contentType,
       tags,
+      portal_sections: selectedPortalSections,
       is_featured: isFeatured,
       is_sponsored: isSponsored,
       is_event: isEvent,
@@ -293,18 +280,26 @@ export default function PostForm({ categories, initial, canPublish, adminMode = 
               setCategoryId(c.id);
             }}
           />
-          {isEvent ? (
-            <p className="text-xs text-muted">Tipo de conteúdo: <strong className="font-semibold text-title">Evento</strong></p>
-          ) : (
-            <Select
-              label="Tipo de conteúdo"
-              value={contentType}
-              onChange={(e) => setContentType(e.target.value as PostInput['content_type'])}
-              options={adminMode ? adminPostContentTypes : contentTypes}
-            />
-          )}
+          <p className="text-xs text-muted">Formato: <strong className="font-semibold text-title">{isEvent ? 'Evento' : 'Artigo'}</strong></p>
           <Input label="Tags (separadas por vírgula)" value={tags} onChange={(e) => setTags(e.target.value)} />
         </div>
+
+        {!isEvent && (
+          <div className={section}>
+            <span className={sectionTitle}>Seções do portal</span>
+            <p className="text-xs text-muted">O artigo pode aparecer em várias seções, independentemente da categoria escolhida.</p>
+            {portalSections.map((portalSection) => (
+              <Checkbox
+                key={portalSection.value}
+                label={`Incluir em ${portalSection.label}`}
+                checked={selectedPortalSections.includes(portalSection.value)}
+                onChange={(event) => setSelectedPortalSections((current) => event.target.checked
+                  ? [...current, portalSection.value]
+                  : current.filter((value) => value !== portalSection.value))}
+              />
+            ))}
+          </div>
+        )}
 
         <div className={section}>
           <span className={sectionTitle}>Opções</span>

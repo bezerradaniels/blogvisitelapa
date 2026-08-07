@@ -4,7 +4,7 @@ import { getPostForEdit, listActiveCategories } from '@/features/publisher/queri
 import { getCurrentUser } from '@/lib/auth/session';
 import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata = buildMetadata({ title: 'Editar post', noindex: true });
+export const metadata = buildMetadata({ title: 'Editar artigo', noindex: true });
 export const dynamic = 'force-dynamic';
 
 interface Props {
@@ -24,7 +24,7 @@ export default async function EditarPostPage({ params }: Props) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-title">Editar post</h2>
+      <h2 className="text-lg font-bold text-title">Editar artigo</h2>
       <PostForm categories={categories} initial={initial} canPublish={Boolean(user?.isPublisher)} />
     </div>
   );

@@ -24,7 +24,7 @@ export default async function NoticiasPage({ searchParams }: NoticiasPageProps) 
   const categories = await listNewsFilterCategories();
   const newsCategories = categories.filter((category) => category.slug !== cfg.slug);
   const activeCategory = newsCategories.some((category) => category.slug === requestedCategory) ? requestedCategory : undefined;
-  const posts = await listPublishedPosts({ contentType: 'noticia', categorySlug: activeCategory, limit: 24 });
+  const posts = await listPublishedPosts({ categorySlug: activeCategory, isEvent: false, limit: 24 });
   return (
     <ListingView
       title={cfg.h1}
@@ -32,7 +32,7 @@ export default async function NoticiasPage({ searchParams }: NoticiasPageProps) 
       posts={posts}
       sidebar={<NewsFilterSidebar categories={newsCategories} activeCategory={activeCategory} />}
       rightSidebar={<NewsExploreSidebar />}
-      emptyTitle={activeCategory ? 'Nenhuma notícia nesta categoria' : undefined}
+      emptyTitle={activeCategory ? 'Nenhum artigo nesta categoria' : undefined}
       showSubtitles={false}
       cardVariant="news-list"
     />

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { NewsFilterCategory } from '@/features/posts/NewsFilterSidebar';
 import type { PostWithRelations } from '@/types/posts';
 import type { ContentType } from '@/types/database';
+import { portalSectionTag, type PortalSection } from '@/lib/config/portalSections';
 
 // Seleção padrão com categoria e autor embutidos.
 const POST_SELECT = `
@@ -27,12 +28,30 @@ interface ListOptions {
   contentType?: ContentType;
   featured?: boolean;
   excludeId?: string;
+  portalSection?: PortalSection;
+  isEvent?: boolean;
 }
 
 // Lista posts publicados, mais recentes primeiro.
 export async function listPublishedPosts(options: ListOptions = {}): Promise<PostWithRelations[]> {
-  const { limit = 12, offset = 0, categorySlug, contentType, featured, excludeId } = options;
+  const { limit = 12, offset = 0, categorySlug, contentType, featured, excludeId, portalSection, isEvent } = options;
   const supabase = await createClient();
+
+  let portalPostIds: string[] | undefined;
+  let effectiveCategorySlug = categorySlug;
+  if (portalSection) {
+    const { data: tag } = await supabase.from('tags').select('id').eq('slug', portalSectionTag(portalSection)).maybeSingle();
+    if (tag) {
+      const { data: links } = await supabase.from('post_tags').select('post_id').eq('tag_id', tag.id);
+      portalPostIds = (links ?? []).map((link) => link.post_id);
+    }
+    // Compatibilidade durante a transição: enquanto a seção ainda não recebeu
+    // nenhuma seleção explícita, mantém os artigos da categoria homônima.
+    if (!portalPostIds?.length) {
+      portalPostIds = undefined;
+      effectiveCategorySlug = portalSection;
+    }
+  }
 
   let query = supabase
     .from('posts')
@@ -43,13 +62,15 @@ export async function listPublishedPosts(options: ListOptions = {}): Promise<Pos
     .range(offset, offset + limit - 1);
 
   if (contentType) query = query.eq('content_type', contentType);
+  if (typeof isEvent === 'boolean') query = query.eq('is_event', isEvent);
   if (featured) query = query.eq('is_featured', true);
   if (excludeId) query = query.neq('id', excludeId);
-  if (categorySlug) {
+  if (portalPostIds) query = query.in('id', portalPostIds);
+  if (effectiveCategorySlug) {
     const { data: cat } = await supabase
       .from('categories')
       .select('id')
-      .eq('slug', categorySlug)
+      .eq('slug', effectiveCategorySlug)
       .single();
     if (!cat) return [];
     query = query.eq('category_id', cat.id);
@@ -82,6 +103,7 @@ export async function listMostReadPosts(limit = 5): Promise<PostWithRelations[]>
     .select(POST_SELECT)
     .eq('status', 'publicado')
     .eq('moderation_status', 'aprovado')
+    .eq('is_event', false)
     .order('views_count', { ascending: false })
     .limit(limit);
   return (data ?? []).map(mapPost);

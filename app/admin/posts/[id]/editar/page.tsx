@@ -4,7 +4,7 @@ import PostForm from '@/features/publisher/PostForm';
 import { getPostForEdit, listActiveCategories } from '@/features/publisher/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata = buildMetadata({ title: 'Editar post', noindex: true });
+export const metadata = buildMetadata({ title: 'Editar artigo', noindex: true });
 export const dynamic = 'force-dynamic';
 
 interface Props {
@@ -19,7 +19,7 @@ export default async function AdminEditarPostPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <AdminPageHeader
-        title={initial.is_event ? 'Editar evento' : 'Editar post'}
+        title={initial.is_event ? 'Editar evento' : 'Editar artigo'}
         description={initial.is_event ? 'Atualize os dados, o conteúdo e as opções de publicação do evento.' : 'Atualize o conteúdo, a classificação e as opções editoriais.'}
       />
       <PostForm categories={categories} initial={initial} canPublish adminMode />

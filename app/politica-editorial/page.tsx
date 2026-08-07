@@ -18,12 +18,12 @@ export default function PoliticaEditorialPage() {
 
       <h2>Cobertura</h2>
       <p>
-        Publicamos notícias, eventos, turismo, religiosidade e guias locais de {siteConfig.geo.city}
+        Publicamos artigos e eventos sobre turismo, religiosidade, cotidiano e vida local em {siteConfig.geo.city}
         {' '}e região. Priorizamos assuntos de interesse público local, com relevância para moradores,
         visitantes e romeiros.
       </p>
 
-      <h2>Como selecionamos as notícias</h2>
+      <h2>Como selecionamos os artigos</h2>
       <p>
         A pauta é definida pela relevância local, atualidade e utilidade para a comunidade. Buscamos
         apurar informações junto a fontes confiáveis e identificar a origem quando aplicável.

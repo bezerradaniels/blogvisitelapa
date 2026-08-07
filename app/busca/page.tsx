@@ -33,7 +33,7 @@ export default async function BuscaPage({ searchParams }: Props) {
           emptyTitle="Nenhum resultado encontrado"
         />
       ) : (
-        <p className="text-sm text-muted">Digite um termo para buscar notícias, eventos e guias.</p>
+        <p className="text-sm text-muted">Digite um termo para buscar artigos e eventos.</p>
       )}
     </div>
   );
