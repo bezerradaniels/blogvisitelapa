@@ -5,6 +5,10 @@ import { adminGuard } from '@/lib/auth/adminGuard';
 import { slugify } from '@/lib/utils/format';
 import { homeSectionSchema, type HomeSectionInput } from './validation';
 
+function normalizeSearch(value: string) {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+}
+
 function invalidate(slug?: string) {
   revalidatePath('/'); revalidatePath('/admin/secoes-home'); revalidatePath('/sitemap.xml');
   if (slug) revalidatePath(`/secoes/${slug}`);
@@ -55,8 +59,9 @@ export async function duplicateHomeSection(id: string) {
 
 export async function searchEligibleSectionPosts(term: string) {
   const ctx = await adminGuard(); if (!ctx) return { ok: false, error: 'Acesso restrito.', posts: [] };
-  const clean = term.trim();
-  let query = ctx.supabase.from('posts').select('id, title, slug, cover_image_url, cover_image_alt, published_at, status, moderation_status, category:categories(name), author:profiles!posts_author_id_fkey(full_name)').eq('status', 'publicado').eq('moderation_status', 'aprovado').lte('published_at', new Date().toISOString()).order('published_at', { ascending: false }).limit(30);
-  if (clean) query = query.ilike('title', `%${clean}%`);
-  const { data, error } = await query; return { ok: !error, error: error ? 'Não foi possível buscar os posts.' : undefined, posts: data ?? [] };
+  const clean = normalizeSearch(term);
+  if (!clean) return { ok: true, posts: [] };
+  const { data, error } = await ctx.supabase.from('posts').select('id, title, slug, cover_image_url, cover_image_alt, published_at, status, moderation_status, category:categories(name), author:profiles!posts_author_id_fkey(full_name)').eq('status', 'publicado').eq('moderation_status', 'aprovado').lte('published_at', new Date().toISOString()).order('published_at', { ascending: false }).limit(500);
+  const posts = (data ?? []).filter((post) => normalizeSearch(post.title).includes(clean)).slice(0, 30);
+  return { ok: !error, error: error ? 'Não foi possível buscar os posts.' : undefined, posts };
 }
