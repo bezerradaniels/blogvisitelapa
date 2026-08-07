@@ -68,6 +68,7 @@ export default function AdminSidebar({
         { href: '/admin/comercial/clientes', label: 'Clientes' },
         { href: '/admin/comercial/contratos', label: 'Contratos' },
         { href: '/admin/comercial/campanhas', label: 'Campanhas e publicidade' },
+        { href: '/admin/comercial/espacos-publicitarios', label: 'Espaços publicitários' },
         { href: '/admin/comercial/conteudo', label: 'Conteúdo patrocinado' },
         { href: '/admin/comercial/produtos', label: 'Produtos e inventário' },
         { href: '/admin/comercial/financeiro', label: 'Financeiro' },

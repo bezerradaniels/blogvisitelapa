@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import AdTracker from '@/components/AdTracker';
+import AdPlaceholder from '@/components/AdPlaceholder';
 import { getActiveAds } from '@/lib/ads/resolver';
+import { getAdInventoryItem } from '@/lib/config/adInventory';
 import type { AdPlacement } from '@/types/ads';
 
 interface AdCardGridProps {
@@ -13,7 +15,10 @@ interface AdCardGridProps {
 // de prioridade, sem reservar espaço quando não há anúncio para a posição.
 export default async function AdCardGrid({ placement, limit = 3, className }: AdCardGridProps) {
   const ads = (await getActiveAds(placement)).slice(0, limit);
-  if (ads.length === 0) return null;
+  if (ads.length === 0) {
+    const item = getAdInventoryItem(placement);
+    return <section className={className} aria-label="Publicidade"><AdPlaceholder code={placement} name={item?.name ?? placement} dimensions={`${item?.desktop ?? '300 × 300'} · até ${limit} anúncios`} ratio="aspect-square" /></section>;
+  }
 
   return (
     <section className={className} aria-label="Publicidade">

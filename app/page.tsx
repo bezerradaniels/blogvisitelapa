@@ -224,9 +224,9 @@ function EditorialShowcase({ featuredArticles, secondaryArticles }: { featuredAr
 
         <aside aria-label="Publicidade" className="mx-auto w-full max-w-[360px] xl:max-w-none">
           <div className="flex aspect-[4/5] flex-col items-center justify-center rounded-lg border border-dashed border-line bg-section text-center">
-            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted">Publicidade</span>
-            <strong className="mt-2 text-lg text-title">1080 × 1350</strong>
-            <span className="mt-1 text-xs text-muted">Espaço reservado</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted">Espaço publicitário</span>
+            <strong className="mt-2 text-lg text-title">Home — retrato editorial</strong>
+            <span className="mt-1 font-mono text-xs text-muted">home_editorial_portrait · 1080 × 1350</span>
           </div>
         </aside>
       </div>

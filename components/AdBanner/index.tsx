@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import AdTracker from '@/components/AdTracker';
+import AdPlaceholder from '@/components/AdPlaceholder';
 import { getTopAd } from '@/lib/ads/resolver';
+import { getAdInventoryItem } from '@/lib/config/adInventory';
 import type { AdPlacement } from '@/types/ads';
 
 interface AdBannerProps {
@@ -15,7 +17,10 @@ interface AdBannerProps {
 // Não exibe nada quando não há anúncio — sem espaços vazios na página.
 export default async function AdBanner({ placement, className, ratio = 'aspect-[16/5]' }: AdBannerProps) {
   const ad = await getTopAd(placement);
-  if (!ad || !ad.banner_url) return null;
+  if (!ad || !ad.banner_url) {
+    const item = getAdInventoryItem(placement);
+    return <AdPlaceholder code={placement} name={item?.name ?? placement} dimensions={`${item?.desktop ?? '—'} / ${item?.mobile ?? '—'}`} ratio={ratio} className={className} />;
+  }
 
   const inner = (
     <div className={`relative w-full overflow-hidden rounded ${ratio} bg-surface`}>
