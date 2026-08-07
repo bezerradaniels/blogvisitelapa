@@ -2,6 +2,7 @@ import 'server-only';
 
 // Consultas de listagem para o painel admin (RLS: admin vê tudo).
 import { createClient } from '@/lib/supabase/server';
+import type { ModerationStatus, PostStatus } from '@/types/database';
 
 export interface AdminPostRow {
   id: string;
@@ -15,7 +16,7 @@ export interface AdminPostRow {
   published_at: string | null;
   author_id: string;
   author: { full_name: string | null } | null;
-  category: { name: string } | null;
+  category: { id: string; name: string } | null;
 }
 
 const POST_STATUS_FILTER: Record<string, string | undefined> = {
@@ -26,23 +27,74 @@ const POST_STATUS_FILTER: Record<string, string | undefined> = {
   removidos: 'removido',
 };
 
-export async function listAdminPosts(filter = 'todos', term = ''): Promise<AdminPostRow[]> {
+export interface AdminPostFilters {
+  filter?: string;
+  term?: string;
+  authorId?: string;
+  categoryId?: string;
+  month?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminPostListResult {
+  posts: AdminPostRow[];
+  count: number;
+  page: number;
+  pageSize: number;
+}
+
+export async function listAdminPosts({
+  filter = 'todos', term = '', authorId = '', categoryId = '', month = '', page = 1, pageSize = 20,
+}: AdminPostFilters = {}): Promise<AdminPostListResult> {
   const supabase = await createClient();
   let query = supabase
     .from('posts')
     .select(
-      'id, title, slug, status, moderation_status, is_featured, content_type, updated_at, published_at, author_id, author:profiles!posts_author_id_fkey(full_name), category:categories(name)',
+      'id, title, slug, status, moderation_status, is_featured, content_type, updated_at, published_at, author_id, author:profiles!posts_author_id_fkey(full_name), category:categories(id, name)',
+      { count: 'exact' },
     )
-    .order('updated_at', { ascending: false })
-    .limit(100);
+    .order('updated_at', { ascending: false });
 
   const status = POST_STATUS_FILTER[filter];
   if (status) query = query.eq('status', status as 'publicado');
   if (filter === 'aprovacao') query = query.eq('moderation_status', 'pendente');
   if (term.trim()) query = query.ilike('title', `%${term.trim()}%`);
+  if (authorId) query = query.eq('author_id', authorId);
+  if (categoryId) query = query.eq('category_id', categoryId);
+  if (/^\d{4}-\d{2}$/.test(month)) {
+    const year = Number(month.slice(0, 4));
+    const monthNumber = Number(month.slice(5, 7));
+    const start = new Date(Date.UTC(year, monthNumber - 1, 1)).toISOString();
+    const end = new Date(Date.UTC(year, monthNumber, 1)).toISOString();
+    query = query.gte('updated_at', start).lt('updated_at', end);
+  }
 
-  const { data } = await query;
-  return (data ?? []) as unknown as AdminPostRow[];
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const { data, count } = await query.range(from, from + pageSize - 1);
+  return { posts: (data ?? []) as unknown as AdminPostRow[], count: count ?? 0, page: safePage, pageSize };
+}
+
+export async function countAdminPosts(): Promise<Record<string, number>> {
+  const supabase = await createClient();
+  const count = async (column?: 'status' | 'moderation_status', value?: string) => {
+    let query = supabase.from('posts').select('id', { count: 'exact', head: true });
+    if (column === 'status' && value) query = query.eq('status', value as PostStatus);
+    if (column === 'moderation_status' && value) query = query.eq('moderation_status', value as ModerationStatus);
+    const { count: total } = await query;
+    return total ?? 0;
+  };
+  const [todos, pendentes, aprovacao, publicados, rascunhos, arquivados, removidos] = await Promise.all([
+    count(),
+    count('status', 'enviado_para_revisao'),
+    count('moderation_status', 'pendente'),
+    count('status', 'publicado'),
+    count('status', 'rascunho'),
+    count('status', 'arquivado'),
+    count('status', 'removido'),
+  ]);
+  return { todos, pendentes, aprovacao, publicados, rascunhos, arquivados, removidos };
 }
 
 export interface PostAuthorOption {
@@ -58,6 +110,14 @@ export async function listPostAuthors(): Promise<PostAuthorOption[]> {
     .eq('status', 'active')
     .in('role', ['publisher', 'admin'])
     .order('full_name');
+  return data ?? [];
+}
+
+export interface PostCategoryOption { id: string; name: string }
+
+export async function listPostCategories(): Promise<PostCategoryOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from('categories').select('id, name').order('name');
   return data ?? [];
 }
 

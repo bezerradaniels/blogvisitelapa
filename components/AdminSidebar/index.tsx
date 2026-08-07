@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 import { useState } from 'react';
-import Icon from '@/components/Icon';
 import LogoutButton from '@/components/LogoutButton';
 import { cn } from '@/lib/utils/cn';
 
@@ -107,20 +106,20 @@ export default function AdminSidebar({
     .find((item) => isActive(item.href))?.href ?? '/admin';
 
   return (
-    <div className="flex h-full flex-col bg-title text-[#cfeede]">
-      <div className="flex items-center gap-2 px-4 py-4">
-        <BrandLogo inverted className="text-lg" />
-        <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white">admin</span>
+    <div className="flex h-full flex-col bg-[#1d2327] text-[#f0f0f1]">
+      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2.5">
+        <BrandLogo inverted className="text-base" />
+        <span className="rounded-sm bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white">admin</span>
       </div>
 
-      <nav aria-label="Menu do painel" className="flex-1 space-y-4 overflow-y-auto px-3 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav aria-label="Menu do painel" className="flex-1 space-y-2 overflow-y-auto px-2 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="lg:hidden">
           <label htmlFor="admin-mobile-navigation" className="sr-only">Navegação do painel</label>
           <select
             id="admin-mobile-navigation"
             value={currentMobileHref}
             onChange={(event) => router.push(event.target.value)}
-            className="h-10 w-full rounded-[10px] border border-white/20 bg-white/10 px-3 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-mint2"
+            className="h-9 w-full rounded-sm border border-white/20 bg-white/10 px-2 text-sm font-semibold text-white outline-none focus:ring-2 focus:ring-[#72aee6]"
           >
             {groups.flatMap((group) => group.items.map((item) => (
               <option key={item.href} value={item.href} className="text-title">
@@ -129,25 +128,21 @@ export default function AdminSidebar({
             )))}
           </select>
         </div>
-        <div className="hidden space-y-4 lg:block">
+        <div className="hidden space-y-2 lg:block">
         {groups.map((group, gi) => {
           const collapsible = Boolean(group.title);
           const open = !collapsible || openGroups.has(group.title as string);
           const groupBadge = group.items.reduce((sum, item) => sum + (item.badge ?? 0), 0);
           return (
-            <div key={gi} className="space-y-0.5">
+            <div key={gi}>
               {group.title && (
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.title as string)}
                   aria-expanded={open}
-                  className="flex w-full items-center gap-1.5 rounded-[10px] px-2 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-mint2 transition-colors hover:bg-white/5"
+                  className="flex w-full items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#a7aaad] hover:bg-white/5 hover:text-white"
                 >
-                  <Icon
-                    icon="ArrowRight01Icon"
-                    size={14}
-                    className={cn('shrink-0 transition-transform', open && 'rotate-90')}
-                  />
+                  <span className={cn('w-3 shrink-0 text-[10px] transition-transform', open && 'rotate-90')} aria-hidden>▶</span>
                   <span className="flex-1 text-left">{group.title}</span>
                   {!open && groupBadge > 0 ? (
                     <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white">
@@ -165,14 +160,10 @@ export default function AdminSidebar({
                       href={item.href}
                       aria-current={active ? 'page' : undefined}
                       className={cn(
-                        'flex items-center gap-2 rounded-[14px] px-3 py-2 text-sm font-semibold transition-colors',
-                        active ? 'bg-brand font-extrabold text-white' : 'text-white hover:bg-white/10',
+                        'flex min-h-8 items-center gap-2 px-2.5 py-1.5 text-[13px] font-medium transition-colors',
+                        active ? 'bg-[#2271b1] font-semibold text-white' : 'text-[#f0f0f1] hover:bg-[#2c3338] hover:text-white',
                       )}
                     >
-                      <span
-                        className={cn('h-2 w-2 shrink-0 rounded-full', active ? 'bg-white' : 'bg-mint2/60')}
-                        aria-hidden
-                      />
                       <span className="flex-1">{item.label}</span>
                       {item.badge ? (
                         <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white">
@@ -189,9 +180,9 @@ export default function AdminSidebar({
       </nav>
 
       {userName && (
-        <div className="m-3 rounded-[14px] bg-white/5 p-2">
+        <div className="m-2 border-t border-white/10 p-2">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mint2 text-sm font-extrabold text-title">
+            <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-[#2271b1] text-xs font-semibold text-white">
               {userName.charAt(0).toUpperCase()}
             </span>
             <span className="min-w-0">
@@ -202,11 +193,11 @@ export default function AdminSidebar({
           <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2">
             <Link
               href="/conta/senha"
-              className="flex-1 rounded-[10px] px-2 py-1.5 text-center text-xs font-semibold text-[#cfeede] hover:bg-white/10"
+              className="flex-1 px-2 py-1 text-center text-xs text-[#c3c4c7] hover:bg-white/10 hover:text-white"
             >
               Alterar senha
             </Link>
-            <LogoutButton className="flex-1 rounded-[10px] px-2 py-1.5 text-center text-xs font-semibold text-white hover:bg-accent/80 bg-accent/60">
+            <LogoutButton className="flex-1 px-2 py-1 text-center text-xs text-[#f0f0f1] hover:bg-[#b32d2e]">
               Sair
             </LogoutButton>
           </div>

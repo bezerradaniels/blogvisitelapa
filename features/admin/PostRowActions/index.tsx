@@ -4,7 +4,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useTransition } from 'react';
-import Icon from '@/components/Icon';
 import { moderatePost, quickEditPost, type PostModerationAction } from '@/features/admin/actions';
 import type { PostAuthorOption } from '@/features/admin/queries';
 
@@ -34,7 +33,7 @@ export default function PostRowActions({
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const btn = 'inline-flex min-w-[3rem] flex-col items-center justify-start gap-0.5 rounded-[10px] px-1.5 py-1 text-[10px] font-medium leading-tight transition-colors disabled:opacity-50';
+  const actionClass = 'admin-row-action disabled:cursor-wait disabled:opacity-50';
 
   function run(action: PostModerationAction, confirmMsg?: string) {
     if (confirmMsg && !confirm(confirmMsg)) return;
@@ -69,38 +68,39 @@ export default function PostRowActions({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-1">
+    <div className="admin-row-actions" aria-label={`Ações de ${title}`}>
+      <Link href={`/admin/posts/${postId}/editar`} className={actionClass}>Editar</Link>
+      <button type="button" disabled={pending} onClick={openQuickEdit} className={actionClass}>Edição rápida</button>
+      <Link href={`/post/${slug}`} className={actionClass}>Ver</Link>
       {status !== 'publicado' && (
-        <button type="button" title="Publicar" aria-label="Publicar" disabled={pending} onClick={() => run('publicar')} className={`${btn} bg-success/10 text-success hover:bg-success/20`}><Icon icon="Tick02Icon" size={16} /><span>Publicar</span></button>
+        <button type="button" disabled={pending} onClick={() => run('publicar')} className={actionClass}>Publicar</button>
       )}
       {moderationStatus !== 'aprovado' && status !== 'publicado' && (
-        <button type="button" title="Aprovar" aria-label="Aprovar" disabled={pending} onClick={() => run('aprovar')} className={`${btn} text-success hover:bg-surface`}><Icon icon="Tick02Icon" size={16} /><span>Aprovar</span></button>
+        <button type="button" disabled={pending} onClick={() => run('aprovar')} className={actionClass}>Aprovar</button>
       )}
       {moderationStatus !== 'rejeitado' && (
-        <button type="button" title="Rejeitar" aria-label="Rejeitar" disabled={pending} onClick={() => run('rejeitar')} className={`${btn} text-warning hover:bg-surface`}><Icon icon="Cancel01Icon" size={16} /><span>Rejeitar</span></button>
+        <button type="button" disabled={pending} onClick={() => run('rejeitar')} className={actionClass}>Rejeitar</button>
       )}
-      <button type="button" title={isFeatured ? 'Remover destaque' : 'Destacar'} aria-label={isFeatured ? 'Remover destaque' : 'Destacar'} disabled={pending} onClick={() => run(isFeatured ? 'destaque_off' : 'destaque_on')} className={`${btn} text-brand hover:bg-surface`}><Icon icon="StarIcon" size={16} /><span>{isFeatured ? 'Tirar destaque' : 'Destacar'}</span></button>
+      <button type="button" disabled={pending} onClick={() => run(isFeatured ? 'destaque_off' : 'destaque_on')} className={actionClass}>{isFeatured ? 'Tirar destaque' : 'Destacar'}</button>
       {status !== 'arquivado' && (
-        <button type="button" title="Arquivar" aria-label="Arquivar" disabled={pending} onClick={() => run('arquivar')} className={`${btn} text-muted hover:bg-surface`}><Icon icon="Archive02Icon" size={16} /><span>Arquivar</span></button>
+        <button type="button" disabled={pending} onClick={() => run('arquivar')} className={actionClass}>Arquivar</button>
       )}
-      <button type="button" title="Remover" aria-label="Remover" disabled={pending} onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')} className={`${btn} text-danger hover:bg-surface`}><Icon icon="Delete02Icon" size={16} /><span>Remover</span></button>
-      <button type="button" title="Edição rápida" aria-label="Edição rápida" disabled={pending} onClick={openQuickEdit} className={`${btn} text-body hover:bg-surface`}><Icon icon="FlashIcon" size={16} /><span>Edição rápida</span></button>
-      <Link href={`/admin/posts/${postId}/editar`} title="Edição completa" aria-label="Edição completa" className={`${btn} text-body hover:bg-surface`}><Icon icon="PencilEdit02Icon" size={16} /><span>Editar</span></Link>
+      <button type="button" disabled={pending} onClick={() => run('remover', 'Remover este post? Ele deixará de aparecer no site.')} className={`${actionClass} admin-row-action-danger`}>Remover</button>
 
-      <dialog ref={dialogRef} aria-labelledby={`quick-edit-title-${postId}`} className="w-[calc(100%-2rem)] max-w-lg rounded-[10px] border border-line bg-card p-0 text-body shadow-xl backdrop:bg-title/35">
-        <form action={submitQuickEdit} className="p-5">
+      <dialog ref={dialogRef} aria-labelledby={`quick-edit-title-${postId}`} className="admin-dialog w-[calc(100%-2rem)] max-w-lg border bg-white p-0 text-[#1d2327] shadow-xl backdrop:bg-black/35">
+        <form action={submitQuickEdit} className="p-4">
           <div className="flex items-start justify-between gap-4">
             <div><h2 id={`quick-edit-title-${postId}`} className="text-lg font-bold text-title">Edição rápida</h2><p className="mt-1 text-sm text-muted">Atualize os dados principais deste post.</p></div>
-            <button type="button" onClick={() => dialogRef.current?.close()} className="flex h-8 w-8 items-center justify-center rounded-[10px] text-muted hover:bg-surface" aria-label="Fechar"><Icon icon="Cancel01Icon" size={18} /></button>
+            <button type="button" onClick={() => dialogRef.current?.close()} className="flex h-8 w-8 items-center justify-center text-xl text-[#646970] hover:bg-[#f0f0f1]" aria-label="Fechar">×</button>
           </div>
           <div className="mt-5 grid gap-4">
-            <label className="grid gap-1 text-sm font-medium text-body">Título<input name="title" required minLength={3} defaultValue={title} className="h-10 rounded-[10px] border border-line bg-card px-3 text-sm outline-none focus:border-brand" /></label>
-            <label className="grid gap-1 text-sm font-medium text-body">Slug<input name="slug" required defaultValue={slug} className="h-10 rounded-[10px] border border-line bg-card px-3 text-sm outline-none focus:border-brand" /></label>
-            <label className="grid gap-1 text-sm font-medium text-body">Autor<select name="authorId" defaultValue={authorId} className="h-10 rounded-[10px] border border-line bg-card px-3 text-sm outline-none focus:border-brand">{authors.map((author) => <option key={author.id} value={author.id}>{author.full_name ?? 'Sem nome'}</option>)}</select></label>
-            <label className="grid gap-1 text-sm font-medium text-body">Data de publicação<input name="publishedAt" type="datetime-local" defaultValue={toLocalInput(publishedAt)} className="h-10 rounded-[10px] border border-line bg-card px-3 text-sm outline-none focus:border-brand" /></label>
+            <label className="grid gap-1 text-sm font-medium">Título<input name="title" required minLength={3} defaultValue={title} className="admin-control" /></label>
+            <label className="grid gap-1 text-sm font-medium">Slug<input name="slug" required defaultValue={slug} className="admin-control" /></label>
+            <label className="grid gap-1 text-sm font-medium">Autor<select name="authorId" defaultValue={authorId} className="admin-control">{authors.map((author) => <option key={author.id} value={author.id}>{author.full_name ?? 'Sem nome'}</option>)}</select></label>
+            <label className="grid gap-1 text-sm font-medium">Data de publicação<input name="publishedAt" type="datetime-local" defaultValue={toLocalInput(publishedAt)} className="admin-control" /></label>
           </div>
           {error && <p role="alert" className="mt-4 rounded-[10px] bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
-          <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => dialogRef.current?.close()} className="h-10 rounded-[10px] border border-line px-4 text-sm font-bold text-body hover:bg-surface">Cancelar</button><button type="submit" disabled={pending} className="h-10 rounded-[10px] bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark disabled:opacity-60">{pending ? 'Salvando...' : 'Salvar alterações'}</button></div>
+          <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => dialogRef.current?.close()} className="admin-button">Cancelar</button><button type="submit" disabled={pending} className="admin-button admin-button-primary disabled:opacity-60">{pending ? 'Salvando...' : 'Salvar alterações'}</button></div>
         </form>
       </dialog>
     </div>

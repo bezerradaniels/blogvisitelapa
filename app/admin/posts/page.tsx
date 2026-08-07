@@ -1,11 +1,6 @@
 import Link from 'next/link';
-import Button from '@/components/Button';
-import EmptyState from '@/components/EmptyState';
-import FilterTabs from '@/components/FilterTabs';
-import StatusBadge from '@/components/StatusBadge';
-import PostRowActions from '@/features/admin/PostRowActions';
-import { listAdminPosts, listPostAuthors } from '@/features/admin/queries';
-import { formatDate, titleCase } from '@/lib/utils/format';
+import PostManagementTable from '@/features/admin/PostManagementTable';
+import { countAdminPosts, listAdminPosts, listPostAuthors, listPostCategories } from '@/features/admin/queries';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,80 +15,119 @@ const tabs = [
 ];
 
 interface Props {
-  searchParams: Promise<{ filtro?: string; q?: string }>;
+  searchParams: Promise<{ filtro?: string; q?: string; autor?: string; categoria?: string; mes?: string; pagina?: string }>;
+}
+
+function pageHref(params: Record<string, string>, page: number) {
+  const query = new URLSearchParams(params);
+  if (page > 1) query.set('pagina', String(page));
+  else query.delete('pagina');
+  return `/admin/posts?${query.toString()}`;
+}
+
+function monthOptions() {
+  const formatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  return Array.from({ length: 18 }, (_, index) => {
+    const date = new Date();
+    date.setUTCDate(1);
+    date.setUTCMonth(date.getUTCMonth() - index);
+    return { value: `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`, label: formatter.format(date) };
+  });
 }
 
 export default async function AdminPostsPage({ searchParams }: Props) {
-  const { filtro = 'todos', q = '' } = await searchParams;
-  const [posts, authors] = await Promise.all([listAdminPosts(filtro, q), listPostAuthors()]);
+  const params = await searchParams;
+  const filtro = params.filtro ?? 'todos';
+  const q = params.q ?? '';
+  const authorId = params.autor ?? '';
+  const categoryId = params.categoria ?? '';
+  const month = params.mes ?? '';
+  const requestedPage = Math.max(1, Number.parseInt(params.pagina ?? '1', 10) || 1);
+  const [{ posts, count, page, pageSize }, authors, categories, counts] = await Promise.all([
+    listAdminPosts({ filter: filtro, term: q, authorId, categoryId, month, page: requestedPage }),
+    listPostAuthors(),
+    listPostCategories(),
+    countAdminPosts(),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(count / pageSize));
+  const currentParams = Object.fromEntries(Object.entries({ filtro, q, autor: authorId, categoria: categoryId, mes: month }).filter(([, value]) => value));
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-title">Posts</h2>
-        <Button href="/admin/posts/novo" size="sm">Novo post</Button>
+    <div className="admin-page space-y-4">
+      <header>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="admin-page-title">Posts</h1>
+          <Link href="/admin/posts/novo" className="admin-button admin-button-primary">Adicionar post</Link>
+        </div>
+        <ul className="admin-status-links mt-3 text-[13px]" aria-label="Filtrar posts por status">
+          {tabs.map((tab) => {
+            const query = new URLSearchParams();
+            if (tab.value !== 'todos') query.set('filtro', tab.value);
+            const href = query.size ? `/admin/posts?${query}` : '/admin/posts';
+            return <li key={tab.value}><Link href={href} aria-current={tab.value === filtro ? 'page' : undefined}>{tab.label} <span className="text-[#646970]">({counts[tab.value] ?? 0})</span></Link></li>;
+          })}
+        </ul>
+      </header>
+
+      <div className="flex flex-col-reverse gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <form action="/admin/posts" className="flex flex-wrap items-end gap-1.5">
+          {filtro !== 'todos' && <input type="hidden" name="filtro" value={filtro} />}
+          {q && <input type="hidden" name="q" value={q} />}
+          <label className="grid gap-1 text-xs text-[#50575e]">
+            <span className="sr-only">Filtrar por data</span>
+            <select name="mes" defaultValue={month} className="admin-control w-auto">
+              <option value="">Todas as datas</option>
+              {monthOptions().map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs text-[#50575e]">
+            <span className="sr-only">Filtrar por categoria</span>
+            <select name="categoria" defaultValue={categoryId} className="admin-control w-auto max-w-52">
+              <option value="">Todas as categorias</option>
+              {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-1 text-xs text-[#50575e]">
+            <span className="sr-only">Filtrar por autor</span>
+            <select name="autor" defaultValue={authorId} className="admin-control w-auto max-w-52">
+              <option value="">Todos os autores</option>
+              {authors.map((author) => <option key={author.id} value={author.id}>{author.full_name ?? 'Sem nome'}</option>)}
+            </select>
+          </label>
+          <button type="submit" className="admin-button">Filtrar</button>
+        </form>
+
+        <form action="/admin/posts" className="flex items-end gap-1.5 lg:justify-end">
+          {filtro !== 'todos' && <input type="hidden" name="filtro" value={filtro} />}
+          {authorId && <input type="hidden" name="autor" value={authorId} />}
+          {categoryId && <input type="hidden" name="categoria" value={categoryId} />}
+          {month && <input type="hidden" name="mes" value={month} />}
+          <label className="flex-1 lg:flex-none">
+            <span className="sr-only">Buscar posts</span>
+            <input type="search" name="q" defaultValue={q} placeholder="Pesquisar posts…" className="admin-control w-full min-w-0 sm:w-64" />
+          </label>
+          <button type="submit" className="admin-button">Pesquisar posts</button>
+        </form>
       </div>
 
-      <FilterTabs tabs={tabs} current={filtro} basePath="/admin/posts" />
-
-      <form action="/admin/posts" className="flex gap-2">
-        <input type="hidden" name="filtro" value={filtro} />
-        <input
-          type="search"
-          name="q"
-          defaultValue={q}
-          placeholder="Buscar por título..."
-          className="h-9 w-full max-w-xs rounded-[10px] border border-line px-3 text-sm outline-none focus:border-brand"
-        />
-      </form>
-
       {posts.length === 0 ? (
-        <EmptyState title="Nenhum post encontrado" />
+        <div className="border border-[#c3c4c7] bg-white px-4 py-8 text-center text-sm text-[#50575e]">Nenhum post encontrado.</div>
       ) : (
-        <div className="overflow-x-auto rounded-[10px] border border-line bg-card shadow-card">
-          <table className="w-full text-sm">
-            <thead className="bg-surface text-left text-xs text-muted">
-              <tr>
-                <th className="p-3">Título</th>
-                <th className="p-3">Autor</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Moderação</th>
-                <th className="p-3">Atualizado</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {posts.map((p) => (
-                <tr key={p.id}>
-                  <td className="p-3">
-                    <Link href={`/post/${p.slug}`} className="font-medium text-title hover:text-brand">
-                      {p.title}
-                    </Link>
-                    {p.category && <span className="block text-xs text-muted">{p.category.name}</span>}
-                  </td>
-                  <td className="p-3 text-muted">{p.author?.full_name ? titleCase(p.author.full_name) : '—'}</td>
-                  <td className="p-3"><StatusBadge status={p.status} /></td>
-                  <td className="p-3"><StatusBadge status={p.moderation_status} /></td>
-                  <td className="p-3 text-muted">{formatDate(p.updated_at)}</td>
-                  <td className="p-3">
-                    <PostRowActions
-                      postId={p.id}
-                      title={p.title}
-                      slug={p.slug}
-                      authorId={p.author_id}
-                      publishedAt={p.published_at}
-                      authors={authors}
-                      status={p.status}
-                      moderationStatus={p.moderation_status}
-                      isFeatured={p.is_featured}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PostManagementTable posts={posts} authors={authors} />
       )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[#646970]">
+        <span>{count} {count === 1 ? 'item' : 'itens'}</span>
+        {totalPages > 1 && (
+          <nav className="admin-pagination" aria-label="Paginação de posts">
+            {page > 1 ? <Link href={pageHref(currentParams, 1)} aria-label="Primeira página">«</Link> : <span aria-hidden>«</span>}
+            {page > 1 ? <Link href={pageHref(currentParams, page - 1)} aria-label="Página anterior">‹</Link> : <span aria-hidden>‹</span>}
+            <span aria-current="page">{page} de {totalPages}</span>
+            {page < totalPages ? <Link href={pageHref(currentParams, page + 1)} aria-label="Próxima página">›</Link> : <span aria-hidden>›</span>}
+            {page < totalPages ? <Link href={pageHref(currentParams, totalPages)} aria-label="Última página">»</Link> : <span aria-hidden>»</span>}
+          </nav>
+        )}
+      </div>
     </div>
   );
 }
