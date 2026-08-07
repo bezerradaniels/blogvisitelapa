@@ -193,7 +193,7 @@ function EditorialShowcase({ articles }: { articles: PostWithRelations[] }) {
   const articleAt = (index: number) => articles[index % articles.length] as PostWithRelations;
   const lead = articleAt(0);
   const supporting = Array.from({ length: Math.min(4, Math.max(0, articles.length - 1)) }, (_, index) => articleAt(index + 1));
-  const visualPosts = Array.from({ length: Math.min(3, articles.length) }, (_, index) => ({
+  const visualPosts = Array.from({ length: Math.min(4, articles.length) }, (_, index) => ({
     post: articleAt(index + 5),
     related: articleAt(index + 8),
   }));
@@ -217,7 +217,7 @@ function EditorialShowcase({ articles }: { articles: PostWithRelations[] }) {
           </ul>
         )}
 
-        <div className="mt-8 grid gap-6 border-t border-line pt-8 md:grid-cols-3">
+        <div className="mt-8 grid gap-6 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-4">
           {visualPosts.map(({ post, related }, index) => (
             <article key={`${post.id}-${index}`} className="min-w-0">
               <Link href={`/post/${post.slug}`} className="group block">
@@ -227,7 +227,7 @@ function EditorialShowcase({ articles }: { articles: PostWithRelations[] }) {
                       src={post.cover_image_url}
                       alt={post.cover_image_alt ?? post.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, 28vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 22vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
