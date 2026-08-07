@@ -35,7 +35,10 @@ export const siteConfig = {
 
 // URL base do site (sem barra final). Usa a env em produção.
 export function getSiteUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const defaultUrl = process.env.NODE_ENV === 'production'
+    ? 'https://conectalapa.com.br'
+    : 'http://localhost:3000';
+  const url = process.env.NEXT_PUBLIC_SITE_URL || defaultUrl;
   return url.replace(/\/$/, '');
 }
 

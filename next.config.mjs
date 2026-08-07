@@ -2,7 +2,8 @@
 
 // O host do Supabase Storage é derivado da URL pública do projeto, para liberar
 // as imagens (capas, galeria, banners, avatares) no componente next/image.
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uaeanrxnwqodlaltcfks.supabase.co';
 const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 
 const remotePatterns = [];
