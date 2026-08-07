@@ -65,6 +65,15 @@
   border-radius: 3px !important;
   font-family: inherit;
 }
+.admin-shell :where(
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  [class*="rounded-["]
+) {
+  border-radius: 3px !important;
+}
 .admin-shell :where(a.rounded-full, button.rounded-full) { border-radius: 3px; }
 .admin-shell .card-base {
   border-color: var(--admin-border);
