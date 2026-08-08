@@ -36,11 +36,10 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   images: {
-    // Redimensiona no CDN do Supabase e evita sobrecarregar a aplicação
-    // self-hosted com requisições para /_next/image.
-    loader: 'custom',
-    loaderFile: './lib/images/supabaseLoader.ts',
     remotePatterns,
+    // Mantém as variantes processadas em cache para evitar novo trabalho do
+    // servidor e nova busca no Supabase a cada auditoria/expiração curta.
+    minimumCacheTTL: 2678400,
     // Tamanhos alinhados ao layout mobile-first e à capa 16:10.
     imageSizes: [64, 96, 128, 256, 384],
     deviceSizes: [360, 420, 640, 768, 1024, 1280],
