@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const nextPolyfillModule = require.resolve('next/dist/build/polyfills/polyfill-module');
+const modernPolyfillModule = fileURLToPath(
+  new URL('./lib/polyfills/modernBrowsers.js', import.meta.url),
+);
+
 // O host do Supabase Storage é derivado da URL pública do projeto, para liberar
 // as imagens (capas, galeria, banners, avatares) no componente next/image.
 const supabaseUrl =
@@ -27,10 +36,23 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   images: {
+    // Redimensiona no CDN do Supabase e evita sobrecarregar a aplicação
+    // self-hosted com requisições para /_next/image.
+    loader: 'custom',
+    loaderFile: './lib/images/supabaseLoader.ts',
     remotePatterns,
     // Tamanhos alinhados ao layout mobile-first e à capa 16:10.
     imageSizes: [64, 96, 128, 256, 384],
     deviceSizes: [360, 420, 640, 768, 1024, 1280],
+  },
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      // O App Router importa um conjunto fixo de polyfills. Para os navegadores
+      // modernos suportados pelo Next 16, só URL.canParse ainda precisa de
+      // fallback em parte da faixa; o restante gera o alerta de JS legado.
+      config.resolve.alias[nextPolyfillModule] = modernPolyfillModule;
+    }
+    return config;
   },
 };
 

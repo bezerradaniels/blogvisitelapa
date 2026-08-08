@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   campaignId: string;
@@ -14,14 +13,24 @@ interface Props {
 // O banco ignora chamadas para campanhas inativas ou sem tracking habilitado;
 // assim este componente nunca expõe contratos nem registra eventos inválidos.
 export default function AdTracker({ campaignId, href, children, className }: Props) {
+  function record(event: 'impression' | 'click') {
+    void fetch('/api/ads/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ campaignId, event }),
+      credentials: 'same-origin',
+      keepalive: true,
+    });
+  }
+
   useEffect(() => {
-    const supabase = createClient();
-    void supabase.rpc('record_ad_event', { p_campaign_id: campaignId, p_event: 'impression' });
+    record('impression');
+    // Registra uma vez por montagem/campanha.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId]);
 
   function click() {
-    const supabase = createClient();
-    void supabase.rpc('record_ad_event', { p_campaign_id: campaignId, p_event: 'click' });
+    record('click');
   }
 
   if (href) {

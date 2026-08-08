@@ -15,28 +15,28 @@ ${siteConfig.name} publica artigos e eventos sobre ${siteConfig.geo.city} e regi
 ${siteConfig.geo.city} — ${siteConfig.geo.state} — Brasil.
 
 ## Principais seções
-- Artigos: ${absoluteUrl('/noticias')}
-- Eventos: ${absoluteUrl('/eventos')}
-- Turismo: ${absoluteUrl('/categorias/turismo')}
-- Religiosidade: ${absoluteUrl('/religiosidade')}
-- Onde comer: ${absoluteUrl('/onde-comer')}
-- Onde malhar: ${absoluteUrl('/onde-malhar')}
-- Hospedagem: ${absoluteUrl('/hospedagem')}
-- Guia local: ${absoluteUrl('/categorias/guia-local')}
+- [Artigos](${absoluteUrl('/noticias')})
+- [Eventos](${absoluteUrl('/eventos')})
+- [Turismo](${absoluteUrl('/categorias/turismo')})
+- [Religiosidade](${absoluteUrl('/religiosidade')})
+- [Onde comer](${absoluteUrl('/onde-comer')})
+- [Onde malhar](${absoluteUrl('/onde-malhar')})
+- [Hospedagem](${absoluteUrl('/hospedagem')})
+- [Guia local](${absoluteUrl('/categorias/guia-local')})
 
 ## Propósito editorial
 Informar moradores, visitantes, romeiros e empresas com conteúdo local, original e atual. Conteúdo publicitário é sempre identificado (Conteúdo patrocinado, Publieditorial, Evento patrocinado) e separado do conteúdo jornalístico.
 
 ## Links úteis
-- Sobre: ${absoluteUrl('/sobre')}
-- Política editorial: ${absoluteUrl('/politica-editorial')}
-- Contato: ${absoluteUrl('/contato')}
-- Anuncie: ${absoluteUrl('/anuncie')}
-- RSS: ${absoluteUrl('/rss.xml')}
-- RSS de artigos: ${absoluteUrl('/feed/noticias')}
+- [Sobre](${absoluteUrl('/sobre')})
+- [Política editorial](${absoluteUrl('/politica-editorial')})
+- [Contato](${absoluteUrl('/contato')})
+- [Anuncie](${absoluteUrl('/anuncie')})
+- [RSS](${absoluteUrl('/rss.xml')})
+- [RSS de artigos](${absoluteUrl('/feed/noticias')})
 `;
 
   return new Response(body, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
   });
 }

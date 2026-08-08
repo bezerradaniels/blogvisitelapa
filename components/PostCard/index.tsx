@@ -56,7 +56,8 @@ export default function PostCard({ post, variant = 'default', showSubtitle = tru
               fill
               sizes={isNewsList ? '128px' : isFeatured ? '(max-width:768px) 100vw, 66vw' : '(max-width:768px) 100vw, 33vw'}
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              priority={isFeatured}
+              loading={isFeatured ? 'eager' : undefined}
+              fetchPriority={isFeatured ? 'high' : undefined}
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted">Sem imagem</div>

@@ -27,12 +27,13 @@
   --color-muted: #475569; /* slate-600 (hierarquia) */
 
   /* Marca (verde-menta) */
-  --color-brand: #2fa87c;
-  --color-brand-dark: #1d7a58;
+  /* Tons calibrados para WCAG AA, inclusive em texto pequeno sobre branco. */
+  --color-brand: #1f7f5c;
+  --color-brand-dark: #14543d;
   --color-brand-soft: #def3e8;
 
   /* Acentos do tema */
-  --color-accent: #e85a6b; /* coral — CTA "Anuncie", badge Eventos */
+  --color-accent: #c74354; /* coral — CTA "Anuncie", badge Eventos */
   --color-accent-ink: #ffffff;
   --color-highlight: #f2b64c; /* amarelo — badge "Guia Local", estrelas */
   --color-highlight-ink: #5c4508;
@@ -41,8 +42,8 @@
   /* Linhas e estados */
   --color-border: #d8eee2; /* linhas esverdeadas */
   --color-success: #1d7a58;
-  --color-warning: #b5822a;
-  --color-danger: #c74354;
+  --color-warning: #805a12;
+  --color-danger: #9f2638;
   --color-info: #2563eb;
 
   /* Raios (cantos bem arredondados) */

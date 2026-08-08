@@ -4,7 +4,7 @@
 // Usado no header mobile, no perfil e nos painéis (admin/publisher).
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { logoutSession } from '@/components/LogoutButton/actions';
 import { cn } from '@/lib/utils/cn';
 
 interface LogoutButtonProps {
@@ -25,8 +25,7 @@ export default function LogoutButton({
 
   async function logout() {
     setLoading(true);
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await logoutSession();
     onDone?.();
     router.push(redirectTo);
     router.refresh();
