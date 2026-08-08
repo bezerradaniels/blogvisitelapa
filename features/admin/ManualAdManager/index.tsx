@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import Checkbox from '@/components/Checkbox';
@@ -72,30 +73,70 @@ const weekDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 function SingleDatePicker({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) {
   const selected = value ? new Date(`${value}T12:00:00`) : null;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
   const [month, setMonth] = useState(() => startOfMonth(selected ?? new Date()));
   const leadingDays = (getDay(startOfMonth(month)) + 6) % 7;
   const days = Array.from({ length: getDaysInMonth(month) }, (_, index) => new Date(month.getFullYear(), month.getMonth(), index + 1));
 
+  useEffect(() => {
+    if (!open) return;
+    function closeOnOutsideClick(event: PointerEvent) {
+      const target = event.target as Node;
+      if (!containerRef.current?.contains(target) && !calendarRef.current?.contains(target)) setOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false);
+    }
+    function closeOnResize() {
+      setOpen(false);
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener('scroll', closeOnResize, true);
+    window.addEventListener('resize', closeOnResize);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener('scroll', closeOnResize, true);
+      window.removeEventListener('resize', closeOnResize);
+    };
+  }, [open]);
+
   function toggle() {
-    if (!open) setMonth(startOfMonth(selected ?? new Date()));
+    if (!open) {
+      setMonth(startOfMonth(selected ?? new Date()));
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const calendarWidth = Math.min(300, window.innerWidth - 24);
+        const calendarHeight = 310;
+        const availableBelow = window.innerHeight - rect.bottom;
+        const top = availableBelow >= calendarHeight + 8
+          ? rect.bottom + 4
+          : Math.max(8, rect.top - calendarHeight - 4);
+        const left = Math.min(Math.max(8, rect.left), window.innerWidth - calendarWidth - 8);
+        setPosition({ top, left });
+      }
+    }
     setOpen((current) => !current);
   }
 
-  return <div className="relative min-w-0">
-    <button type="button" onClick={toggle} className="flex h-10 w-full min-w-0 items-center gap-2.5 rounded-l-[9px] px-3 text-left text-sm text-title outline-none focus:bg-surface">
+  return <div ref={containerRef} className="relative min-w-0">
+    <button type="button" onClick={toggle} aria-expanded={open} className="flex h-10 w-full min-w-0 items-center gap-2.5 rounded-l-[9px] px-3 text-left text-sm text-title outline-none hover:bg-surface focus:bg-surface">
       <Icon icon="Calendar03Icon" size={18} className="shrink-0" />
       <span className={`truncate ${value ? '' : 'text-muted'}`}>{value ? formatDateLabel(value) : placeholder}</span>
     </button>
-    {open && <div className="absolute left-0 top-[calc(100%+4px)] z-30 w-[300px] max-w-[calc(100vw-3rem)] rounded-[10px] border border-line bg-card p-3 shadow-xl">
+    {open && createPortal(<div ref={calendarRef} style={{ top: position.top, left: position.left }} className="fixed z-[100] w-[300px] max-w-[calc(100vw-1.5rem)] rounded-[10px] border border-line bg-card p-3 shadow-xl">
       <div className="mb-3 flex items-center justify-between"><button type="button" onClick={() => setMonth((current) => addMonths(current, -1))} className="h-8 w-8 text-xl" aria-label="Mês anterior">‹</button><strong className="text-sm capitalize text-title">{format(month, 'MMMM yyyy', { locale: ptBR })}</strong><button type="button" onClick={() => setMonth((current) => addMonths(current, 1))} className="h-8 w-8 text-xl" aria-label="Próximo mês">›</button></div>
       <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-muted">{weekDays.map((day) => <span key={day} className="py-1">{day}</span>)}</div>
       <div className="grid grid-cols-7 gap-1">{Array.from({ length: leadingDays }, (_, index) => <span key={`empty-${index}`} />)}{days.map((day) => {
         const key = format(day, 'yyyy-MM-dd');
         const active = key === value;
-        return <button key={key} type="button" onClick={() => { onChange(key); setOpen(false); }} className={`h-8 text-sm ${active ? 'bg-[#2271b1] font-bold text-white' : 'text-title hover:bg-surface'}`}>{day.getDate()}</button>;
+        return <button key={key} type="button" onClick={() => { onChange(key); setOpen(false); }} className={`h-8 rounded-[6px] text-sm ${active ? 'bg-[#2271b1] font-bold text-white' : 'text-title hover:bg-surface'}`}>{day.getDate()}</button>;
       })}</div>
-    </div>}
+    </div>, document.body)}
   </div>;
 }
 
@@ -104,10 +145,9 @@ function DateTimeField({ value, onChange, placeholder = 'dd/mm/aaaa' }: { value:
   const time = value ? timePart(value) : '00:00';
   return <div className="grid h-10 grid-cols-2 rounded-[10px] border border-line bg-card outline-none focus-within:border-brand">
     <SingleDatePicker value={date} placeholder={placeholder} onChange={(selectedDate) => onChange(`${selectedDate}T${time}`)} />
-    <label className="relative flex h-full min-w-0 cursor-pointer items-center gap-2.5 rounded-r-[9px] border-l border-line px-3 text-sm text-title focus-within:bg-surface">
+    <label className="flex h-full min-w-0 cursor-text items-center gap-2.5 rounded-r-[9px] border-l border-line px-3 text-sm text-title hover:bg-surface focus-within:bg-surface">
       <Icon icon="Clock01Icon" size={18} className="shrink-0" />
-      <span>{time}</span>
-      <input aria-label="Horário" type="time" value={time} onChange={(event) => date && onChange(setTimePart(value, event.target.value))} className="absolute inset-0 cursor-pointer opacity-0" disabled={!date} />
+      <input aria-label="Horário" type="time" step="60" value={time} onChange={(event) => date && onChange(setTimePart(value, event.target.value))} className="h-full min-w-0 flex-1 cursor-text bg-transparent text-sm text-title outline-none disabled:cursor-not-allowed disabled:text-muted" disabled={!date} />
     </label>
   </div>;
 }
