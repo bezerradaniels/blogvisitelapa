@@ -90,7 +90,7 @@ export default async function PostPage({ params }: Props) {
 
       {/* Publicidade no topo do artigo: apenas mobile, antes da trilha. */}
       <div className="mb-6 md:hidden">
-        <AdBanner placement="post_inline_mobile" ratio="aspect-[728/90]" />
+        <AdBanner placement="post_inline_mobile" />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,760px)_280px] lg:items-start xl:gap-10">

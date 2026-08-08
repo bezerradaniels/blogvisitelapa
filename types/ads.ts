@@ -9,7 +9,10 @@ export interface ResolvedAd {
   title: string;
   placement: AdPlacement;
   banner_url: string | null;
+  mobile_banner_url?: string | null;
   link_url: string | null;
   company_name: string | null;
+  alternative_text?: string | null;
   priority: number;
+  tracking_enabled?: boolean;
 }

@@ -15,6 +15,9 @@ export default async function NewsExploreSidebar({ filter }: { filter?: ReactNod
   return (
     <aside className="space-y-5 lg:sticky lg:top-20">
       {filter}
+
+      <AdCardGrid placement="post_sidebar" limit={3} />
+
       <section className="card-base p-4 sm:p-5">
         <h2 className="text-xl font-extrabold text-title">Navegue</h2>
         <nav aria-label="Navegação complementar" className="mt-4 space-y-1">
@@ -26,8 +29,6 @@ export default async function NewsExploreSidebar({ filter }: { filter?: ReactNod
           ))}
         </nav>
       </section>
-
-      <AdCardGrid placement="post_sidebar" limit={3} />
     </aside>
   );
 }

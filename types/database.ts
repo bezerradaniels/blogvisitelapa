@@ -654,6 +654,57 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['ad_contracts']['Insert']>;
         Relationships: [];
       };
+      manual_ads: {
+        Row: {
+          id: string;
+          title: string;
+          placement: AdPlacement;
+          desktop_media_url: string | null;
+          mobile_media_url: string | null;
+          alternative_text: string | null;
+          destination_url: string | null;
+          start_at: string;
+          end_at: string | null;
+          priority: number;
+          is_active: boolean;
+          created_by: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          placement: AdPlacement;
+          desktop_media_url?: string | null;
+          mobile_media_url?: string | null;
+          alternative_text?: string | null;
+          destination_url?: string | null;
+          start_at?: string;
+          end_at?: string | null;
+          priority?: number;
+          is_active?: boolean;
+          created_by?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          placement?: AdPlacement;
+          desktop_media_url?: string | null;
+          mobile_media_url?: string | null;
+          alternative_text?: string | null;
+          destination_url?: string | null;
+          start_at?: string;
+          end_at?: string | null;
+          priority?: number;
+          is_active?: boolean;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       commercial_brands: {
         Row: {
           id: string;

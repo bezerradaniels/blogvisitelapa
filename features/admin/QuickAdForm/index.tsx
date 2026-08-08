@@ -7,16 +7,13 @@ import ImageUploader from '@/components/ImageUploader';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
 import { saveContract } from '@/features/admin/adActions';
+import { campaignAdInventory, getAdUploadRatio, getAdInventoryItem } from '@/lib/config/adInventory';
 import type { AdPlacement } from '@/types/database';
 
-const PLACEMENTS: { value: AdPlacement; label: string }[] = [
-  { value: 'home_top', label: 'Home — topo' },
-  { value: 'home_middle', label: 'Home — meio' },
-  { value: 'post_sidebar', label: 'Post — sidebar' },
-  { value: 'post_inline_mobile', label: 'Post — mobile' },
-  { value: 'category_top', label: 'Notícias — topo' },
-  { value: 'event_sidebar', label: 'Eventos — sidebar' },
-];
+const PLACEMENTS = campaignAdInventory.map((item) => ({
+  value: item.code,
+  label: `${item.name} — ${item.desktop === 'Não exibido' ? item.mobile : item.desktop}`,
+}));
 
 const PAYMENT_METHODS = [
   { value: 'pix', label: 'PIX' },
@@ -59,6 +56,7 @@ export default function QuickAdForm({ clients = [] }: { clients?: ClientOption[]
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
+  const selectedInventory = getAdInventoryItem(placement);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -160,8 +158,8 @@ export default function QuickAdForm({ clients = [] }: { clients?: ClientOption[]
           bucket="ad-banners"
           value={bannerUrl}
           onChange={setBannerUrl}
-          label="Imagem do anúncio"
-          ratio={placement === 'post_sidebar' ? 'aspect-square' : 'aspect-[16/5]'}
+          label={`Imagem do anúncio (${selectedInventory?.desktop === 'Não exibido' ? selectedInventory.mobile : selectedInventory?.desktop ?? 'formato do espaço'})`}
+          ratio={getAdUploadRatio(placement, placement === 'post_inline_mobile' ? 'mobile' : 'desktop')}
         />
       </div>
 

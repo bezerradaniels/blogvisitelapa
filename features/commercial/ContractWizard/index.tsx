@@ -30,6 +30,7 @@ import type {
   CommercialContractDraft,
   ContractItemDraft,
 } from '@/features/commercial/types';
+import { getAdInventoryItem, getAdUploadRatio, supportsAdDevice } from '@/lib/config/adInventory';
 
 const STEPS = ['Cliente', 'Contrato', 'Itens', 'Publicidade', 'Pagamento', 'Revisão'];
 
@@ -503,6 +504,9 @@ export default function ContractWizard({ clients: initialClients, brands: initia
               <div className="rounded-[14px] border border-dashed border-line p-5 text-sm text-muted">Nenhuma campanha adicionada. Isso é normal para itens sem publicidade de banner.</div>
             ) : form.campaigns.map((campaign, index) => {
               const item = form.items[campaign.itemIndex];
+              const inventory = getAdInventoryItem(campaign.placement);
+              const supportsDesktop = supportsAdDevice(campaign.placement, 'desktop');
+              const supportsMobile = supportsAdDevice(campaign.placement, 'mobile');
               return (
                 <fieldset key={`${campaign.campaignName}-${index}`} className="rounded-[16px] border border-line p-4">
                   <legend className="px-1 text-sm font-bold text-title">Campanha {index + 1}</legend>
@@ -523,9 +527,9 @@ export default function ContractWizard({ clients: initialClients, brands: initia
                     <Input id={`campaign-alt-${index}`} label="Texto alternativo" value={campaign.alternativeText ?? ''} onChange={(event) => updateCampaign(index, { alternativeText: event.target.value })} />
                     <Input id={`campaign-priority-${index}`} label="Prioridade" type="number" min="0" value={campaign.priority} onChange={(event) => updateCampaign(index, { priority: Number(event.target.value) || 0 })} />
                   </div>
-                  <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                    <ImageUploader bucket="ad-banners" prefix="commercial" value={campaign.desktopMediaUrl ?? null} onChange={(url) => updateCampaign(index, { desktopMediaUrl: url ?? '' })} label="Mídia desktop" ratio={campaign.placement === 'post_sidebar' ? 'aspect-square' : 'aspect-[16/5]'} />
-                    <ImageUploader bucket="ad-banners" prefix="commercial" value={campaign.mobileMediaUrl ?? null} onChange={(url) => updateCampaign(index, { mobileMediaUrl: url ?? '' })} label="Mídia mobile (opcional)" ratio="aspect-[16/5]" />
+                  <div className={`mt-3 grid gap-3 ${supportsDesktop && supportsMobile ? 'lg:grid-cols-2' : ''}`}>
+                    {supportsDesktop && <ImageUploader bucket="ad-banners" prefix="commercial" value={campaign.desktopMediaUrl ?? null} onChange={(url) => updateCampaign(index, { desktopMediaUrl: url ?? '' })} label={`Mídia desktop — ${inventory?.desktop ?? 'formato do espaço'}`} ratio={getAdUploadRatio(campaign.placement, 'desktop')} />}
+                    {supportsMobile && <ImageUploader bucket="ad-banners" prefix="commercial" value={campaign.mobileMediaUrl ?? null} onChange={(url) => updateCampaign(index, { mobileMediaUrl: url ?? '' })} label={`Mídia mobile${supportsDesktop ? ' (opcional)' : ''} — ${inventory?.mobile ?? 'formato do espaço'}`} ratio={getAdUploadRatio(campaign.placement, 'mobile')} />}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-4">
                     <Checkbox id={`campaign-visible-${index}`} label="Visível ao ser aprovada" checked={campaign.isVisible} onChange={(event) => updateCampaign(index, { isVisible: event.target.checked })} />

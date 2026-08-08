@@ -110,18 +110,53 @@ export async function listMostReadPosts(limit = 5): Promise<PostWithRelations[]>
 }
 
 // Próximos eventos (ordenados pela data de início).
-export async function listUpcomingEvents(limit = 6): Promise<PostWithRelations[]> {
+export type EventPeriod = 'today' | 'weekend' | '7-days' | '30-days';
+
+interface EventListOptions {
+  limit?: number;
+  period?: EventPeriod;
+  categorySlug?: string;
+  location?: string;
+}
+
+// Próximos eventos, com filtros opcionais usados pela agenda pública.
+export async function listUpcomingEvents(options: number | EventListOptions = 6): Promise<PostWithRelations[]> {
+  const { limit = 6, period, categorySlug, location } = typeof options === 'number' ? { limit: options } : options;
   const supabase = await createClient();
-  const nowIso = new Date().toISOString();
-  const { data } = await supabase
+  const now = new Date();
+  let query = supabase
     .from('posts')
     .select(POST_SELECT)
     .eq('status', 'publicado')
     .eq('moderation_status', 'aprovado')
     .eq('is_event', true)
-    .gte('event_start_date', nowIso)
+    .gte('event_start_date', now.toISOString())
     .order('event_start_date', { ascending: true })
     .limit(limit);
+
+  if (period) {
+    const end = new Date(now);
+    if (period === 'today') end.setHours(23, 59, 59, 999);
+    if (period === '7-days') end.setDate(end.getDate() + 7);
+    if (period === '30-days') end.setDate(end.getDate() + 30);
+    if (period === 'weekend') {
+      const daysUntilSunday = (7 - end.getDay()) % 7;
+      end.setDate(end.getDate() + daysUntilSunday);
+      end.setHours(23, 59, 59, 999);
+    }
+    query = query.lte('event_start_date', end.toISOString());
+  }
+
+  if (categorySlug) {
+    const { data: category } = await supabase.from('categories').select('id').eq('slug', categorySlug).maybeSingle();
+    if (!category) return [];
+    query = query.eq('category_id', category.id);
+  }
+
+  const cleanLocation = location?.trim();
+  if (cleanLocation) query = query.ilike('event_location', `%${cleanLocation}%`);
+
+  const { data } = await query;
   return (data ?? []).map(mapPost);
 }
 

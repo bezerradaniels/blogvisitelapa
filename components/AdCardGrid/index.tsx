@@ -29,13 +29,18 @@ export default async function AdCardGrid({ placement, limit = 3, className }: Ad
             <div className="relative aspect-square overflow-hidden rounded-[16px] bg-surface">
               <Image
                 src={ad.banner_url!}
-                alt={ad.company_name ? `Anúncio — ${ad.company_name}` : 'Anúncio'}
+                alt={ad.alternative_text || (ad.company_name ? `Anúncio — ${ad.company_name}` : 'Anúncio')}
                 fill
                 sizes="280px"
                 className="object-cover"
               />
             </div>
           );
+          if (ad.tracking_enabled === false) {
+            return ad.link_url
+              ? <a key={ad.id} href={ad.link_url} target="_blank" rel="noopener sponsored nofollow" className="block">{card}</a>
+              : <div key={ad.id}>{card}</div>;
+          }
           return <AdTracker key={ad.id} campaignId={ad.id} href={ad.link_url} className="block">{card}</AdTracker>;
         })}
       </div>

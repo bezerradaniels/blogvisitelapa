@@ -14,6 +14,7 @@ import type {
   ContractFinancialSummary,
   ContractListRow,
 } from './types';
+import { getAdInventoryItem } from '@/lib/config/adInventory';
 
 export const COMMERCIAL_PAGE_SIZE = 20;
 
@@ -169,7 +170,15 @@ export async function getCommercialReferences(): Promise<CommercialReferences> {
       .order('name'),
   ]);
 
-  const placements = (placementsResult.data ?? []) as CommercialPlacementOption[];
+  const placements = ((placementsResult.data ?? []) as CommercialPlacementOption[]).map((placement) => {
+    const inventory = getAdInventoryItem(placement.code);
+    return {
+      ...placement,
+      name: inventory?.name ?? placement.name,
+      desktop_dimensions: inventory?.desktop ?? placement.desktop_dimensions,
+      mobile_dimensions: inventory?.mobile ?? placement.mobile_dimensions,
+    };
+  });
   const placementById = new Map(placements.map((placement) => [placement.id, placement]));
 
   return {

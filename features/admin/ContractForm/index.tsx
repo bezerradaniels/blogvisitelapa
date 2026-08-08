@@ -10,19 +10,11 @@ import Input from '@/components/Input';
 import Select from '@/components/Select';
 import Textarea from '@/components/Textarea';
 import { saveContract, type ContractInput } from '@/features/admin/adActions';
+import { campaignAdInventory, getAdInventoryItem, getAdUploadRatio } from '@/lib/config/adInventory';
 
 interface ClientOption { id: string; client_name: string }
 
-const placements = [
-  { value: 'home_top', label: 'Home — topo' },
-  { value: 'home_middle', label: 'Home — meio' },
-  { value: 'home_carousel', label: 'Home — carrossel' },
-  { value: 'post_sidebar', label: 'Post — sidebar' },
-  { value: 'post_inline_mobile', label: 'Post — inline (mobile)' },
-  { value: 'category_top', label: 'Categoria — topo' },
-  { value: 'event_sidebar', label: 'Evento — sidebar' },
-  { value: 'fixed_carousel_sponsor', label: 'Patrocínio do carrossel' },
-];
+const placements = campaignAdInventory.map((item) => ({ value: item.code, label: `${item.name} — desktop: ${item.desktop} · mobile: ${item.mobile}` }));
 
 export default function ContractForm({
   clients,
@@ -40,6 +32,7 @@ export default function ContractForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const selectedInventory = getAdInventoryItem(form.placement);
 
   function set<K extends keyof ContractInput>(key: K, value: ContractInput[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -70,8 +63,8 @@ export default function ContractForm({
             bucket="ad-banners"
             value={form.banner_url || null}
             onChange={(url) => set('banner_url', url ?? '')}
-            label="Banner (criativo)"
-            ratio={form.placement === 'post_sidebar' ? 'aspect-square' : 'aspect-[16/5]'}
+            label={`Banner (${selectedInventory?.desktop === 'Não exibido' ? selectedInventory.mobile : selectedInventory?.desktop ?? 'formato do espaço'})`}
+            ratio={getAdUploadRatio(form.placement, form.placement === 'post_inline_mobile' ? 'mobile' : 'desktop')}
           />
           <Input label="URL de destino" value={form.link_url ?? ''} onChange={(e) => set('link_url', e.target.value)} placeholder="https://" />
         </div>

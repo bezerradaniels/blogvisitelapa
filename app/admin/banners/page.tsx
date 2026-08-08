@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-// Banners são campanhas vinculadas a itens de contrato.
+// Rota legada preservada para os arquivos de publicidade sem contrato.
 export default function AdminBannersPage() {
-  redirect('/admin/comercial/campanhas');
+  redirect('/admin/publicidade-manual');
 }
