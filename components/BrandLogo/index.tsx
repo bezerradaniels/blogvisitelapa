@@ -16,7 +16,7 @@ export default function BrandLogo({ inverted = false, className }: BrandLogoProp
         className,
       )}
     >
-      Conecta<span className="text-mint2">Lapa</span>
+      Conecta<span className={inverted ? 'text-mint2' : 'text-brand'}>Lapa</span>
     </span>
   );
 }
